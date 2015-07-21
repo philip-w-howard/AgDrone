@@ -220,7 +220,7 @@ static void *write_msgs(void *p)
 		}
 	}
 
-	printf("Done writing data to %d\n", params->fd);
+	printf("Done writing data to %d %p\n", params->fd, params->queue);
 	close(params->fd);
 
 	return NULL;
@@ -328,6 +328,7 @@ void write_tlog(int fd, mavlink_message_t *msg)
 	// get network byte order
 	byte_swap_8(timestamp, &time_in_mill);
 
+
 	// write timestamp
 	write(fd, timestamp, sizeof(timestamp));
 
@@ -335,16 +336,14 @@ void write_tlog(int fd, mavlink_message_t *msg)
 	uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
-	/*
-	for (int ii=0; ii<6; ii++)
-	{
-		printf("%2X ", buf[ii]);
-	}
-	printf("\n");
-	*/
-
 	// write the msg to the log file
 	write(fd, buf, len);
+
+	/*
+	char str[256];
+	sprintf(str, "%X %X %X %X %X %X\n", buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+	write(fd, str, strlen(str));
+	*/
 
 	pthread_mutex_unlock(&log_lock);
 }

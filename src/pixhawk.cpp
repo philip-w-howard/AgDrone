@@ -37,23 +37,27 @@ int open_pixhawk(char *portname)
 	}
 
 
-	cfsetispeed(&tty, B57600);
-	cfsetospeed(&tty, B57600);
-
-	tty.c_cflag &= ~CSIZE; /* Mask the character size bits */
+	/*
+	tty.c_cflag &= ~CSIZE; // Mask the character size bits
 	tty.c_cflag &= ~PARENB;
 	tty.c_cflag &= ~CSTOPB;
 	tty.c_cflag &= ~CRTSCTS ;
+	tty.c_cflag &= ~CBAUD;
 
 	tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
-	tty.c_cflag = B57600 | CS8 | CLOCAL | CREAD;
-	tty.c_iflag = 0;  // IGNPAR;
+	tty.c_cflag |= B57600 | CS8 | CLOCAL | CREAD;
+	tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+            | INLCR | IGNCR | ICRNL | IXON);  // IGNPAR;
 	tty.c_oflag &= ~OPOST;		// turn off output processing
+	*/
 
 	tty.c_cc[VTIME] = 0;	// block until read is ready
 	tty.c_cc[VMIN] = 1;		// wait for one character
 
+	cfmakeraw(&tty);
+	cfsetispeed(&tty, B57600);
+	cfsetospeed(&tty, B57600);
 
 	tcflush(fd, TCIFLUSH);
 	if (tcsetattr (fd, TCSANOW, &tty) != 0)

@@ -36,7 +36,7 @@
 								</inputType>
 							</tool>
 							<tool id="com.intel.iotdevkit.ide.tool.gnu.cross.cpp.linker.511442955" name="Cross G++ Linker" superClass="com.intel.iotdevkit.ide.tool.gnu.cross.cpp.linker">
-								<option id="gnu.cpp.link.option.other.1421503332" name="Other options (-Xlinker [option])" superClass="gnu.cpp.link.option.other" valueType="stringList"/>
+								<option id="gnu.cpp.link.option.other.1421503332" name="Other options (-Xlinker [option])" superClass="gnu.cpp.link.option.other"/>
 								<option id="com.intel.iotdevkit.ide.gnu.cpp.option.link.libs.470597783" name="Libraries" superClass="com.intel.iotdevkit.ide.gnu.cpp.option.link.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="pthread"/>
 								</option>

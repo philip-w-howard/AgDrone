@@ -129,7 +129,31 @@ int main(int argc, char **argv)
 		perror ("error opening serial port");
 		return -1;
 	}
-
+/*
+	uint8_t data[256];
+	memset(data, 0x55, 256);
+	while (1)
+	{
+		printf("1's\n");
+		memset(data, 0xFF, 256);
+		for (int ii=0; ii<1000; ii++)
+		{
+			if (write(pixhawk, data, 256) != 256)
+			{
+				perror("Error writing ones");
+			}
+		}
+		printf("0's\n");
+		memset(data, 0x00, 256);
+		for (int ii=0; ii<1000; ii++)
+		{
+			if (write(pixhawk, data, 256) != 256)
+			{
+				perror("Error writing zeros");
+			}
+		}
+	}
+*/
 	int logfile = open("/media/sdcard/pixhawk.tlog", O_RDWR | O_CREAT | O_TRUNC);
 	if (logfile < 0)
 	{
