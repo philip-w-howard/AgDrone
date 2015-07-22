@@ -162,31 +162,44 @@ int main(int argc, char **argv)
 	}
 
 	//start_message_thread(0, wifi, 200, forward_msg, &pixhawk);
-	start_message_read_thread(1, pixhawk, 1, agdrone_q);
+	start_message_read_thread(1, pixhawk, 1, agdrone_q, MSG_SRC_PIXHAWK);
 	start_message_write_thread(pixhawk, pixhawk_q);
 
 	int num_msgs = 0;
-	mavlink_message_t *msg;
+	int num_pixhawk = 0;
+	int num_mission_planner = 0;
+
+	queued_msg_t      *item;
 
 	while (1)
 	{
-		msg = (mavlink_message_t *)queue_remove(agdrone_q);
-		if (msg != NULL)
+		item = (queued_msg_t *)queue_remove(agdrone_q);
+		if (item != NULL)
 		{
-			write_tlog(logfile, msg);
+			write_tlog(logfile, item->msg);
 
-			if (msg->sysid == 1)
-				queue_msg(mission_q, msg);
-			else // if (msg->msgid != MAVLINK_MSG_ID_PARAM_REQUEST_LIST)
-				queue_msg(pixhawk_q, msg);
+			if (item->msg_src == MSG_SRC_PIXHAWK)
+			{
+				queue_msg(mission_q, item->msg_src, item->msg);
+				num_pixhawk++;
+			}
+			else if (item->msg_src == MSG_SRC_MISSION_PLANNER)
+			{
+				queue_msg(pixhawk_q, item->msg_src, item->msg);
+				num_mission_planner++;
+			}
+			else
+				printf("Received msg from unknown source: %d\n", item->msg_src);
 
-			free(msg);
+			free(item->msg);
+			free(item);
 		}
 
 		num_msgs++;
-		if (num_msgs < 100 && num_msgs % 10 == 0) printf("processed %d msgs\n", num_msgs);
-		if (num_msgs < 1000 && num_msgs % 100 == 0) printf("processed %d msgs\n", num_msgs);
-		if (num_msgs % 1000 == 0) printf("processed %d msgs\n", num_msgs);
+		if (num_msgs < 100 && num_msgs % 10 == 0) printf("processed %d msgs %d %d\n", num_msgs, num_pixhawk, num_mission_planner);
+		if (num_msgs < 1000 && num_msgs % 100 == 0) printf("processed %d msgs %d %d\n", num_msgs, num_pixhawk, num_mission_planner);
+		if (num_msgs % 1000 == 0) printf("processed %d msgs %d %d\n", num_msgs, num_pixhawk, num_mission_planner);
+
 /*
 		if (num_msgs == 100)
 		{

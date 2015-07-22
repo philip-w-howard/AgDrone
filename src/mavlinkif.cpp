@@ -56,15 +56,20 @@ void send_msg(int fd, mavlink_message_t *msg)
 	if (bytes != len) printf("Failed to write msg: %d %d %d\n", fd, bytes, len);
 }
 
-void queue_msg(queue_t *dest, mavlink_message_t *msg)
+void queue_msg(queue_t *dest, int msg_src, mavlink_message_t *msg)
 {
-	mavlink_message_t *msg_copy;
+	queued_msg_t *item;
 
-	msg_copy = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
-	assert(msg_copy != NULL);
+	item = (queued_msg_t *)malloc(sizeof(queued_msg_t));
+	assert(item != NULL);
 
-	memcpy(msg_copy, msg, sizeof(mavlink_message_t));
-	queue_insert(dest, msg_copy);
+	item->msg = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
+	assert(item->msg != NULL);
+
+	item->msg_src = msg_src;
+
+	memcpy(item->msg, msg, sizeof(mavlink_message_t));
+	queue_insert(dest, item);
 
 }
 void send_param_request_list(queue_t *dest, uint8_t sysid, uint8_t compid)
@@ -76,7 +81,7 @@ void send_param_request_list(queue_t *dest, uint8_t sysid, uint8_t compid)
 	// Ignoring return code
 	mavlink_msg_param_request_list_pack(sysid, compid, &msg, 1,1);
 
-	queue_msg(dest, &msg);
+	queue_msg(dest, MSG_SRC_SELF, &msg);
 }
 
 void send_ping(queue_t *dest, uint8_t sysid, uint8_t compid)
@@ -94,7 +99,7 @@ void send_ping(queue_t *dest, uint8_t sysid, uint8_t compid)
 	mavlink_msg_ping_pack(sysid, compid, &msg,
 			microsSinceEpoch(), seq, target_system, target_component);
 
-	queue_msg(dest, &msg);
+	queue_msg(dest, MSG_SRC_SELF, &msg);
 }
 
 void send_heartbeat(queue_t *dest, uint8_t sysid, uint8_t compid)
@@ -113,7 +118,7 @@ void send_heartbeat(queue_t *dest, uint8_t sysid, uint8_t compid)
 	// Pack the message
 	mavlink_msg_heartbeat_pack(sysid, compid, &msg, system_type, autopilot_type, system_mode, custom_mode, system_state);
 
-	queue_msg(dest, &msg);
+	queue_msg(dest, MSG_SRC_SELF, &msg);
 }
 
 void send_request_data_stream(queue_t *dest, uint8_t sysid, uint8_t compid,
@@ -128,7 +133,7 @@ void send_request_data_stream(queue_t *dest, uint8_t sysid, uint8_t compid,
 	mavlink_msg_request_data_stream_pack(sysid, compid, &msg,
 			target_system, target_component, req_stream_id, req_message_rate, start_stop);
 
-	queue_msg(dest, &msg);
+	queue_msg(dest, MSG_SRC_SELF, &msg);
 }
 
 typedef struct
@@ -142,6 +147,7 @@ typedef struct
 	pthread_t thread_id;
 	uint64_t recv_errors;
 	bool running;
+	int msg_src;
 } msg_params_t;
 
 static void *read_msgs(void *p)
@@ -173,7 +179,7 @@ static void *read_msgs(void *p)
 			{
 				num_msgs++;
 
-				queue_msg(params->queue, &msg);
+				queue_msg(params->queue, params->msg_src, &msg);
 				params->recv_errors += status.packet_rx_drop_count;
 			}
 		}
@@ -194,19 +200,19 @@ static void *write_msgs(void *p)
 	uint8_t buf[MAVLINK_MAX_PACKET_LEN];
 	uint16_t len;
 	int size;
-
-	mavlink_message_t *msg;
+	queued_msg_t *item;
 
 	printf("Writing data to %d\n", params->fd);
 
 	while(queue_is_open(params->queue) && params->running)
 	{
-		msg = (mavlink_message_t *)queue_remove(params->queue);
-		if (msg != NULL)
+		item = (queued_msg_t *)queue_remove(params->queue);
+		if (item != NULL)
 		{
 			// Copy the message to the send buffer
-			len = mavlink_msg_to_send_buffer(buf, msg);
-			free(msg);
+			len = mavlink_msg_to_send_buffer(buf, item->msg);
+			free(item->msg);
+			free(item);
 
 			// write the msg to the destination
 			size = write(params->fd, buf, len);
@@ -233,7 +239,7 @@ static void *write_msgs(void *p)
 }
 
 void *start_message_read_thread
-		(int mav_channel, int fd, int bytes_at_time, queue_t *queue)
+		(int mav_channel, int fd, int bytes_at_time, queue_t *queue, int msg_src)
 {
 	msg_params_t *params;
 
@@ -251,6 +257,7 @@ void *start_message_read_thread
 	params->bytes_at_time	= bytes_at_time;
 	params->queue           = queue;
 	params->running			= true;
+	params->msg_src			= msg_src;
 
 	int result = pthread_create(&params->thread_id, NULL, read_msgs, params);
 

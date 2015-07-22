@@ -57,7 +57,7 @@ static void *wifi_listener(void *param)
 
     	printf("processing wifi data on %d\n", wififd);
 
-    	start_message_read_thread(0, wififd, 200, wifi->agdrone_q);
+    	start_message_read_thread(0, wififd, 200, wifi->agdrone_q, MSG_SRC_MISSION_PLANNER);
     	start_message_write_thread(wififd, wifi->wifi_q);
     }
 
@@ -135,7 +135,7 @@ static void *connect_to_wifi(void *p)
 
 		void *reader, *writer;
 
-		reader = start_message_read_thread(0, sockfd, 200, params->agdrone_q);
+		reader = start_message_read_thread(0, sockfd, 200, params->agdrone_q, MSG_SRC_MISSION_PLANNER);
 		writer = start_message_write_thread(sockfd, params->wifi_q);
 
 		// wait for reader to finish then make a new connection

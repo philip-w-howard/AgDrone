@@ -1,0 +1,14 @@
+AgDrone
+
+Have queues include source of msg                           DONE
+Clean-up malloc/free of message data						DONE
+Figure out UART connection
+Boot process
+"I'm up" feedback
+
+AgDroneBridge
+
+Keep track of "health" of connection
+Generate Radio Status messages
+Generate Heartbeat messages
+Fix Stop/Exit bugs that prevent clean shutdown
