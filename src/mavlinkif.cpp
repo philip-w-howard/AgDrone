@@ -141,7 +141,7 @@ typedef struct
 	//void *proc_param;
 	pthread_t thread_id;
 	uint64_t recv_errors;
-	bool stop;
+	bool running;
 } msg_params_t;
 
 static void *read_msgs(void *p)
@@ -159,7 +159,7 @@ static void *read_msgs(void *p)
 
 	printf("Reading data on %d\n", params->fd);
 
-	while(!params->stop)
+	while(params->running)
 	{
 		length = read(params->fd, input_buff, params->bytes_at_time);
 		if (length < 0 && errno != EINTR) break;
@@ -179,7 +179,10 @@ static void *read_msgs(void *p)
 		}
 	}
 
-	printf("Done reading from %d\n", params->fd);
+	if (params->running)
+		printf("Stopped reading from %d because of error\n", params->fd);
+	else
+		printf("Stopped reading from %d because was told to stop\n", params->fd);
 
 	return NULL;
 }
@@ -196,7 +199,7 @@ static void *write_msgs(void *p)
 
 	printf("Writing data to %d\n", params->fd);
 
-	while(queue_is_open(params->queue))
+	while(queue_is_open(params->queue) && params->running)
 	{
 		msg = (mavlink_message_t *)queue_remove(params->queue);
 		if (msg != NULL)
@@ -221,6 +224,9 @@ static void *write_msgs(void *p)
 	}
 
 	printf("Done writing data to %d %p\n", params->fd, params->queue);
+	if (!queue_is_open(params->queue)) printf("Done writing because queue is not open\n");
+	if (!params->running) printf("Done writing because told to stop\n");
+
 	close(params->fd);
 
 	return NULL;
@@ -244,7 +250,7 @@ void *start_message_read_thread
 	params->fd     			= fd;
 	params->bytes_at_time	= bytes_at_time;
 	params->queue           = queue;
-	params->stop 			= false;
+	params->running			= true;
 
 	int result = pthread_create(&params->thread_id, NULL, read_msgs, params);
 
@@ -273,6 +279,7 @@ void *start_message_write_thread(int fd, queue_t *queue)
 
 	params->fd     			= fd;
 	params->queue			= queue;
+	params->running			= true;
 
 	int result = pthread_create(&params->thread_id, NULL, write_msgs, params);
 
@@ -290,8 +297,10 @@ void stop_message_thread(void *p)
 {
 	msg_params_t *params = (msg_params_t *)p;
 
-	params->stop = true;
-	if (params->queue != NULL) queue_mark_closed(params->queue);
+	params->running = false;
+	if (params->queue != NULL) queue_signal_waiters(params->queue);
+
+	// if (params->queue != NULL) queue_mark_closed(params->queue);
 
 	pthread_join(params->thread_id, NULL);
 	free(params);

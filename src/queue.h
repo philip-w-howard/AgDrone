@@ -36,6 +36,7 @@ void *queue_remove(queue_t *q);
 void queue_mark_closed(queue_t *q);
 int queue_is_open(queue_t *q);
 void queue_close(queue_t *q);
+void queue_signal_waiters(queue_t *q);
 
 #ifdef __cplusplus
 }

@@ -128,10 +128,9 @@ static void *connect_to_wifi(void *p)
 			 (char *)&serv_addr.sin_addr.s_addr,
 			 server->h_length);
 		serv_addr.sin_port = htons(params->portno);
-		if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+		while (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 		{
-			perror("ERROR connecting");
-			return (void *)-1;
+			perror("ERROR connecting, retrying");
 		}
 
 		void *reader, *writer;

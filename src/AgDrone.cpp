@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 
 			if (msg->sysid == 1)
 				queue_msg(mission_q, msg);
-			else
+			else // if (msg->msgid != MAVLINK_MSG_ID_PARAM_REQUEST_LIST)
 				queue_msg(pixhawk_q, msg);
 
 			free(msg);

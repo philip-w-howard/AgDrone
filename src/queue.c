@@ -109,6 +109,12 @@ int queue_is_open(queue_t *q)
 
     return !is_closed;
 }
+//***********************************
+void queue_signal_waiters(queue_t *q)
+{
+    if (q != NULL) pthread_cond_broadcast(&q->cond);
+}
+
 
 
 
