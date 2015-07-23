@@ -16,24 +16,37 @@
 
 #include "pixhawk.h"
 #include "mavlinkif.h"
+#include "connection.h"
 
-int open_pixhawk(char *portname)
+PixhawkConnection::PixhawkConnection(queue_t *destQueue, char *portName)
+  : Connection(0, 1, destQueue, MSG_SRC_PIXHAWK)
 {
-	int fd;
+	mPortName = portName;
+	mIsConnected = false;
+}
 
-	fd = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
-	if (fd < 0)
+PixhawkConnection::~PixhawkConnection()
+{
+	Disconnect();
+}
+
+void PixhawkConnection::MakeConnection()
+{
+	printf("Connecting to Pixhawk on port %s\n", mPortName);
+
+	mFileDescriptor = open (mPortName, O_RDWR | O_NOCTTY | O_SYNC);
+	if (mFileDescriptor < 0)
 	{
 		perror ("error opening serial port");
-		return fd;
+		return;
 	}
 
 	struct termios tty;
 	memset (&tty, 0, sizeof tty);
-	if (tcgetattr (fd, &tty) != 0)
+	if (tcgetattr (mFileDescriptor, &tty) != 0)
 	{
 		perror("error %d from tcgetattr");
-		return -1;
+		return;
 	}
 
 
@@ -59,12 +72,24 @@ int open_pixhawk(char *portname)
 	cfsetispeed(&tty, B57600);
 	cfsetospeed(&tty, B57600);
 
-	tcflush(fd, TCIFLUSH);
-	if (tcsetattr (fd, TCSANOW, &tty) != 0)
+	tcflush(mFileDescriptor, TCIFLUSH);
+	if (tcsetattr (mFileDescriptor, TCSANOW, &tty) != 0)
 	{
 		perror ("error %d from tcsetattr");
-		return -1;
+		return;
 	}
-	return fd;
+
+	printf("Connected to Pixhawk on FD %d\n", mFileDescriptor);
+
+	mIsConnected = true;
+}
+void PixhawkConnection::Disconnect()
+{
+	close(mFileDescriptor);
+	mIsConnected = false;
 }
 
+bool PixhawkConnection::IsConnected()
+{
+	return mIsConnected;
+}

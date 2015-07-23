@@ -12,3 +12,4 @@ Keep track of "health" of connection
 Generate Radio Status messages
 Generate Heartbeat messages
 Fix Stop/Exit bugs that prevent clean shutdown
+If both are connected, the stop then start, get a reconnect race

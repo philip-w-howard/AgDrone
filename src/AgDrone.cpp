@@ -14,8 +14,9 @@
 #include "mavlink/ardupilotmega/mavlink.h"
 
 #include "pixhawk.h"
-#include "wifi.h"
-#include "mavlinkif.h"
+#include "connection.h"
+#include "wificlient.h"
+#include "wifiserver.h"
 
 #define USB_PORT "/dev/ttyACM0"
 #define RADIO_PORT "/dev/ttyUSB0"
@@ -108,27 +109,26 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	if (Wifi_Server)
+	int logfile = open("/media/sdcard/pixhawk.tlog", O_RDWR | O_CREAT | O_TRUNC);
+	if (logfile < 0)
 	{
-		if (listen_to_wifi(Wifi_Port, mission_q, agdrone_q) != 0)
-		{
-			perror("Unable to establish WiFi connection");
-			return -1;
-		}
-	} else {
-		if (start_wifi(Wifi_Addr, Wifi_Port, mission_q, agdrone_q) != 0)
-		{
-			perror("Unable to establish WiFi connection");
-			return -1;
-		}
-	}
-
-	int pixhawk = open_pixhawk(portname);
-	if (pixhawk < 0)
-	{
-		perror ("error opening serial port");
+		perror("Unable to open log file");
 		return -1;
 	}
+
+	Connection *wifi;
+
+	if (Wifi_Server)
+	{
+		wifi = new WifiServerConnection(agdrone_q, Wifi_Port);
+	} else {
+		wifi = new WifiClientConnection(agdrone_q, Wifi_Addr, Wifi_Port);
+	}
+
+	wifi->Start();
+
+	PixhawkConnection pixhawk(agdrone_q, portname);
+	pixhawk.Start();
 /*
 	uint8_t data[256];
 	memset(data, 0x55, 256);
@@ -154,16 +154,6 @@ int main(int argc, char **argv)
 		}
 	}
 */
-	int logfile = open("/media/sdcard/pixhawk.tlog", O_RDWR | O_CREAT | O_TRUNC);
-	if (logfile < 0)
-	{
-		perror("Unable to open log file");
-		return -1;
-	}
-
-	//start_message_thread(0, wifi, 200, forward_msg, &pixhawk);
-	start_message_read_thread(1, pixhawk, 1, agdrone_q, MSG_SRC_PIXHAWK);
-	start_message_write_thread(pixhawk, pixhawk_q);
 
 	int num_msgs = 0;
 	int num_pixhawk = 0;
@@ -180,12 +170,12 @@ int main(int argc, char **argv)
 
 			if (item->msg_src == MSG_SRC_PIXHAWK)
 			{
-				queue_msg(mission_q, item->msg_src, item->msg);
+				wifi->QueueToSource(item->msg, item->msg_src);
 				num_pixhawk++;
 			}
 			else if (item->msg_src == MSG_SRC_MISSION_PLANNER)
 			{
-				queue_msg(pixhawk_q, item->msg_src, item->msg);
+				pixhawk.QueueToSource(item->msg, item->msg_src);
 				num_mission_planner++;
 			}
 			else
@@ -219,7 +209,7 @@ int main(int argc, char **argv)
 	}
 
 	close(logfile);
-	close(pixhawk);
+
 	std::cout <<  "Exiting\n";
 	return MRAA_SUCCESS;
 }

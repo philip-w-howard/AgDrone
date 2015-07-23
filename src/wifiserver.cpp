@@ -1,7 +1,7 @@
 /*
- * wifi.cpp
+ * wifiserver.cpp
  *
- *  Created on: Jun 30, 2015
+ *  Created on: Jul 23, 2015
  *      Author: philhow
  */
 
@@ -17,8 +17,84 @@
 #include <assert.h>
 
 #include "queue.h"
-#include "mavlinkif.h"
+#include "connection.h"
+#include "wifiserver.h"
 
+WifiServerConnection::WifiServerConnection(queue_t *destQueue, int port)
+	: Connection(1, 256, destQueue, MSG_SRC_MISSION_PLANNER)
+{
+	mPort = port;
+	mIsConnected = false;
+	mListenerFd = -1;
+
+    struct sockaddr_in serv_addr;
+
+    mListenerFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (mListenerFd < 0)
+    {
+       perror("ERROR opening socket");
+       return;
+    }
+
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(mPort);
+    if (bind(mListenerFd, (struct sockaddr *) &serv_addr,
+             sizeof(serv_addr)) < 0)
+    {
+        perror("ERROR on binding");
+        close(mListenerFd);
+        mListenerFd = -1;
+        return;
+    }
+
+    listen(mListenerFd,5);
+    printf("Listening for WiFi connections\n");
+}
+WifiServerConnection::~WifiServerConnection()
+{
+	close(mListenerFd);
+	mListenerFd = -1;
+	close(mFileDescriptor);
+	mIsConnected = false;
+}
+void WifiServerConnection::MakeConnection()
+{
+	socklen_t clilen;
+    struct sockaddr_in cli_addr;
+    clilen = sizeof(cli_addr);
+
+    mFileDescriptor = -1;
+    while (mFileDescriptor < 0)
+    {
+    	mFileDescriptor = accept(mListenerFd,
+    			(struct sockaddr *) &cli_addr,
+                &clilen);
+    	if (mFileDescriptor < 0)
+    	{
+    		perror("ERROR on accept: retrying");
+    	}
+    }
+
+    printf("processing wifi data on %d\n", mFileDescriptor);
+}
+
+void WifiServerConnection::Disconnect()
+{
+	close(mListenerFd);
+	mListenerFd = -1;
+	close(mFileDescriptor);
+	mIsConnected = false;
+}
+
+bool WifiServerConnection::IsConnected()
+{
+	return mListenerFd >= 0 && mIsConnected;
+}
+
+/*
+//*************************************************
 typedef struct
 {
 	queue_t *wifi_q;
@@ -162,3 +238,8 @@ int start_wifi(char *host, int portno, queue_t *wifi_q, queue_t *agdrone_q)
 
 	return 0;
 }
+
+
+
+
+*/
