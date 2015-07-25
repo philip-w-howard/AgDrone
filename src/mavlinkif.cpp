@@ -17,6 +17,10 @@
 #include "queue.h"
 #include "connection.h"
 
+// use MAV_TYPE_ONBOARD_CONTROLLER in heartbeat for type
+// use MAV_COMP_ID_SYSTEM_CONTROL for compid
+// use 1 for sysid (same as pixhawk)
+
 static inline void byte_swap_8(void *dst, void *src)
 {
 	char *c_dst = (char *)dst;
@@ -106,7 +110,7 @@ void send_ping(queue_t *dest, uint8_t sysid, uint8_t compid)
 void send_heartbeat(queue_t *dest, uint8_t sysid, uint8_t compid)
 {
 	// Define the system type, in this case an airplane
-	uint8_t system_type = MAV_TYPE_GCS;
+	uint8_t system_type = MAV_TYPE_ONBOARD_CONTROLLER;
 	uint8_t autopilot_type = MAV_AUTOPILOT_INVALID;
 
 	uint8_t system_mode = 0;

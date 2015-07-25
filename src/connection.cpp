@@ -46,6 +46,7 @@ Connection::Connection(int mavChannel, int bytesAtATime, queue_t *destQueue, int
 	mWriter = 0;
 	mReader = 0;
 	mRecvErrors = 0;
+	mSent = 0;
 }
 
 Connection::~Connection()
@@ -125,6 +126,8 @@ void Connection::ReadMsgs()
 
 		if (length < 0) perror("Error reading file descriptor");
 
+		if (length == 0) perror("Received zero bytes");
+
 		for (int ii=0; ii<length; ii++)
 		{
 			// Try to get a new message
@@ -165,7 +168,11 @@ void Connection::WriteMsgs()
 
 			// write the msg to the destination
 			size = write(mFileDescriptor, buf, len);
-			if (size < 0)
+			if (size == len)
+			{
+				mSent++;
+			}
+			else if (size < 0)
 			{
 				if (errno == EPIPE)
 				{
@@ -175,7 +182,7 @@ void Connection::WriteMsgs()
 					perror("Error writing message");
 				}
 			}
-			else if (size != len)
+			else
 			{
 				printf("Wrote too few bytes to channel %d (%d, %d)\n", mMavChannel, size, len);
 			}

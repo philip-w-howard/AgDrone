@@ -39,6 +39,7 @@ public:
 	void Stop();
 	void QueueToDest(mavlink_message_t *msg, int msg_src);
 	void QueueToSource(mavlink_message_t *msg, int msg_src);
+	int NumSent() { return (int) mSent; }
 
 protected:
 	queue_t *mDestQueue;
@@ -53,6 +54,7 @@ protected:
 	int mBytesAtATime;
 	int mMsgSrc;
 	uint64_t mRecvErrors;
+	uint64_t mSent;
 
 
 	void Process();

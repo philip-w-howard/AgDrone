@@ -69,6 +69,11 @@ static void process_args(int argc, char **argv)
 	}
 }
 
+static void print_stats(int total, int pixhawk, int wifi_in, int wifi_out)
+{
+	printf("processed %d msgs %d %d %d\n", total, pixhawk, wifi_in, wifi_out);
+}
+
 int main(int argc, char **argv)
 {
 	// check that we are running on Galileo or Edison
@@ -186,9 +191,9 @@ int main(int argc, char **argv)
 		}
 
 		num_msgs++;
-		if (num_msgs < 100 && num_msgs % 10 == 0) printf("processed %d msgs %d %d\n", num_msgs, num_pixhawk, num_mission_planner);
-		if (num_msgs < 1000 && num_msgs % 100 == 0) printf("processed %d msgs %d %d\n", num_msgs, num_pixhawk, num_mission_planner);
-		if (num_msgs % 1000 == 0) printf("processed %d msgs %d %d\n", num_msgs, num_pixhawk, num_mission_planner);
+		if (num_msgs < 100 && num_msgs % 10 == 0) 	print_stats(num_msgs, num_pixhawk, num_mission_planner, wifi->NumSent());
+		if (num_msgs < 1000 && num_msgs % 100 == 0) print_stats(num_msgs, num_pixhawk, num_mission_planner, wifi->NumSent());
+		if (num_msgs % 1000 == 0) 					print_stats(num_msgs, num_pixhawk, num_mission_planner, wifi->NumSent());
 
 /*
 		if (num_msgs == 100)

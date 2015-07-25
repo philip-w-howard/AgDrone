@@ -68,16 +68,13 @@ void WifiClientConnection::MakeConnection()
 		perror("ERROR connecting, retrying");
 	}
 
-	/*
-	 * Set a timeout on the socket reads
-
+	// Set a timeout on the socket reads
 	struct timeval tv;
 
-	tv.tv_sec = 30;  // 30 Secs Timeout
+	tv.tv_sec = 5;  // 5 Secs Timeout
 	tv.tv_usec = 0;  // Not init'ing this can cause strange errors
 
-	setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
-	*/
+	setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
 	printf("Connected to WiFi on FD %d\n", mFileDescriptor);
 
