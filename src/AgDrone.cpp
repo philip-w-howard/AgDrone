@@ -17,6 +17,7 @@
 #include "connection.h"
 #include "wificlient.h"
 #include "wifiserver.h"
+#include "heartbeat.h"
 
 #define USB_PORT "/dev/ttyACM0"
 #define RADIO_PORT "/dev/ttyUSB0"
@@ -134,6 +135,9 @@ int main(int argc, char **argv)
 
 	PixhawkConnection pixhawk(agdrone_q, portname);
 	pixhawk.Start();
+
+	Start_Heartbeat();
+
 /*
 	uint8_t data[256];
 	memset(data, 0x55, 256);

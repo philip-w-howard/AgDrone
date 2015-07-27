@@ -4,8 +4,9 @@ Have queues include source of msg                           DONE
 Clean-up malloc/free of message data						DONE
 Figure out UART connection
 Boot process
-"I'm up" feedback
+"I'm up" feedback											DONE
 Timeouts in socket code.									DONE
+Test WiFi Hotspot functionality
 
 AgDroneBridge
 
