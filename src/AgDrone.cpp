@@ -116,7 +116,10 @@ int main(int argc, char **argv)
 		return -4;
 	}
 
-	int logfile = open("/media/sdcard/pixhawk.tlog", O_RDWR | O_CREAT | O_TRUNC);
+	char logname[256];
+	time_t now = time(NULL);
+	sprintf(logname, "/media/sdcard/pixhawk_%ld.tlog", now);
+	int logfile = open(logname, O_RDWR | O_CREAT | O_TRUNC);
 	if (logfile < 0)
 	{
 		perror("Unable to open log file");
