@@ -55,17 +55,19 @@ Connection::~Connection()
 	queue_close(mInpQueue);
 }
 
-void Connection::Start()
+int Connection::Start()
 {
-	printf("Starting connection for channel %d\n", mMavChannel);
+	fprintf(stderr, "Starting connection for channel %d\n", mMavChannel);
 
 	int result = pthread_create(&mReader, NULL, reading_thread, this);
 
 	if (result != 0)
 	{
 		perror("Unable to start mavlink reading thread");
-		return;
+		return -1;
 	}
+
+	return 0;
 }
 
 void Connection::Stop()
@@ -117,7 +119,7 @@ void Connection::ReadMsgs()
 	memset(&msg, 0, sizeof(msg));
 	memset(&status, 0, sizeof(status));
 
-	printf("Reading data on %d\n", mFileDescriptor);
+	fprintf(stderr, "Reading data on %d\n", mFileDescriptor);
 
 	while(mRunning)
 	{
@@ -126,7 +128,8 @@ void Connection::ReadMsgs()
 
 		if (length < 0) perror("Error reading file descriptor");
 
-		if (length == 0) perror("Received zero bytes");
+		if (length == 0) fprintf(stderr, "Received zero bytes on channel %d\n", mMavChannel);
+
 
 		for (int ii=0; ii<length; ii++)
 		{
@@ -142,9 +145,9 @@ void Connection::ReadMsgs()
 	}
 
 	if (mRunning)
-		printf("Stopped reading from %d because of error\n", mFileDescriptor);
+		fprintf(stderr, "Stopped reading from %d because of error\n", mFileDescriptor);
 	else
-		printf("Stopped reading from %d because was told to stop\n", mFileDescriptor);
+		fprintf(stderr, "Stopped reading from %d because was told to stop\n", mFileDescriptor);
 }
 
 void Connection::WriteMsgs()
@@ -154,7 +157,7 @@ void Connection::WriteMsgs()
 	int size;
 	queued_msg_t *item;
 
-	printf("Writing data to %d\n", mFileDescriptor);
+	fprintf(stderr, "Writing data to %d\n", mFileDescriptor);
 
 	while(queue_is_open(mInpQueue) && mRunning && !mStopWriter)
 	{
@@ -176,7 +179,7 @@ void Connection::WriteMsgs()
 			{
 				if (errno == EPIPE)
 				{
-					printf("Pipe closed on other end %d\n", mFileDescriptor);
+					fprintf(stderr, "Pipe closed on other end %d\n", mFileDescriptor);
 					break;
 				} else {
 					perror("Error writing message");
@@ -184,21 +187,21 @@ void Connection::WriteMsgs()
 			}
 			else
 			{
-				printf("Wrote too few bytes to channel %d (%d, %d)\n", mMavChannel, size, len);
+				fprintf(stderr, "Wrote too few bytes to channel %d (%d, %d)\n", mMavChannel, size, len);
 			}
 		}
 	}
 
-	printf("Done writing data to %d %p\n", mFileDescriptor, mInpQueue);
-	if (!queue_is_open(mInpQueue)) printf("Done writing because queue is not open\n");
-	if (!mRunning || mStopWriter) printf("Done writing because told to stop\n");
+	fprintf(stderr, "Done writing data to %d %p\n", mFileDescriptor, mInpQueue);
+	if (!queue_is_open(mInpQueue)) fprintf(stderr, "Done writing because queue is not open\n");
+	if (!mRunning || mStopWriter) fprintf(stderr, "Done writing because told to stop\n");
 
 	close(mFileDescriptor);
 }
 
 void Connection::Process()
 {
-	printf("Processing connection for channel %d\n", mMavChannel);
+	fprintf(stderr, "Processing connection for channel %d\n", mMavChannel);
 
 	while (mRunning)
 	{
@@ -218,7 +221,7 @@ void Connection::Process()
 		pthread_join(mWriter, NULL);
 	}
 
-	printf("Done processing connection for channel %d\n", mMavChannel);
+	fprintf(stderr, "Done processing connection for channel %d\n", mMavChannel);
 
 }
 

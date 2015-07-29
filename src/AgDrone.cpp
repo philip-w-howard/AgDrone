@@ -72,7 +72,7 @@ static void process_args(int argc, char **argv)
 
 static void print_stats(int total, int pixhawk, int wifi_in, int wifi_out)
 {
-	printf("processed %d msgs %d %d %d\n", total, pixhawk, wifi_in, wifi_out);
+	fprintf(stderr, "processed %d msgs %d %d %d\n", total, pixhawk, wifi_in, wifi_out);
 }
 
 int main(int argc, char **argv)
@@ -91,35 +91,36 @@ int main(int argc, char **argv)
 	//if (signal(SIGPIPE, signal_handler) == SIG_ERR)
 	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	{
-	    printf("\ncan't ignore SIGPIPE\n");
+	    perror("can't ignore SIGPIPE");
+	    return -1;
 	}
 
 	queue_t *pixhawk_q = queue_create();
 	if (pixhawk_q == NULL)
 	{
 		perror("Error opening pixhawk queue");
-		return -1;
+		return -2;
 	}
 
 	queue_t *mission_q = queue_create();
 	if (mission_q == NULL)
 	{
 		perror("Error opening mission planner queue");
-		return -1;
+		return -3;
 	}
 
 	queue_t *agdrone_q = queue_create();
 	if (agdrone_q == NULL)
 	{
 		perror("Error opening mission planner queue");
-		return -1;
+		return -4;
 	}
 
 	int logfile = open("/media/sdcard/pixhawk.tlog", O_RDWR | O_CREAT | O_TRUNC);
 	if (logfile < 0)
 	{
 		perror("Unable to open log file");
-		return -1;
+		return -5;
 	}
 
 	Connection *wifi;
@@ -131,10 +132,18 @@ int main(int argc, char **argv)
 		wifi = new WifiClientConnection(agdrone_q, Wifi_Addr, Wifi_Port);
 	}
 
-	wifi->Start();
+	if (wifi->Start() != 0)
+	{
+		fprintf(stderr, "Unable to start wifi process\n");
+		return -6;
+	}
 
 	PixhawkConnection pixhawk(agdrone_q, portname);
-	pixhawk.Start();
+	if (pixhawk.Start() != 0)
+	{
+		fprintf(stderr, "Unable to start pixhawk process\n");
+		return -7;
+	}
 
 	Start_Heartbeat();
 
@@ -188,7 +197,7 @@ int main(int argc, char **argv)
 				num_mission_planner++;
 			}
 			else
-				printf("Received msg from unknown source: %d\n", item->msg_src);
+				fprintf(stderr, "Received msg from unknown source: %d\n", item->msg_src);
 
 			free(item->msg);
 			free(item);

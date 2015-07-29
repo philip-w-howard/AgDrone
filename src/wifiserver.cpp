@@ -50,7 +50,7 @@ WifiServerConnection::WifiServerConnection(queue_t *destQueue, int port)
     }
 
     listen(mListenerFd,5);
-    printf("Listening for WiFi connections\n");
+    fprintf(stderr, "Listening for WiFi connections\n");
 }
 WifiServerConnection::~WifiServerConnection()
 {
@@ -59,7 +59,7 @@ WifiServerConnection::~WifiServerConnection()
 	close(mFileDescriptor);
 	mIsConnected = false;
 }
-void WifiServerConnection::MakeConnection()
+bool WifiServerConnection::MakeConnection()
 {
 	socklen_t clilen;
     struct sockaddr_in cli_addr;
@@ -85,7 +85,11 @@ void WifiServerConnection::MakeConnection()
 
 	setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
-	printf("processing wifi data on %d\n", mFileDescriptor);
+	fprintf(stderr, "processing wifi data on %d\n", mFileDescriptor);
+
+	mIsConnected = true;
+
+	return true;
 }
 
 void WifiServerConnection::Disconnect()

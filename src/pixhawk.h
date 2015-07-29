@@ -16,7 +16,8 @@ class PixhawkConnection : public Connection
 public:
 	PixhawkConnection(queue_t *destQueue, char *portName);
 	virtual ~PixhawkConnection();
-	virtual void MakeConnection();
+	virtual bool MakeConnection();
+	virtual int Start();
 	virtual void Disconnect();
 	virtual bool IsConnected();
 protected:

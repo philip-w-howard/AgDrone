@@ -6,7 +6,8 @@ Figure out UART connection
 Boot process
 "I'm up" feedback											DONE
 Timeouts in socket code.									DONE
-Test WiFi Hotspot functionality
+Test WiFi Hotspot functionality								DONE
+Get Pixhawk log over USB and make available via WiFi
 
 AgDroneBridge
 
@@ -15,3 +16,7 @@ Generate Radio Status messages
 Generate Heartbeat messages									DONE
 Fix Stop/Exit bugs that prevent clean shutdown				Working on it: need shutdown thread
 Implement client connections								DONE
+
+Get logs
+
+LOG_REQUEST_LIST, LOG_ENTRY, LOG_REQUEST_DATA, LOG_DATA, LOG_ERASE, LOG_REQUEST_END

@@ -16,7 +16,7 @@ class WifiClientConnection : public Connection
 public:
 	WifiClientConnection(queue_t *destQueue, char *host, int port);
 	virtual ~WifiClientConnection();
-	virtual void MakeConnection();
+	virtual bool MakeConnection();
 	virtual void Disconnect();
 	virtual bool IsConnected();
 protected:

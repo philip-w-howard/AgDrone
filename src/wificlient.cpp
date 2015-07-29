@@ -35,14 +35,14 @@ WifiClientConnection::~WifiClientConnection()
 	Disconnect();
 }
 
-void WifiClientConnection::MakeConnection()
+bool WifiClientConnection::MakeConnection()
 {
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 
 	mIsConnected = false;
 
-	printf("Waiting for WiFi connection\n");
+	fprintf(stderr, "Waiting for WiFi connection\n");
 
 	mFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 	if (mFileDescriptor < 0)
@@ -54,7 +54,7 @@ void WifiClientConnection::MakeConnection()
 	if (server == NULL)
 	{
 		fprintf(stderr,"ERROR, no such host: %s\n", mHost);
-		return;
+		return false;
 	}
 
 	bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -76,9 +76,11 @@ void WifiClientConnection::MakeConnection()
 
 	setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
-	printf("Connected to WiFi on FD %d\n", mFileDescriptor);
+	fprintf(stderr, "Connected to WiFi on FD %d\n", mFileDescriptor);
 
 	mIsConnected = true;
+
+	return true;
 }
 
 void WifiClientConnection::Disconnect()

@@ -31,11 +31,11 @@ public:
 	Connection(int mavChannel, int bytesAtATime, queue_t *destQueue, int msgSrc);
 	virtual ~Connection();
 
-	virtual void MakeConnection() = 0;
+	virtual bool MakeConnection() = 0;
 	virtual void Disconnect() = 0;
 	virtual bool IsConnected() = 0;
 
-	void Start();
+	virtual int Start();
 	void Stop();
 	void QueueToDest(mavlink_message_t *msg, int msg_src);
 	void QueueToSource(mavlink_message_t *msg, int msg_src);

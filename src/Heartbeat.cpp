@@ -19,7 +19,7 @@ static void *heartbeat(void *param)
 	// set the pin as output
 	if (d_pin->dir(mraa::DIR_OUT) != MRAA_SUCCESS)
 	{
-		printf("Can't set digital pin as output, no heartbeat signal\n");
+		fprintf(stderr, "Can't set digital pin as output, no heartbeat signal\n");
 		return NULL;
 	}
 

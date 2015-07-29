@@ -58,7 +58,7 @@ void send_msg(int fd, mavlink_message_t *msg)
 
 	// Send the message to destination
 	bytes = write(fd, buf, len);
-	if (bytes != len) printf("Failed to write msg: %d %d %d\n", fd, bytes, len);
+	if (bytes != len) fprintf(stderr, "Failed to write msg: %d %d %d\n", fd, bytes, len);
 }
 
 void queue_msg(queue_t *dest, int msg_src, mavlink_message_t *msg)
