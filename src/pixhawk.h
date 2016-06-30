@@ -20,6 +20,7 @@ public:
 	virtual int Start();
 	virtual void Disconnect();
 	virtual bool IsConnected();
+	static int ConnectSerial(char *port_name);
 protected:
 	char *mPortName;
 	bool mIsConnected;

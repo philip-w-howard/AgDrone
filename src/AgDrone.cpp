@@ -24,10 +24,12 @@
 #define UART_PORT "/dev/ttyMFD1"
 #define CONSOLE_PORT "/dev/MFD2"
 
-static char portname[256] = USB_PORT;
+static char portname[256] = UART_PORT;
 static bool Wifi_Server = true;
 static int Wifi_Port = 2002;
 static char Wifi_Addr[256] = "192.168.2.5";
+static bool Do_Echo = false;
+static char echoname[256] = CONSOLE_PORT;
 
 /*
 static void signal_handler(int sig)
@@ -40,7 +42,21 @@ static void process_args(int argc, char **argv)
 {
 	for (int ii=1; ii<argc; ii++)
 	{
-		if (strncmp(argv[ii], "-port:", 6) == 0)
+		if (strncmp(argv[ii], "-echo:", 6) == 0)
+		{
+			Do_Echo = true;
+			if (strcmp(&argv[ii][6], "usb") == 0)
+				strcpy(echoname, USB_PORT);
+			else if (strcmp(&argv[ii][6], "radio") == 0)
+				strcpy(echoname, RADIO_PORT);
+			else if (strcmp(&argv[ii][6], "uart") == 0)
+				strcpy(echoname, UART_PORT);
+			else
+			{
+				strcpy(echoname, &argv[ii][6]);
+			}
+		}
+		else if (strncmp(argv[ii], "-port:", 6) == 0)
 		{
 			if (strcmp(&argv[ii][6], "usb") == 0)
 				strcpy(portname, USB_PORT);
@@ -50,8 +66,7 @@ static void process_args(int argc, char **argv)
 				strcpy(portname, UART_PORT);
 			else
 			{
-				fprintf(stderr, "Unknown port: %s\n", &argv[ii][6]);
-				exit(-1);
+				strcpy(portname, &argv[ii][6]);
 			}
 		}
 		else if (strcmp(argv[ii], "-wifi:client") == 0)
@@ -75,8 +90,83 @@ static void print_stats(int total, int pixhawk, int wifi_in, int wifi_out)
 	fprintf(stderr, "processed %d msgs %d %d %d\n", total, pixhawk, wifi_in, wifi_out);
 }
 
+typedef struct
+{
+	int input;
+	int output;
+	char name[256];
+} ports_t;
+
+void *echo_port(void *p)
+{
+	ports_t *ports = (ports_t *)p;
+	int count = 0;
+	uint8_t input_char;
+	int length;
+
+	printf("Echoing to %s\n", ports->name);
+
+	while ( 1 )
+	{
+		length = read(ports->input, &input_char, 1);
+		if (length > 0)
+		{
+			write(ports->output, &input_char, 1);
+			if ((++count % 1000) == 0) printf("sent %d chars to %s\n", count, ports->name);
+		}
+	}
+
+	printf("Done echoing to %s\n", ports->name);
+
+	return NULL;
+}
+
+void do_echo()
+{
+	ports_t ports1;
+	ports_t ports2;
+	pthread_t tid;
+
+	printf("Starting echo on %s and %s\n", portname, echoname);
+
+	ports1.output = PixhawkConnection::ConnectSerial(echoname);
+	if (ports1.output < 0)
+	{
+		printf("Failed to open %s\n", echoname);
+	}
+	else
+	{
+		printf("Opened %s\n", echoname);
+	}
+
+	ports1.input = PixhawkConnection::ConnectSerial(portname);
+	if (ports1.input < 0)
+	{
+		printf("Failed to open %s\n", portname);
+		exit(-5);
+	}
+	printf("Opened %s\n", portname);
+
+	if (ports1.output < 0)
+	{
+		printf("Failed to open %s\n", echoname);
+		exit(-5);
+	}
+	strcpy(ports1.name, echoname);
+	strcpy(ports2.name, portname);
+
+	ports2.input = ports1.output;
+	ports2.output = ports2.input;
+
+	pthread_create(&tid, NULL, echo_port, &ports1);
+	pthread_create(&tid, NULL, echo_port, &ports2);
+
+	pthread_join(tid, NULL);
+}
+
 int main(int argc, char **argv)
 {
+	printf("AgDrone V%s\n", __DATE__);
 	// check that we are running on Galileo or Edison
 	mraa_platform_t platform = mraa_get_platform_type();
 	if (platform != MRAA_INTEL_EDISON_FAB_C) {
@@ -93,6 +183,13 @@ int main(int argc, char **argv)
 	{
 	    perror("can't ignore SIGPIPE");
 	    return -1;
+	}
+
+	if (Do_Echo)
+	{
+		do_echo();
+		printf("Done with echo\n");
+		return 0;
 	}
 
 	queue_t *pixhawk_q = queue_create();
