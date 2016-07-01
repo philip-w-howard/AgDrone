@@ -3,6 +3,11 @@
  *
  *  Created on: Jun 30, 2015
  *      Author: philhow
+ *  TODO:
+ *  	better detection of lost connections
+ *  	check logfile format
+ *  	create startup mechanism
+ *  	search for USB port (ACM0 vs ACM1 vs ACM?)
  */
 #include <iostream>
 #include <unistd.h>
@@ -174,7 +179,7 @@ int main(int argc, char **argv)
 		return MRAA_ERROR_INVALID_PLATFORM;
 	}
 
-	std::cout << "pixhawk interface running on " << mraa_get_version() << std::endl;
+	std::cerr << "pixhawk interface running on " << mraa_get_version() << std::endl;
 
     process_args(argc, argv);
 
