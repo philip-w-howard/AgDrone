@@ -15,7 +15,7 @@ extern "C" {
 // Items that get queued
 typedef struct item_qs
 {
-    char *data;                 // location for user's data
+    void *data;                 // location for user's data
     struct item_qs *next;
 } item_qt;
 

@@ -1,4 +1,5 @@
 OPTS= -Wall -c -pthread
+LIBS= -lmraa
 
 OBJS=  AgDrone.o \
        Heartbeat.o \
@@ -7,11 +8,19 @@ OBJS=  AgDrone.o \
        pixhawk.o \
        wificlient.o \
        wifiserver.o \
+       queue.o \
 
 all: AgDrone
+
+clean:
+	rm -f AgDrone
+	rm -f $(OBJS)
+
+.c.o:
+	g++ $(OPTS) $? -o $@
 
 .cpp.o:
 	g++ $(OPTS) $? -o $@
 
 AgDrone: $(OBJS)
-	g++ $(OBJS) -pthread -o AgDrone
+	g++ $(OBJS) $(LIBS) -pthread -o AgDrone

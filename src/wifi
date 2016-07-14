@@ -1,0 +1,2 @@
+#!/bin/sh
+./AgDrone -wifi:client -port:usb -wifiaddr:192.168.2.3

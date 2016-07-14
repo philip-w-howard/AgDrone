@@ -58,7 +58,7 @@ void queue_insert(queue_t *q, void *data)
 void *queue_remove(queue_t *q)
 {
     item_qt *item;
-    char *data;
+    void *data;
 
     assert(q != NULL);
 
