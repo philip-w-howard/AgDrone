@@ -146,6 +146,7 @@ void Connection::ReadMsgs()
 
 	if (mRunning)
 	{
+		perror("Error reading");
 		fprintf(stderr, "Stopped reading from %d because of error\n", mFileDescriptor);
 		fprintf(stderr, "Exiting process\n");
 		exit(-1);

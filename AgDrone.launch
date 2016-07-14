@@ -3,7 +3,7 @@
 <stringAttribute key="com.intel.iotdevkit.launch.config.default" value="AgDrone"/>
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="i586-poky-linux-gdb"/>
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.GDB_INIT" value="C:\Intel\iotdk-ide-win\iot-devkit\devkit-debugger\.gdbinit"/>
-<stringAttribute key="org.eclipse.cdt.dsf.gdb.HOST" value="edisonWiFi"/>
+<stringAttribute key="org.eclipse.cdt.dsf.gdb.HOST" value="edphil"/>
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.NON_STOP" value="false"/>
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.PORT" value="2345"/>
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.REMOTE_TCP" value="true"/>
@@ -27,7 +27,7 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.debug.core.REMOTE_TCP" value="pwhed"/>
+<stringAttribute key="org.eclipse.debug.core.REMOTE_TCP" value="edphil"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
