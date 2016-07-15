@@ -21,11 +21,11 @@
 #include "wifiserver.h"
 
 WifiServerConnection::WifiServerConnection(queue_t *destQueue, int port)
-	: Connection(1, 256, destQueue, MSG_SRC_MISSION_PLANNER)
+    : Connection(1, 256, destQueue, MSG_SRC_MISSION_PLANNER)
 {
-	mPort = port;
-	mIsConnected = false;
-	mListenerFd = -1;
+    mPort = port;
+    mIsConnected = false;
+    mListenerFd = -1;
 
     struct sockaddr_in serv_addr;
 
@@ -54,55 +54,56 @@ WifiServerConnection::WifiServerConnection(queue_t *destQueue, int port)
 }
 WifiServerConnection::~WifiServerConnection()
 {
-	close(mListenerFd);
-	mListenerFd = -1;
-	close(mFileDescriptor);
-	mIsConnected = false;
+    close(mListenerFd);
+    mListenerFd = -1;
+    close(mFileDescriptor);
+    mIsConnected = false;
 }
 bool WifiServerConnection::MakeConnection()
 {
-	socklen_t clilen;
+    socklen_t clilen;
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
 
     mFileDescriptor = -1;
     while (mFileDescriptor < 0)
     {
-    	mFileDescriptor = accept(mListenerFd,
-    			(struct sockaddr *) &cli_addr,
+        mFileDescriptor = accept(mListenerFd,
+                (struct sockaddr *) &cli_addr,
                 &clilen);
-    	if (mFileDescriptor < 0)
-    	{
-    		perror("ERROR on accept: retrying");
-    	}
+        if (mFileDescriptor < 0)
+        {
+            perror("ERROR on accept: retrying");
+            sleep(1);
+        }
     }
 
-	// Set a timeout on the socket reads
-	struct timeval tv;
+    // Set a timeout on the socket reads
+    struct timeval tv;
 
-	tv.tv_sec = 5;  // 5 Secs Timeout
-	tv.tv_usec = 0;  // Not init'ing this can cause strange errors
+    tv.tv_sec = 5;  // 5 Secs Timeout
+    tv.tv_usec = 0;  // Not init'ing this can cause strange errors
 
-	setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
+    setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
-	fprintf(stderr, "processing wifi data on %d\n", mFileDescriptor);
+    fprintf(stderr, "processing wifi data on %d\n", mFileDescriptor);
 
-	mIsConnected = true;
+    mIsConnected = true;
 
-	return true;
+    return true;
 }
 
 void WifiServerConnection::Disconnect()
 {
-	close(mListenerFd);
-	mListenerFd = -1;
-	close(mFileDescriptor);
-	mIsConnected = false;
+    close(mListenerFd);
+    mListenerFd = -1;
+    close(mFileDescriptor);
+    mIsConnected = false;
 }
 
 bool WifiServerConnection::IsConnected()
 {
-	return mListenerFd >= 0 && mIsConnected;
+    return mListenerFd >= 0 && mIsConnected;
 }
 
 
