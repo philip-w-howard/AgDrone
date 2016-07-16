@@ -5,6 +5,7 @@
  *      Author: philhow
  *  TODO:
  *      better detection of lost connections
+ *      in wifi server mode, handle socket closed
  *      check logfile format
  *      create startup mechanism
  *      search for USB port (ACM0 vs ACM1 vs ACM?)
@@ -34,6 +35,7 @@ static bool Wifi_Server = true;
 static int Wifi_Port = 2002;
 static char Wifi_Addr[256] = "192.168.2.3";
 static bool Do_Echo = false;
+static bool Do_TX = false;
 static char g_echoname[256] = CONSOLE_PORT;
 static char g_pixhawk[256] = USB_PORT;
 static char g_mission[256] = WIFI;
@@ -91,6 +93,8 @@ static void process_args(int argc, char **argv)
             Wifi_Port = atoi(&argv[ii][10]);
         else if (strncmp(argv[ii], "-wifiaddr:", 10) == 0)
             strcpy(Wifi_Addr, &argv[ii][10]);
+        else if (strcmp(argv[ii], "-txtest") == 0)
+            Do_TX = true;
         else
         {
             fprintf(stderr, "Unknown argument: %s\n", argv[ii]);
@@ -182,6 +186,28 @@ void do_echo()
     pthread_join(tid, NULL);
 }
 
+void do_tx_test()
+{
+    int pixhawk;
+    int count = 0;
+
+    printf("Starting tx test on %s\n", g_pixhawk);
+
+    pixhawk = PixhawkConnection::ConnectSerial(g_pixhawk);
+    if (pixhawk < 0)
+    {
+        printf("Failed to open %s\n", g_pixhawk);
+        exit(-5);
+    }
+    printf("Opened %s\n", g_pixhawk);
+
+    while (1)
+    {
+        write(pixhawk, "this is a test\n", 15);
+        if (++count %1000 == 0) printf("Sent %d\n", count);
+    }
+}
+
 int main(int argc, char **argv)
 {
     printf("AgDrone V%s\n", __DATE__);
@@ -208,6 +234,10 @@ int main(int argc, char **argv)
         do_echo();
         printf("Done with echo\n");
         return 0;
+    }
+    else if (Do_TX)
+    {
+        do_tx_test();
     }
 
     queue_t *pixhawk_q = queue_create();

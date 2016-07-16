@@ -1,0 +1,2 @@
+#!/bin/sh
+./AgDrone -mission:wifi -pixhawk:usb -wifi:server -wifiport:2002 
