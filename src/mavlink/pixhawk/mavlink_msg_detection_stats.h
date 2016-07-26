@@ -27,9 +27,9 @@ typedef struct __mavlink_detection_stats_t
 
 
 #define MAVLINK_MESSAGE_INFO_DETECTION_STATS { \
-	"DETECTION_STATS", \
-	12, \
-	{  { "detections", NULL, MAVLINK_TYPE_UINT32_T, 0, 0, offsetof(mavlink_detection_stats_t, detections) }, \
+    "DETECTION_STATS", \
+    12, \
+    {  { "detections", NULL, MAVLINK_TYPE_UINT32_T, 0, 0, offsetof(mavlink_detection_stats_t, detections) }, \
          { "cluster_iters", NULL, MAVLINK_TYPE_UINT32_T, 0, 4, offsetof(mavlink_detection_stats_t, cluster_iters) }, \
          { "best_score", NULL, MAVLINK_TYPE_FLOAT, 0, 8, offsetof(mavlink_detection_stats_t, best_score) }, \
          { "best_lat", NULL, MAVLINK_TYPE_INT32_T, 0, 12, offsetof(mavlink_detection_stats_t, best_lat) }, \
@@ -66,43 +66,43 @@ typedef struct __mavlink_detection_stats_t
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_detection_stats_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-						       uint32_t detections, uint32_t cluster_iters, float best_score, int32_t best_lat, int32_t best_lon, int32_t best_alt, uint32_t best_detection_id, uint32_t best_cluster_id, uint32_t best_cluster_iter_id, uint32_t images_done, uint32_t images_todo, float fps)
+                               uint32_t detections, uint32_t cluster_iters, float best_score, int32_t best_lat, int32_t best_lon, int32_t best_alt, uint32_t best_detection_id, uint32_t best_cluster_id, uint32_t best_cluster_iter_id, uint32_t images_done, uint32_t images_todo, float fps)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_DETECTION_STATS_LEN];
-	_mav_put_uint32_t(buf, 0, detections);
-	_mav_put_uint32_t(buf, 4, cluster_iters);
-	_mav_put_float(buf, 8, best_score);
-	_mav_put_int32_t(buf, 12, best_lat);
-	_mav_put_int32_t(buf, 16, best_lon);
-	_mav_put_int32_t(buf, 20, best_alt);
-	_mav_put_uint32_t(buf, 24, best_detection_id);
-	_mav_put_uint32_t(buf, 28, best_cluster_id);
-	_mav_put_uint32_t(buf, 32, best_cluster_iter_id);
-	_mav_put_uint32_t(buf, 36, images_done);
-	_mav_put_uint32_t(buf, 40, images_todo);
-	_mav_put_float(buf, 44, fps);
+    char buf[MAVLINK_MSG_ID_DETECTION_STATS_LEN];
+    _mav_put_uint32_t(buf, 0, detections);
+    _mav_put_uint32_t(buf, 4, cluster_iters);
+    _mav_put_float(buf, 8, best_score);
+    _mav_put_int32_t(buf, 12, best_lat);
+    _mav_put_int32_t(buf, 16, best_lon);
+    _mav_put_int32_t(buf, 20, best_alt);
+    _mav_put_uint32_t(buf, 24, best_detection_id);
+    _mav_put_uint32_t(buf, 28, best_cluster_id);
+    _mav_put_uint32_t(buf, 32, best_cluster_iter_id);
+    _mav_put_uint32_t(buf, 36, images_done);
+    _mav_put_uint32_t(buf, 40, images_todo);
+    _mav_put_float(buf, 44, fps);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #else
-	mavlink_detection_stats_t packet;
-	packet.detections = detections;
-	packet.cluster_iters = cluster_iters;
-	packet.best_score = best_score;
-	packet.best_lat = best_lat;
-	packet.best_lon = best_lon;
-	packet.best_alt = best_alt;
-	packet.best_detection_id = best_detection_id;
-	packet.best_cluster_id = best_cluster_id;
-	packet.best_cluster_iter_id = best_cluster_iter_id;
-	packet.images_done = images_done;
-	packet.images_todo = images_todo;
-	packet.fps = fps;
+    mavlink_detection_stats_t packet;
+    packet.detections = detections;
+    packet.cluster_iters = cluster_iters;
+    packet.best_score = best_score;
+    packet.best_lat = best_lat;
+    packet.best_lon = best_lon;
+    packet.best_alt = best_alt;
+    packet.best_detection_id = best_detection_id;
+    packet.best_cluster_id = best_cluster_id;
+    packet.best_cluster_iter_id = best_cluster_iter_id;
+    packet.images_done = images_done;
+    packet.images_todo = images_todo;
+    packet.fps = fps;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_DETECTION_STATS;
+    msg->msgid = MAVLINK_MSG_ID_DETECTION_STATS;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_DETECTION_STATS_LEN, MAVLINK_MSG_ID_DETECTION_STATS_CRC);
 #else
@@ -131,44 +131,44 @@ static inline uint16_t mavlink_msg_detection_stats_pack(uint8_t system_id, uint8
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_detection_stats_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
-							   mavlink_message_t* msg,
-						           uint32_t detections,uint32_t cluster_iters,float best_score,int32_t best_lat,int32_t best_lon,int32_t best_alt,uint32_t best_detection_id,uint32_t best_cluster_id,uint32_t best_cluster_iter_id,uint32_t images_done,uint32_t images_todo,float fps)
+                               mavlink_message_t* msg,
+                                   uint32_t detections,uint32_t cluster_iters,float best_score,int32_t best_lat,int32_t best_lon,int32_t best_alt,uint32_t best_detection_id,uint32_t best_cluster_id,uint32_t best_cluster_iter_id,uint32_t images_done,uint32_t images_todo,float fps)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_DETECTION_STATS_LEN];
-	_mav_put_uint32_t(buf, 0, detections);
-	_mav_put_uint32_t(buf, 4, cluster_iters);
-	_mav_put_float(buf, 8, best_score);
-	_mav_put_int32_t(buf, 12, best_lat);
-	_mav_put_int32_t(buf, 16, best_lon);
-	_mav_put_int32_t(buf, 20, best_alt);
-	_mav_put_uint32_t(buf, 24, best_detection_id);
-	_mav_put_uint32_t(buf, 28, best_cluster_id);
-	_mav_put_uint32_t(buf, 32, best_cluster_iter_id);
-	_mav_put_uint32_t(buf, 36, images_done);
-	_mav_put_uint32_t(buf, 40, images_todo);
-	_mav_put_float(buf, 44, fps);
+    char buf[MAVLINK_MSG_ID_DETECTION_STATS_LEN];
+    _mav_put_uint32_t(buf, 0, detections);
+    _mav_put_uint32_t(buf, 4, cluster_iters);
+    _mav_put_float(buf, 8, best_score);
+    _mav_put_int32_t(buf, 12, best_lat);
+    _mav_put_int32_t(buf, 16, best_lon);
+    _mav_put_int32_t(buf, 20, best_alt);
+    _mav_put_uint32_t(buf, 24, best_detection_id);
+    _mav_put_uint32_t(buf, 28, best_cluster_id);
+    _mav_put_uint32_t(buf, 32, best_cluster_iter_id);
+    _mav_put_uint32_t(buf, 36, images_done);
+    _mav_put_uint32_t(buf, 40, images_todo);
+    _mav_put_float(buf, 44, fps);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #else
-	mavlink_detection_stats_t packet;
-	packet.detections = detections;
-	packet.cluster_iters = cluster_iters;
-	packet.best_score = best_score;
-	packet.best_lat = best_lat;
-	packet.best_lon = best_lon;
-	packet.best_alt = best_alt;
-	packet.best_detection_id = best_detection_id;
-	packet.best_cluster_id = best_cluster_id;
-	packet.best_cluster_iter_id = best_cluster_iter_id;
-	packet.images_done = images_done;
-	packet.images_todo = images_todo;
-	packet.fps = fps;
+    mavlink_detection_stats_t packet;
+    packet.detections = detections;
+    packet.cluster_iters = cluster_iters;
+    packet.best_score = best_score;
+    packet.best_lat = best_lat;
+    packet.best_lon = best_lon;
+    packet.best_alt = best_alt;
+    packet.best_detection_id = best_detection_id;
+    packet.best_cluster_id = best_cluster_id;
+    packet.best_cluster_iter_id = best_cluster_iter_id;
+    packet.images_done = images_done;
+    packet.images_todo = images_todo;
+    packet.fps = fps;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_DETECTION_STATS;
+    msg->msgid = MAVLINK_MSG_ID_DETECTION_STATS;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_DETECTION_STATS_LEN, MAVLINK_MSG_ID_DETECTION_STATS_CRC);
 #else
@@ -186,7 +186,7 @@ static inline uint16_t mavlink_msg_detection_stats_pack_chan(uint8_t system_id, 
  */
 static inline uint16_t mavlink_msg_detection_stats_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_detection_stats_t* detection_stats)
 {
-	return mavlink_msg_detection_stats_pack(system_id, component_id, msg, detection_stats->detections, detection_stats->cluster_iters, detection_stats->best_score, detection_stats->best_lat, detection_stats->best_lon, detection_stats->best_alt, detection_stats->best_detection_id, detection_stats->best_cluster_id, detection_stats->best_cluster_iter_id, detection_stats->images_done, detection_stats->images_todo, detection_stats->fps);
+    return mavlink_msg_detection_stats_pack(system_id, component_id, msg, detection_stats->detections, detection_stats->cluster_iters, detection_stats->best_score, detection_stats->best_lat, detection_stats->best_lon, detection_stats->best_alt, detection_stats->best_detection_id, detection_stats->best_cluster_id, detection_stats->best_cluster_iter_id, detection_stats->images_done, detection_stats->images_todo, detection_stats->fps);
 }
 
 /**
@@ -200,7 +200,7 @@ static inline uint16_t mavlink_msg_detection_stats_encode(uint8_t system_id, uin
  */
 static inline uint16_t mavlink_msg_detection_stats_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_detection_stats_t* detection_stats)
 {
-	return mavlink_msg_detection_stats_pack_chan(system_id, component_id, chan, msg, detection_stats->detections, detection_stats->cluster_iters, detection_stats->best_score, detection_stats->best_lat, detection_stats->best_lon, detection_stats->best_alt, detection_stats->best_detection_id, detection_stats->best_cluster_id, detection_stats->best_cluster_iter_id, detection_stats->images_done, detection_stats->images_todo, detection_stats->fps);
+    return mavlink_msg_detection_stats_pack_chan(system_id, component_id, chan, msg, detection_stats->detections, detection_stats->cluster_iters, detection_stats->best_score, detection_stats->best_lat, detection_stats->best_lon, detection_stats->best_alt, detection_stats->best_detection_id, detection_stats->best_cluster_id, detection_stats->best_cluster_iter_id, detection_stats->images_done, detection_stats->images_todo, detection_stats->fps);
 }
 
 /**
@@ -225,19 +225,19 @@ static inline uint16_t mavlink_msg_detection_stats_encode_chan(uint8_t system_id
 static inline void mavlink_msg_detection_stats_send(mavlink_channel_t chan, uint32_t detections, uint32_t cluster_iters, float best_score, int32_t best_lat, int32_t best_lon, int32_t best_alt, uint32_t best_detection_id, uint32_t best_cluster_id, uint32_t best_cluster_iter_id, uint32_t images_done, uint32_t images_todo, float fps)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_DETECTION_STATS_LEN];
-	_mav_put_uint32_t(buf, 0, detections);
-	_mav_put_uint32_t(buf, 4, cluster_iters);
-	_mav_put_float(buf, 8, best_score);
-	_mav_put_int32_t(buf, 12, best_lat);
-	_mav_put_int32_t(buf, 16, best_lon);
-	_mav_put_int32_t(buf, 20, best_alt);
-	_mav_put_uint32_t(buf, 24, best_detection_id);
-	_mav_put_uint32_t(buf, 28, best_cluster_id);
-	_mav_put_uint32_t(buf, 32, best_cluster_iter_id);
-	_mav_put_uint32_t(buf, 36, images_done);
-	_mav_put_uint32_t(buf, 40, images_todo);
-	_mav_put_float(buf, 44, fps);
+    char buf[MAVLINK_MSG_ID_DETECTION_STATS_LEN];
+    _mav_put_uint32_t(buf, 0, detections);
+    _mav_put_uint32_t(buf, 4, cluster_iters);
+    _mav_put_float(buf, 8, best_score);
+    _mav_put_int32_t(buf, 12, best_lat);
+    _mav_put_int32_t(buf, 16, best_lon);
+    _mav_put_int32_t(buf, 20, best_alt);
+    _mav_put_uint32_t(buf, 24, best_detection_id);
+    _mav_put_uint32_t(buf, 28, best_cluster_id);
+    _mav_put_uint32_t(buf, 32, best_cluster_iter_id);
+    _mav_put_uint32_t(buf, 36, images_done);
+    _mav_put_uint32_t(buf, 40, images_todo);
+    _mav_put_float(buf, 44, fps);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DETECTION_STATS, buf, MAVLINK_MSG_ID_DETECTION_STATS_LEN, MAVLINK_MSG_ID_DETECTION_STATS_CRC);
@@ -245,19 +245,19 @@ static inline void mavlink_msg_detection_stats_send(mavlink_channel_t chan, uint
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DETECTION_STATS, buf, MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #endif
 #else
-	mavlink_detection_stats_t packet;
-	packet.detections = detections;
-	packet.cluster_iters = cluster_iters;
-	packet.best_score = best_score;
-	packet.best_lat = best_lat;
-	packet.best_lon = best_lon;
-	packet.best_alt = best_alt;
-	packet.best_detection_id = best_detection_id;
-	packet.best_cluster_id = best_cluster_id;
-	packet.best_cluster_iter_id = best_cluster_iter_id;
-	packet.images_done = images_done;
-	packet.images_todo = images_todo;
-	packet.fps = fps;
+    mavlink_detection_stats_t packet;
+    packet.detections = detections;
+    packet.cluster_iters = cluster_iters;
+    packet.best_score = best_score;
+    packet.best_lat = best_lat;
+    packet.best_lon = best_lon;
+    packet.best_alt = best_alt;
+    packet.best_detection_id = best_detection_id;
+    packet.best_cluster_id = best_cluster_id;
+    packet.best_cluster_iter_id = best_cluster_iter_id;
+    packet.images_done = images_done;
+    packet.images_todo = images_todo;
+    packet.fps = fps;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DETECTION_STATS, (const char *)&packet, MAVLINK_MSG_ID_DETECTION_STATS_LEN, MAVLINK_MSG_ID_DETECTION_STATS_CRC);
@@ -278,19 +278,19 @@ static inline void mavlink_msg_detection_stats_send(mavlink_channel_t chan, uint
 static inline void mavlink_msg_detection_stats_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint32_t detections, uint32_t cluster_iters, float best_score, int32_t best_lat, int32_t best_lon, int32_t best_alt, uint32_t best_detection_id, uint32_t best_cluster_id, uint32_t best_cluster_iter_id, uint32_t images_done, uint32_t images_todo, float fps)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char *buf = (char *)msgbuf;
-	_mav_put_uint32_t(buf, 0, detections);
-	_mav_put_uint32_t(buf, 4, cluster_iters);
-	_mav_put_float(buf, 8, best_score);
-	_mav_put_int32_t(buf, 12, best_lat);
-	_mav_put_int32_t(buf, 16, best_lon);
-	_mav_put_int32_t(buf, 20, best_alt);
-	_mav_put_uint32_t(buf, 24, best_detection_id);
-	_mav_put_uint32_t(buf, 28, best_cluster_id);
-	_mav_put_uint32_t(buf, 32, best_cluster_iter_id);
-	_mav_put_uint32_t(buf, 36, images_done);
-	_mav_put_uint32_t(buf, 40, images_todo);
-	_mav_put_float(buf, 44, fps);
+    char *buf = (char *)msgbuf;
+    _mav_put_uint32_t(buf, 0, detections);
+    _mav_put_uint32_t(buf, 4, cluster_iters);
+    _mav_put_float(buf, 8, best_score);
+    _mav_put_int32_t(buf, 12, best_lat);
+    _mav_put_int32_t(buf, 16, best_lon);
+    _mav_put_int32_t(buf, 20, best_alt);
+    _mav_put_uint32_t(buf, 24, best_detection_id);
+    _mav_put_uint32_t(buf, 28, best_cluster_id);
+    _mav_put_uint32_t(buf, 32, best_cluster_iter_id);
+    _mav_put_uint32_t(buf, 36, images_done);
+    _mav_put_uint32_t(buf, 40, images_todo);
+    _mav_put_float(buf, 44, fps);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DETECTION_STATS, buf, MAVLINK_MSG_ID_DETECTION_STATS_LEN, MAVLINK_MSG_ID_DETECTION_STATS_CRC);
@@ -298,19 +298,19 @@ static inline void mavlink_msg_detection_stats_send_buf(mavlink_message_t *msgbu
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DETECTION_STATS, buf, MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #endif
 #else
-	mavlink_detection_stats_t *packet = (mavlink_detection_stats_t *)msgbuf;
-	packet->detections = detections;
-	packet->cluster_iters = cluster_iters;
-	packet->best_score = best_score;
-	packet->best_lat = best_lat;
-	packet->best_lon = best_lon;
-	packet->best_alt = best_alt;
-	packet->best_detection_id = best_detection_id;
-	packet->best_cluster_id = best_cluster_id;
-	packet->best_cluster_iter_id = best_cluster_iter_id;
-	packet->images_done = images_done;
-	packet->images_todo = images_todo;
-	packet->fps = fps;
+    mavlink_detection_stats_t *packet = (mavlink_detection_stats_t *)msgbuf;
+    packet->detections = detections;
+    packet->cluster_iters = cluster_iters;
+    packet->best_score = best_score;
+    packet->best_lat = best_lat;
+    packet->best_lon = best_lon;
+    packet->best_alt = best_alt;
+    packet->best_detection_id = best_detection_id;
+    packet->best_cluster_id = best_cluster_id;
+    packet->best_cluster_iter_id = best_cluster_iter_id;
+    packet->images_done = images_done;
+    packet->images_todo = images_todo;
+    packet->fps = fps;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DETECTION_STATS, (const char *)packet, MAVLINK_MSG_ID_DETECTION_STATS_LEN, MAVLINK_MSG_ID_DETECTION_STATS_CRC);
@@ -333,7 +333,7 @@ static inline void mavlink_msg_detection_stats_send_buf(mavlink_message_t *msgbu
  */
 static inline uint32_t mavlink_msg_detection_stats_get_detections(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  0);
+    return _MAV_RETURN_uint32_t(msg,  0);
 }
 
 /**
@@ -343,7 +343,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_detections(const mavlink_
  */
 static inline uint32_t mavlink_msg_detection_stats_get_cluster_iters(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  4);
+    return _MAV_RETURN_uint32_t(msg,  4);
 }
 
 /**
@@ -353,7 +353,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_cluster_iters(const mavli
  */
 static inline float mavlink_msg_detection_stats_get_best_score(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  8);
+    return _MAV_RETURN_float(msg,  8);
 }
 
 /**
@@ -363,7 +363,7 @@ static inline float mavlink_msg_detection_stats_get_best_score(const mavlink_mes
  */
 static inline int32_t mavlink_msg_detection_stats_get_best_lat(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_int32_t(msg,  12);
+    return _MAV_RETURN_int32_t(msg,  12);
 }
 
 /**
@@ -373,7 +373,7 @@ static inline int32_t mavlink_msg_detection_stats_get_best_lat(const mavlink_mes
  */
 static inline int32_t mavlink_msg_detection_stats_get_best_lon(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_int32_t(msg,  16);
+    return _MAV_RETURN_int32_t(msg,  16);
 }
 
 /**
@@ -383,7 +383,7 @@ static inline int32_t mavlink_msg_detection_stats_get_best_lon(const mavlink_mes
  */
 static inline int32_t mavlink_msg_detection_stats_get_best_alt(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_int32_t(msg,  20);
+    return _MAV_RETURN_int32_t(msg,  20);
 }
 
 /**
@@ -393,7 +393,7 @@ static inline int32_t mavlink_msg_detection_stats_get_best_alt(const mavlink_mes
  */
 static inline uint32_t mavlink_msg_detection_stats_get_best_detection_id(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  24);
+    return _MAV_RETURN_uint32_t(msg,  24);
 }
 
 /**
@@ -403,7 +403,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_best_detection_id(const m
  */
 static inline uint32_t mavlink_msg_detection_stats_get_best_cluster_id(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  28);
+    return _MAV_RETURN_uint32_t(msg,  28);
 }
 
 /**
@@ -413,7 +413,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_best_cluster_id(const mav
  */
 static inline uint32_t mavlink_msg_detection_stats_get_best_cluster_iter_id(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  32);
+    return _MAV_RETURN_uint32_t(msg,  32);
 }
 
 /**
@@ -423,7 +423,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_best_cluster_iter_id(cons
  */
 static inline uint32_t mavlink_msg_detection_stats_get_images_done(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  36);
+    return _MAV_RETURN_uint32_t(msg,  36);
 }
 
 /**
@@ -433,7 +433,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_images_done(const mavlink
  */
 static inline uint32_t mavlink_msg_detection_stats_get_images_todo(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  40);
+    return _MAV_RETURN_uint32_t(msg,  40);
 }
 
 /**
@@ -443,7 +443,7 @@ static inline uint32_t mavlink_msg_detection_stats_get_images_todo(const mavlink
  */
 static inline float mavlink_msg_detection_stats_get_fps(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  44);
+    return _MAV_RETURN_float(msg,  44);
 }
 
 /**
@@ -455,19 +455,19 @@ static inline float mavlink_msg_detection_stats_get_fps(const mavlink_message_t*
 static inline void mavlink_msg_detection_stats_decode(const mavlink_message_t* msg, mavlink_detection_stats_t* detection_stats)
 {
 #if MAVLINK_NEED_BYTE_SWAP
-	detection_stats->detections = mavlink_msg_detection_stats_get_detections(msg);
-	detection_stats->cluster_iters = mavlink_msg_detection_stats_get_cluster_iters(msg);
-	detection_stats->best_score = mavlink_msg_detection_stats_get_best_score(msg);
-	detection_stats->best_lat = mavlink_msg_detection_stats_get_best_lat(msg);
-	detection_stats->best_lon = mavlink_msg_detection_stats_get_best_lon(msg);
-	detection_stats->best_alt = mavlink_msg_detection_stats_get_best_alt(msg);
-	detection_stats->best_detection_id = mavlink_msg_detection_stats_get_best_detection_id(msg);
-	detection_stats->best_cluster_id = mavlink_msg_detection_stats_get_best_cluster_id(msg);
-	detection_stats->best_cluster_iter_id = mavlink_msg_detection_stats_get_best_cluster_iter_id(msg);
-	detection_stats->images_done = mavlink_msg_detection_stats_get_images_done(msg);
-	detection_stats->images_todo = mavlink_msg_detection_stats_get_images_todo(msg);
-	detection_stats->fps = mavlink_msg_detection_stats_get_fps(msg);
+    detection_stats->detections = mavlink_msg_detection_stats_get_detections(msg);
+    detection_stats->cluster_iters = mavlink_msg_detection_stats_get_cluster_iters(msg);
+    detection_stats->best_score = mavlink_msg_detection_stats_get_best_score(msg);
+    detection_stats->best_lat = mavlink_msg_detection_stats_get_best_lat(msg);
+    detection_stats->best_lon = mavlink_msg_detection_stats_get_best_lon(msg);
+    detection_stats->best_alt = mavlink_msg_detection_stats_get_best_alt(msg);
+    detection_stats->best_detection_id = mavlink_msg_detection_stats_get_best_detection_id(msg);
+    detection_stats->best_cluster_id = mavlink_msg_detection_stats_get_best_cluster_id(msg);
+    detection_stats->best_cluster_iter_id = mavlink_msg_detection_stats_get_best_cluster_iter_id(msg);
+    detection_stats->images_done = mavlink_msg_detection_stats_get_images_done(msg);
+    detection_stats->images_todo = mavlink_msg_detection_stats_get_images_todo(msg);
+    detection_stats->fps = mavlink_msg_detection_stats_get_fps(msg);
 #else
-	memcpy(detection_stats, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_DETECTION_STATS_LEN);
+    memcpy(detection_stats, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_DETECTION_STATS_LEN);
 #endif
 }

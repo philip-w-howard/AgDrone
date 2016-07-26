@@ -14,15 +14,15 @@
 class WifiServerConnection : public Connection
 {
 public:
-	WifiServerConnection(queue_t *destQueue, int port);
-	virtual ~WifiServerConnection();
-	virtual bool MakeConnection();
-	virtual void Disconnect();
-	virtual bool IsConnected();
+    WifiServerConnection(queue_t *destQueue, int port);
+    virtual ~WifiServerConnection();
+    virtual bool MakeConnection();
+    virtual void Disconnect();
+    virtual bool IsConnected();
 protected:
-	int  mPort;
-	bool mIsConnected;
-	int mListenerFd;
+    int  mPort;
+    bool mIsConnected;
+    int mListenerFd;
 };
 
 #endif /* WIFISERVER_H_ */

@@ -21,9 +21,9 @@ typedef struct __mavlink_watchdog_process_info_t
 #define MAVLINK_MSG_WATCHDOG_PROCESS_INFO_FIELD_ARGUMENTS_LEN 147
 
 #define MAVLINK_MESSAGE_INFO_WATCHDOG_PROCESS_INFO { \
-	"WATCHDOG_PROCESS_INFO", \
-	5, \
-	{  { "timeout", NULL, MAVLINK_TYPE_INT32_T, 0, 0, offsetof(mavlink_watchdog_process_info_t, timeout) }, \
+    "WATCHDOG_PROCESS_INFO", \
+    5, \
+    {  { "timeout", NULL, MAVLINK_TYPE_INT32_T, 0, 0, offsetof(mavlink_watchdog_process_info_t, timeout) }, \
          { "watchdog_id", NULL, MAVLINK_TYPE_UINT16_T, 0, 4, offsetof(mavlink_watchdog_process_info_t, watchdog_id) }, \
          { "process_id", NULL, MAVLINK_TYPE_UINT16_T, 0, 6, offsetof(mavlink_watchdog_process_info_t, process_id) }, \
          { "name", NULL, MAVLINK_TYPE_CHAR, 100, 8, offsetof(mavlink_watchdog_process_info_t, name) }, \
@@ -46,27 +46,27 @@ typedef struct __mavlink_watchdog_process_info_t
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-						       uint16_t watchdog_id, uint16_t process_id, const char *name, const char *arguments, int32_t timeout)
+                               uint16_t watchdog_id, uint16_t process_id, const char *name, const char *arguments, int32_t timeout)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN];
-	_mav_put_int32_t(buf, 0, timeout);
-	_mav_put_uint16_t(buf, 4, watchdog_id);
-	_mav_put_uint16_t(buf, 6, process_id);
-	_mav_put_char_array(buf, 8, name, 100);
-	_mav_put_char_array(buf, 108, arguments, 147);
+    char buf[MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN];
+    _mav_put_int32_t(buf, 0, timeout);
+    _mav_put_uint16_t(buf, 4, watchdog_id);
+    _mav_put_uint16_t(buf, 6, process_id);
+    _mav_put_char_array(buf, 8, name, 100);
+    _mav_put_char_array(buf, 108, arguments, 147);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #else
-	mavlink_watchdog_process_info_t packet;
-	packet.timeout = timeout;
-	packet.watchdog_id = watchdog_id;
-	packet.process_id = process_id;
-	mav_array_memcpy(packet.name, name, sizeof(char)*100);
-	mav_array_memcpy(packet.arguments, arguments, sizeof(char)*147);
+    mavlink_watchdog_process_info_t packet;
+    packet.timeout = timeout;
+    packet.watchdog_id = watchdog_id;
+    packet.process_id = process_id;
+    mav_array_memcpy(packet.name, name, sizeof(char)*100);
+    mav_array_memcpy(packet.arguments, arguments, sizeof(char)*147);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO;
+    msg->msgid = MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_CRC);
 #else
@@ -88,28 +88,28 @@ static inline uint16_t mavlink_msg_watchdog_process_info_pack(uint8_t system_id,
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
-							   mavlink_message_t* msg,
-						           uint16_t watchdog_id,uint16_t process_id,const char *name,const char *arguments,int32_t timeout)
+                               mavlink_message_t* msg,
+                                   uint16_t watchdog_id,uint16_t process_id,const char *name,const char *arguments,int32_t timeout)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN];
-	_mav_put_int32_t(buf, 0, timeout);
-	_mav_put_uint16_t(buf, 4, watchdog_id);
-	_mav_put_uint16_t(buf, 6, process_id);
-	_mav_put_char_array(buf, 8, name, 100);
-	_mav_put_char_array(buf, 108, arguments, 147);
+    char buf[MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN];
+    _mav_put_int32_t(buf, 0, timeout);
+    _mav_put_uint16_t(buf, 4, watchdog_id);
+    _mav_put_uint16_t(buf, 6, process_id);
+    _mav_put_char_array(buf, 8, name, 100);
+    _mav_put_char_array(buf, 108, arguments, 147);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #else
-	mavlink_watchdog_process_info_t packet;
-	packet.timeout = timeout;
-	packet.watchdog_id = watchdog_id;
-	packet.process_id = process_id;
-	mav_array_memcpy(packet.name, name, sizeof(char)*100);
-	mav_array_memcpy(packet.arguments, arguments, sizeof(char)*147);
+    mavlink_watchdog_process_info_t packet;
+    packet.timeout = timeout;
+    packet.watchdog_id = watchdog_id;
+    packet.process_id = process_id;
+    mav_array_memcpy(packet.name, name, sizeof(char)*100);
+    mav_array_memcpy(packet.arguments, arguments, sizeof(char)*147);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO;
+    msg->msgid = MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_CRC);
 #else
@@ -127,7 +127,7 @@ static inline uint16_t mavlink_msg_watchdog_process_info_pack_chan(uint8_t syste
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_watchdog_process_info_t* watchdog_process_info)
 {
-	return mavlink_msg_watchdog_process_info_pack(system_id, component_id, msg, watchdog_process_info->watchdog_id, watchdog_process_info->process_id, watchdog_process_info->name, watchdog_process_info->arguments, watchdog_process_info->timeout);
+    return mavlink_msg_watchdog_process_info_pack(system_id, component_id, msg, watchdog_process_info->watchdog_id, watchdog_process_info->process_id, watchdog_process_info->name, watchdog_process_info->arguments, watchdog_process_info->timeout);
 }
 
 /**
@@ -141,7 +141,7 @@ static inline uint16_t mavlink_msg_watchdog_process_info_encode(uint8_t system_i
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_watchdog_process_info_t* watchdog_process_info)
 {
-	return mavlink_msg_watchdog_process_info_pack_chan(system_id, component_id, chan, msg, watchdog_process_info->watchdog_id, watchdog_process_info->process_id, watchdog_process_info->name, watchdog_process_info->arguments, watchdog_process_info->timeout);
+    return mavlink_msg_watchdog_process_info_pack_chan(system_id, component_id, chan, msg, watchdog_process_info->watchdog_id, watchdog_process_info->process_id, watchdog_process_info->name, watchdog_process_info->arguments, watchdog_process_info->timeout);
 }
 
 /**
@@ -159,24 +159,24 @@ static inline uint16_t mavlink_msg_watchdog_process_info_encode_chan(uint8_t sys
 static inline void mavlink_msg_watchdog_process_info_send(mavlink_channel_t chan, uint16_t watchdog_id, uint16_t process_id, const char *name, const char *arguments, int32_t timeout)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN];
-	_mav_put_int32_t(buf, 0, timeout);
-	_mav_put_uint16_t(buf, 4, watchdog_id);
-	_mav_put_uint16_t(buf, 6, process_id);
-	_mav_put_char_array(buf, 8, name, 100);
-	_mav_put_char_array(buf, 108, arguments, 147);
+    char buf[MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN];
+    _mav_put_int32_t(buf, 0, timeout);
+    _mav_put_uint16_t(buf, 4, watchdog_id);
+    _mav_put_uint16_t(buf, 6, process_id);
+    _mav_put_char_array(buf, 8, name, 100);
+    _mav_put_char_array(buf, 108, arguments, 147);
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO, buf, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_CRC);
 #else
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO, buf, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #endif
 #else
-	mavlink_watchdog_process_info_t packet;
-	packet.timeout = timeout;
-	packet.watchdog_id = watchdog_id;
-	packet.process_id = process_id;
-	mav_array_memcpy(packet.name, name, sizeof(char)*100);
-	mav_array_memcpy(packet.arguments, arguments, sizeof(char)*147);
+    mavlink_watchdog_process_info_t packet;
+    packet.timeout = timeout;
+    packet.watchdog_id = watchdog_id;
+    packet.process_id = process_id;
+    mav_array_memcpy(packet.name, name, sizeof(char)*100);
+    mav_array_memcpy(packet.arguments, arguments, sizeof(char)*147);
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO, (const char *)&packet, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_CRC);
 #else
@@ -196,24 +196,24 @@ static inline void mavlink_msg_watchdog_process_info_send(mavlink_channel_t chan
 static inline void mavlink_msg_watchdog_process_info_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint16_t watchdog_id, uint16_t process_id, const char *name, const char *arguments, int32_t timeout)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char *buf = (char *)msgbuf;
-	_mav_put_int32_t(buf, 0, timeout);
-	_mav_put_uint16_t(buf, 4, watchdog_id);
-	_mav_put_uint16_t(buf, 6, process_id);
-	_mav_put_char_array(buf, 8, name, 100);
-	_mav_put_char_array(buf, 108, arguments, 147);
+    char *buf = (char *)msgbuf;
+    _mav_put_int32_t(buf, 0, timeout);
+    _mav_put_uint16_t(buf, 4, watchdog_id);
+    _mav_put_uint16_t(buf, 6, process_id);
+    _mav_put_char_array(buf, 8, name, 100);
+    _mav_put_char_array(buf, 108, arguments, 147);
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO, buf, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_CRC);
 #else
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO, buf, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #endif
 #else
-	mavlink_watchdog_process_info_t *packet = (mavlink_watchdog_process_info_t *)msgbuf;
-	packet->timeout = timeout;
-	packet->watchdog_id = watchdog_id;
-	packet->process_id = process_id;
-	mav_array_memcpy(packet->name, name, sizeof(char)*100);
-	mav_array_memcpy(packet->arguments, arguments, sizeof(char)*147);
+    mavlink_watchdog_process_info_t *packet = (mavlink_watchdog_process_info_t *)msgbuf;
+    packet->timeout = timeout;
+    packet->watchdog_id = watchdog_id;
+    packet->process_id = process_id;
+    mav_array_memcpy(packet->name, name, sizeof(char)*100);
+    mav_array_memcpy(packet->arguments, arguments, sizeof(char)*147);
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO, (const char *)packet, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN, MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_CRC);
 #else
@@ -235,7 +235,7 @@ static inline void mavlink_msg_watchdog_process_info_send_buf(mavlink_message_t 
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_get_watchdog_id(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  4);
+    return _MAV_RETURN_uint16_t(msg,  4);
 }
 
 /**
@@ -245,7 +245,7 @@ static inline uint16_t mavlink_msg_watchdog_process_info_get_watchdog_id(const m
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_get_process_id(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  6);
+    return _MAV_RETURN_uint16_t(msg,  6);
 }
 
 /**
@@ -255,7 +255,7 @@ static inline uint16_t mavlink_msg_watchdog_process_info_get_process_id(const ma
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_get_name(const mavlink_message_t* msg, char *name)
 {
-	return _MAV_RETURN_char_array(msg, name, 100,  8);
+    return _MAV_RETURN_char_array(msg, name, 100,  8);
 }
 
 /**
@@ -265,7 +265,7 @@ static inline uint16_t mavlink_msg_watchdog_process_info_get_name(const mavlink_
  */
 static inline uint16_t mavlink_msg_watchdog_process_info_get_arguments(const mavlink_message_t* msg, char *arguments)
 {
-	return _MAV_RETURN_char_array(msg, arguments, 147,  108);
+    return _MAV_RETURN_char_array(msg, arguments, 147,  108);
 }
 
 /**
@@ -275,7 +275,7 @@ static inline uint16_t mavlink_msg_watchdog_process_info_get_arguments(const mav
  */
 static inline int32_t mavlink_msg_watchdog_process_info_get_timeout(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_int32_t(msg,  0);
+    return _MAV_RETURN_int32_t(msg,  0);
 }
 
 /**
@@ -287,12 +287,12 @@ static inline int32_t mavlink_msg_watchdog_process_info_get_timeout(const mavlin
 static inline void mavlink_msg_watchdog_process_info_decode(const mavlink_message_t* msg, mavlink_watchdog_process_info_t* watchdog_process_info)
 {
 #if MAVLINK_NEED_BYTE_SWAP
-	watchdog_process_info->timeout = mavlink_msg_watchdog_process_info_get_timeout(msg);
-	watchdog_process_info->watchdog_id = mavlink_msg_watchdog_process_info_get_watchdog_id(msg);
-	watchdog_process_info->process_id = mavlink_msg_watchdog_process_info_get_process_id(msg);
-	mavlink_msg_watchdog_process_info_get_name(msg, watchdog_process_info->name);
-	mavlink_msg_watchdog_process_info_get_arguments(msg, watchdog_process_info->arguments);
+    watchdog_process_info->timeout = mavlink_msg_watchdog_process_info_get_timeout(msg);
+    watchdog_process_info->watchdog_id = mavlink_msg_watchdog_process_info_get_watchdog_id(msg);
+    watchdog_process_info->process_id = mavlink_msg_watchdog_process_info_get_process_id(msg);
+    mavlink_msg_watchdog_process_info_get_name(msg, watchdog_process_info->name);
+    mavlink_msg_watchdog_process_info_get_arguments(msg, watchdog_process_info->arguments);
 #else
-	memcpy(watchdog_process_info, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
+    memcpy(watchdog_process_info, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_WATCHDOG_PROCESS_INFO_LEN);
 #endif
 }

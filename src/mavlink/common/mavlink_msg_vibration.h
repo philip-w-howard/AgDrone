@@ -22,9 +22,9 @@ typedef struct __mavlink_vibration_t
 
 
 #define MAVLINK_MESSAGE_INFO_VIBRATION { \
-	"VIBRATION", \
-	7, \
-	{  { "time_usec", NULL, MAVLINK_TYPE_UINT64_T, 0, 0, offsetof(mavlink_vibration_t, time_usec) }, \
+    "VIBRATION", \
+    7, \
+    {  { "time_usec", NULL, MAVLINK_TYPE_UINT64_T, 0, 0, offsetof(mavlink_vibration_t, time_usec) }, \
          { "vibration_x", NULL, MAVLINK_TYPE_FLOAT, 0, 8, offsetof(mavlink_vibration_t, vibration_x) }, \
          { "vibration_y", NULL, MAVLINK_TYPE_FLOAT, 0, 12, offsetof(mavlink_vibration_t, vibration_y) }, \
          { "vibration_z", NULL, MAVLINK_TYPE_FLOAT, 0, 16, offsetof(mavlink_vibration_t, vibration_z) }, \
@@ -51,33 +51,33 @@ typedef struct __mavlink_vibration_t
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_vibration_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-						       uint64_t time_usec, float vibration_x, float vibration_y, float vibration_z, uint32_t clipping_0, uint32_t clipping_1, uint32_t clipping_2)
+                               uint64_t time_usec, float vibration_x, float vibration_y, float vibration_z, uint32_t clipping_0, uint32_t clipping_1, uint32_t clipping_2)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_VIBRATION_LEN];
-	_mav_put_uint64_t(buf, 0, time_usec);
-	_mav_put_float(buf, 8, vibration_x);
-	_mav_put_float(buf, 12, vibration_y);
-	_mav_put_float(buf, 16, vibration_z);
-	_mav_put_uint32_t(buf, 20, clipping_0);
-	_mav_put_uint32_t(buf, 24, clipping_1);
-	_mav_put_uint32_t(buf, 28, clipping_2);
+    char buf[MAVLINK_MSG_ID_VIBRATION_LEN];
+    _mav_put_uint64_t(buf, 0, time_usec);
+    _mav_put_float(buf, 8, vibration_x);
+    _mav_put_float(buf, 12, vibration_y);
+    _mav_put_float(buf, 16, vibration_z);
+    _mav_put_uint32_t(buf, 20, clipping_0);
+    _mav_put_uint32_t(buf, 24, clipping_1);
+    _mav_put_uint32_t(buf, 28, clipping_2);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_VIBRATION_LEN);
 #else
-	mavlink_vibration_t packet;
-	packet.time_usec = time_usec;
-	packet.vibration_x = vibration_x;
-	packet.vibration_y = vibration_y;
-	packet.vibration_z = vibration_z;
-	packet.clipping_0 = clipping_0;
-	packet.clipping_1 = clipping_1;
-	packet.clipping_2 = clipping_2;
+    mavlink_vibration_t packet;
+    packet.time_usec = time_usec;
+    packet.vibration_x = vibration_x;
+    packet.vibration_y = vibration_y;
+    packet.vibration_z = vibration_z;
+    packet.clipping_0 = clipping_0;
+    packet.clipping_1 = clipping_1;
+    packet.clipping_2 = clipping_2;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_VIBRATION_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_VIBRATION;
+    msg->msgid = MAVLINK_MSG_ID_VIBRATION;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_VIBRATION_LEN, MAVLINK_MSG_ID_VIBRATION_CRC);
 #else
@@ -101,34 +101,34 @@ static inline uint16_t mavlink_msg_vibration_pack(uint8_t system_id, uint8_t com
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_vibration_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
-							   mavlink_message_t* msg,
-						           uint64_t time_usec,float vibration_x,float vibration_y,float vibration_z,uint32_t clipping_0,uint32_t clipping_1,uint32_t clipping_2)
+                               mavlink_message_t* msg,
+                                   uint64_t time_usec,float vibration_x,float vibration_y,float vibration_z,uint32_t clipping_0,uint32_t clipping_1,uint32_t clipping_2)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_VIBRATION_LEN];
-	_mav_put_uint64_t(buf, 0, time_usec);
-	_mav_put_float(buf, 8, vibration_x);
-	_mav_put_float(buf, 12, vibration_y);
-	_mav_put_float(buf, 16, vibration_z);
-	_mav_put_uint32_t(buf, 20, clipping_0);
-	_mav_put_uint32_t(buf, 24, clipping_1);
-	_mav_put_uint32_t(buf, 28, clipping_2);
+    char buf[MAVLINK_MSG_ID_VIBRATION_LEN];
+    _mav_put_uint64_t(buf, 0, time_usec);
+    _mav_put_float(buf, 8, vibration_x);
+    _mav_put_float(buf, 12, vibration_y);
+    _mav_put_float(buf, 16, vibration_z);
+    _mav_put_uint32_t(buf, 20, clipping_0);
+    _mav_put_uint32_t(buf, 24, clipping_1);
+    _mav_put_uint32_t(buf, 28, clipping_2);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_VIBRATION_LEN);
 #else
-	mavlink_vibration_t packet;
-	packet.time_usec = time_usec;
-	packet.vibration_x = vibration_x;
-	packet.vibration_y = vibration_y;
-	packet.vibration_z = vibration_z;
-	packet.clipping_0 = clipping_0;
-	packet.clipping_1 = clipping_1;
-	packet.clipping_2 = clipping_2;
+    mavlink_vibration_t packet;
+    packet.time_usec = time_usec;
+    packet.vibration_x = vibration_x;
+    packet.vibration_y = vibration_y;
+    packet.vibration_z = vibration_z;
+    packet.clipping_0 = clipping_0;
+    packet.clipping_1 = clipping_1;
+    packet.clipping_2 = clipping_2;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_VIBRATION_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_VIBRATION;
+    msg->msgid = MAVLINK_MSG_ID_VIBRATION;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_VIBRATION_LEN, MAVLINK_MSG_ID_VIBRATION_CRC);
 #else
@@ -146,7 +146,7 @@ static inline uint16_t mavlink_msg_vibration_pack_chan(uint8_t system_id, uint8_
  */
 static inline uint16_t mavlink_msg_vibration_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_vibration_t* vibration)
 {
-	return mavlink_msg_vibration_pack(system_id, component_id, msg, vibration->time_usec, vibration->vibration_x, vibration->vibration_y, vibration->vibration_z, vibration->clipping_0, vibration->clipping_1, vibration->clipping_2);
+    return mavlink_msg_vibration_pack(system_id, component_id, msg, vibration->time_usec, vibration->vibration_x, vibration->vibration_y, vibration->vibration_z, vibration->clipping_0, vibration->clipping_1, vibration->clipping_2);
 }
 
 /**
@@ -160,7 +160,7 @@ static inline uint16_t mavlink_msg_vibration_encode(uint8_t system_id, uint8_t c
  */
 static inline uint16_t mavlink_msg_vibration_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_vibration_t* vibration)
 {
-	return mavlink_msg_vibration_pack_chan(system_id, component_id, chan, msg, vibration->time_usec, vibration->vibration_x, vibration->vibration_y, vibration->vibration_z, vibration->clipping_0, vibration->clipping_1, vibration->clipping_2);
+    return mavlink_msg_vibration_pack_chan(system_id, component_id, chan, msg, vibration->time_usec, vibration->vibration_x, vibration->vibration_y, vibration->vibration_z, vibration->clipping_0, vibration->clipping_1, vibration->clipping_2);
 }
 
 /**
@@ -180,14 +180,14 @@ static inline uint16_t mavlink_msg_vibration_encode_chan(uint8_t system_id, uint
 static inline void mavlink_msg_vibration_send(mavlink_channel_t chan, uint64_t time_usec, float vibration_x, float vibration_y, float vibration_z, uint32_t clipping_0, uint32_t clipping_1, uint32_t clipping_2)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_VIBRATION_LEN];
-	_mav_put_uint64_t(buf, 0, time_usec);
-	_mav_put_float(buf, 8, vibration_x);
-	_mav_put_float(buf, 12, vibration_y);
-	_mav_put_float(buf, 16, vibration_z);
-	_mav_put_uint32_t(buf, 20, clipping_0);
-	_mav_put_uint32_t(buf, 24, clipping_1);
-	_mav_put_uint32_t(buf, 28, clipping_2);
+    char buf[MAVLINK_MSG_ID_VIBRATION_LEN];
+    _mav_put_uint64_t(buf, 0, time_usec);
+    _mav_put_float(buf, 8, vibration_x);
+    _mav_put_float(buf, 12, vibration_y);
+    _mav_put_float(buf, 16, vibration_z);
+    _mav_put_uint32_t(buf, 20, clipping_0);
+    _mav_put_uint32_t(buf, 24, clipping_1);
+    _mav_put_uint32_t(buf, 28, clipping_2);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_VIBRATION, buf, MAVLINK_MSG_ID_VIBRATION_LEN, MAVLINK_MSG_ID_VIBRATION_CRC);
@@ -195,14 +195,14 @@ static inline void mavlink_msg_vibration_send(mavlink_channel_t chan, uint64_t t
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_VIBRATION, buf, MAVLINK_MSG_ID_VIBRATION_LEN);
 #endif
 #else
-	mavlink_vibration_t packet;
-	packet.time_usec = time_usec;
-	packet.vibration_x = vibration_x;
-	packet.vibration_y = vibration_y;
-	packet.vibration_z = vibration_z;
-	packet.clipping_0 = clipping_0;
-	packet.clipping_1 = clipping_1;
-	packet.clipping_2 = clipping_2;
+    mavlink_vibration_t packet;
+    packet.time_usec = time_usec;
+    packet.vibration_x = vibration_x;
+    packet.vibration_y = vibration_y;
+    packet.vibration_z = vibration_z;
+    packet.clipping_0 = clipping_0;
+    packet.clipping_1 = clipping_1;
+    packet.clipping_2 = clipping_2;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_VIBRATION, (const char *)&packet, MAVLINK_MSG_ID_VIBRATION_LEN, MAVLINK_MSG_ID_VIBRATION_CRC);
@@ -223,14 +223,14 @@ static inline void mavlink_msg_vibration_send(mavlink_channel_t chan, uint64_t t
 static inline void mavlink_msg_vibration_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint64_t time_usec, float vibration_x, float vibration_y, float vibration_z, uint32_t clipping_0, uint32_t clipping_1, uint32_t clipping_2)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char *buf = (char *)msgbuf;
-	_mav_put_uint64_t(buf, 0, time_usec);
-	_mav_put_float(buf, 8, vibration_x);
-	_mav_put_float(buf, 12, vibration_y);
-	_mav_put_float(buf, 16, vibration_z);
-	_mav_put_uint32_t(buf, 20, clipping_0);
-	_mav_put_uint32_t(buf, 24, clipping_1);
-	_mav_put_uint32_t(buf, 28, clipping_2);
+    char *buf = (char *)msgbuf;
+    _mav_put_uint64_t(buf, 0, time_usec);
+    _mav_put_float(buf, 8, vibration_x);
+    _mav_put_float(buf, 12, vibration_y);
+    _mav_put_float(buf, 16, vibration_z);
+    _mav_put_uint32_t(buf, 20, clipping_0);
+    _mav_put_uint32_t(buf, 24, clipping_1);
+    _mav_put_uint32_t(buf, 28, clipping_2);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_VIBRATION, buf, MAVLINK_MSG_ID_VIBRATION_LEN, MAVLINK_MSG_ID_VIBRATION_CRC);
@@ -238,14 +238,14 @@ static inline void mavlink_msg_vibration_send_buf(mavlink_message_t *msgbuf, mav
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_VIBRATION, buf, MAVLINK_MSG_ID_VIBRATION_LEN);
 #endif
 #else
-	mavlink_vibration_t *packet = (mavlink_vibration_t *)msgbuf;
-	packet->time_usec = time_usec;
-	packet->vibration_x = vibration_x;
-	packet->vibration_y = vibration_y;
-	packet->vibration_z = vibration_z;
-	packet->clipping_0 = clipping_0;
-	packet->clipping_1 = clipping_1;
-	packet->clipping_2 = clipping_2;
+    mavlink_vibration_t *packet = (mavlink_vibration_t *)msgbuf;
+    packet->time_usec = time_usec;
+    packet->vibration_x = vibration_x;
+    packet->vibration_y = vibration_y;
+    packet->vibration_z = vibration_z;
+    packet->clipping_0 = clipping_0;
+    packet->clipping_1 = clipping_1;
+    packet->clipping_2 = clipping_2;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_VIBRATION, (const char *)packet, MAVLINK_MSG_ID_VIBRATION_LEN, MAVLINK_MSG_ID_VIBRATION_CRC);
@@ -268,7 +268,7 @@ static inline void mavlink_msg_vibration_send_buf(mavlink_message_t *msgbuf, mav
  */
 static inline uint64_t mavlink_msg_vibration_get_time_usec(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint64_t(msg,  0);
+    return _MAV_RETURN_uint64_t(msg,  0);
 }
 
 /**
@@ -278,7 +278,7 @@ static inline uint64_t mavlink_msg_vibration_get_time_usec(const mavlink_message
  */
 static inline float mavlink_msg_vibration_get_vibration_x(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  8);
+    return _MAV_RETURN_float(msg,  8);
 }
 
 /**
@@ -288,7 +288,7 @@ static inline float mavlink_msg_vibration_get_vibration_x(const mavlink_message_
  */
 static inline float mavlink_msg_vibration_get_vibration_y(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  12);
+    return _MAV_RETURN_float(msg,  12);
 }
 
 /**
@@ -298,7 +298,7 @@ static inline float mavlink_msg_vibration_get_vibration_y(const mavlink_message_
  */
 static inline float mavlink_msg_vibration_get_vibration_z(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  16);
+    return _MAV_RETURN_float(msg,  16);
 }
 
 /**
@@ -308,7 +308,7 @@ static inline float mavlink_msg_vibration_get_vibration_z(const mavlink_message_
  */
 static inline uint32_t mavlink_msg_vibration_get_clipping_0(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  20);
+    return _MAV_RETURN_uint32_t(msg,  20);
 }
 
 /**
@@ -318,7 +318,7 @@ static inline uint32_t mavlink_msg_vibration_get_clipping_0(const mavlink_messag
  */
 static inline uint32_t mavlink_msg_vibration_get_clipping_1(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  24);
+    return _MAV_RETURN_uint32_t(msg,  24);
 }
 
 /**
@@ -328,7 +328,7 @@ static inline uint32_t mavlink_msg_vibration_get_clipping_1(const mavlink_messag
  */
 static inline uint32_t mavlink_msg_vibration_get_clipping_2(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint32_t(msg,  28);
+    return _MAV_RETURN_uint32_t(msg,  28);
 }
 
 /**
@@ -340,14 +340,14 @@ static inline uint32_t mavlink_msg_vibration_get_clipping_2(const mavlink_messag
 static inline void mavlink_msg_vibration_decode(const mavlink_message_t* msg, mavlink_vibration_t* vibration)
 {
 #if MAVLINK_NEED_BYTE_SWAP
-	vibration->time_usec = mavlink_msg_vibration_get_time_usec(msg);
-	vibration->vibration_x = mavlink_msg_vibration_get_vibration_x(msg);
-	vibration->vibration_y = mavlink_msg_vibration_get_vibration_y(msg);
-	vibration->vibration_z = mavlink_msg_vibration_get_vibration_z(msg);
-	vibration->clipping_0 = mavlink_msg_vibration_get_clipping_0(msg);
-	vibration->clipping_1 = mavlink_msg_vibration_get_clipping_1(msg);
-	vibration->clipping_2 = mavlink_msg_vibration_get_clipping_2(msg);
+    vibration->time_usec = mavlink_msg_vibration_get_time_usec(msg);
+    vibration->vibration_x = mavlink_msg_vibration_get_vibration_x(msg);
+    vibration->vibration_y = mavlink_msg_vibration_get_vibration_y(msg);
+    vibration->vibration_z = mavlink_msg_vibration_get_vibration_z(msg);
+    vibration->clipping_0 = mavlink_msg_vibration_get_clipping_0(msg);
+    vibration->clipping_1 = mavlink_msg_vibration_get_clipping_1(msg);
+    vibration->clipping_2 = mavlink_msg_vibration_get_clipping_2(msg);
 #else
-	memcpy(vibration, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_VIBRATION_LEN);
+    memcpy(vibration, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_VIBRATION_LEN);
 #endif
 }

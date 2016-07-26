@@ -21,9 +21,9 @@ typedef struct __mavlink_fence_point_t
 
 
 #define MAVLINK_MESSAGE_INFO_FENCE_POINT { \
-	"FENCE_POINT", \
-	6, \
-	{  { "target_system", NULL, MAVLINK_TYPE_UINT8_T, 0, 0, offsetof(mavlink_fence_point_t, target_system) }, \
+    "FENCE_POINT", \
+    6, \
+    {  { "target_system", NULL, MAVLINK_TYPE_UINT8_T, 0, 0, offsetof(mavlink_fence_point_t, target_system) }, \
          { "target_component", NULL, MAVLINK_TYPE_UINT8_T, 0, 1, offsetof(mavlink_fence_point_t, target_component) }, \
          { "idx", NULL, MAVLINK_TYPE_UINT8_T, 0, 2, offsetof(mavlink_fence_point_t, idx) }, \
          { "count", NULL, MAVLINK_TYPE_UINT8_T, 0, 3, offsetof(mavlink_fence_point_t, count) }, \
@@ -48,31 +48,31 @@ typedef struct __mavlink_fence_point_t
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_fence_point_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-						       uint8_t target_system, uint8_t target_component, uint8_t idx, uint8_t count, float lat, float lng)
+                               uint8_t target_system, uint8_t target_component, uint8_t idx, uint8_t count, float lat, float lng)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_FENCE_POINT_LEN];
-	_mav_put_uint8_t(buf, 0, target_system);
-	_mav_put_uint8_t(buf, 1, target_component);
-	_mav_put_uint8_t(buf, 2, idx);
-	_mav_put_uint8_t(buf, 3, count);
-	_mav_put_float(buf, 4, lat);
-	_mav_put_float(buf, 8, lng);
+    char buf[MAVLINK_MSG_ID_FENCE_POINT_LEN];
+    _mav_put_uint8_t(buf, 0, target_system);
+    _mav_put_uint8_t(buf, 1, target_component);
+    _mav_put_uint8_t(buf, 2, idx);
+    _mav_put_uint8_t(buf, 3, count);
+    _mav_put_float(buf, 4, lat);
+    _mav_put_float(buf, 8, lng);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #else
-	mavlink_fence_point_t packet;
-	packet.target_system = target_system;
-	packet.target_component = target_component;
-	packet.idx = idx;
-	packet.count = count;
-	packet.lat = lat;
-	packet.lng = lng;
+    mavlink_fence_point_t packet;
+    packet.target_system = target_system;
+    packet.target_component = target_component;
+    packet.idx = idx;
+    packet.count = count;
+    packet.lat = lat;
+    packet.lng = lng;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_FENCE_POINT;
+    msg->msgid = MAVLINK_MSG_ID_FENCE_POINT;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_FENCE_POINT_LEN, MAVLINK_MSG_ID_FENCE_POINT_CRC);
 #else
@@ -95,32 +95,32 @@ static inline uint16_t mavlink_msg_fence_point_pack(uint8_t system_id, uint8_t c
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_fence_point_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
-							   mavlink_message_t* msg,
-						           uint8_t target_system,uint8_t target_component,uint8_t idx,uint8_t count,float lat,float lng)
+                               mavlink_message_t* msg,
+                                   uint8_t target_system,uint8_t target_component,uint8_t idx,uint8_t count,float lat,float lng)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_FENCE_POINT_LEN];
-	_mav_put_uint8_t(buf, 0, target_system);
-	_mav_put_uint8_t(buf, 1, target_component);
-	_mav_put_uint8_t(buf, 2, idx);
-	_mav_put_uint8_t(buf, 3, count);
-	_mav_put_float(buf, 4, lat);
-	_mav_put_float(buf, 8, lng);
+    char buf[MAVLINK_MSG_ID_FENCE_POINT_LEN];
+    _mav_put_uint8_t(buf, 0, target_system);
+    _mav_put_uint8_t(buf, 1, target_component);
+    _mav_put_uint8_t(buf, 2, idx);
+    _mav_put_uint8_t(buf, 3, count);
+    _mav_put_float(buf, 4, lat);
+    _mav_put_float(buf, 8, lng);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #else
-	mavlink_fence_point_t packet;
-	packet.target_system = target_system;
-	packet.target_component = target_component;
-	packet.idx = idx;
-	packet.count = count;
-	packet.lat = lat;
-	packet.lng = lng;
+    mavlink_fence_point_t packet;
+    packet.target_system = target_system;
+    packet.target_component = target_component;
+    packet.idx = idx;
+    packet.count = count;
+    packet.lat = lat;
+    packet.lng = lng;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_FENCE_POINT;
+    msg->msgid = MAVLINK_MSG_ID_FENCE_POINT;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_FENCE_POINT_LEN, MAVLINK_MSG_ID_FENCE_POINT_CRC);
 #else
@@ -138,7 +138,7 @@ static inline uint16_t mavlink_msg_fence_point_pack_chan(uint8_t system_id, uint
  */
 static inline uint16_t mavlink_msg_fence_point_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_fence_point_t* fence_point)
 {
-	return mavlink_msg_fence_point_pack(system_id, component_id, msg, fence_point->target_system, fence_point->target_component, fence_point->idx, fence_point->count, fence_point->lat, fence_point->lng);
+    return mavlink_msg_fence_point_pack(system_id, component_id, msg, fence_point->target_system, fence_point->target_component, fence_point->idx, fence_point->count, fence_point->lat, fence_point->lng);
 }
 
 /**
@@ -152,7 +152,7 @@ static inline uint16_t mavlink_msg_fence_point_encode(uint8_t system_id, uint8_t
  */
 static inline uint16_t mavlink_msg_fence_point_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_fence_point_t* fence_point)
 {
-	return mavlink_msg_fence_point_pack_chan(system_id, component_id, chan, msg, fence_point->target_system, fence_point->target_component, fence_point->idx, fence_point->count, fence_point->lat, fence_point->lng);
+    return mavlink_msg_fence_point_pack_chan(system_id, component_id, chan, msg, fence_point->target_system, fence_point->target_component, fence_point->idx, fence_point->count, fence_point->lat, fence_point->lng);
 }
 
 /**
@@ -171,13 +171,13 @@ static inline uint16_t mavlink_msg_fence_point_encode_chan(uint8_t system_id, ui
 static inline void mavlink_msg_fence_point_send(mavlink_channel_t chan, uint8_t target_system, uint8_t target_component, uint8_t idx, uint8_t count, float lat, float lng)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_FENCE_POINT_LEN];
-	_mav_put_uint8_t(buf, 0, target_system);
-	_mav_put_uint8_t(buf, 1, target_component);
-	_mav_put_uint8_t(buf, 2, idx);
-	_mav_put_uint8_t(buf, 3, count);
-	_mav_put_float(buf, 4, lat);
-	_mav_put_float(buf, 8, lng);
+    char buf[MAVLINK_MSG_ID_FENCE_POINT_LEN];
+    _mav_put_uint8_t(buf, 0, target_system);
+    _mav_put_uint8_t(buf, 1, target_component);
+    _mav_put_uint8_t(buf, 2, idx);
+    _mav_put_uint8_t(buf, 3, count);
+    _mav_put_float(buf, 4, lat);
+    _mav_put_float(buf, 8, lng);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_FENCE_POINT, buf, MAVLINK_MSG_ID_FENCE_POINT_LEN, MAVLINK_MSG_ID_FENCE_POINT_CRC);
@@ -185,13 +185,13 @@ static inline void mavlink_msg_fence_point_send(mavlink_channel_t chan, uint8_t 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_FENCE_POINT, buf, MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #endif
 #else
-	mavlink_fence_point_t packet;
-	packet.target_system = target_system;
-	packet.target_component = target_component;
-	packet.idx = idx;
-	packet.count = count;
-	packet.lat = lat;
-	packet.lng = lng;
+    mavlink_fence_point_t packet;
+    packet.target_system = target_system;
+    packet.target_component = target_component;
+    packet.idx = idx;
+    packet.count = count;
+    packet.lat = lat;
+    packet.lng = lng;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_FENCE_POINT, (const char *)&packet, MAVLINK_MSG_ID_FENCE_POINT_LEN, MAVLINK_MSG_ID_FENCE_POINT_CRC);
@@ -212,13 +212,13 @@ static inline void mavlink_msg_fence_point_send(mavlink_channel_t chan, uint8_t 
 static inline void mavlink_msg_fence_point_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint8_t target_system, uint8_t target_component, uint8_t idx, uint8_t count, float lat, float lng)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char *buf = (char *)msgbuf;
-	_mav_put_uint8_t(buf, 0, target_system);
-	_mav_put_uint8_t(buf, 1, target_component);
-	_mav_put_uint8_t(buf, 2, idx);
-	_mav_put_uint8_t(buf, 3, count);
-	_mav_put_float(buf, 4, lat);
-	_mav_put_float(buf, 8, lng);
+    char *buf = (char *)msgbuf;
+    _mav_put_uint8_t(buf, 0, target_system);
+    _mav_put_uint8_t(buf, 1, target_component);
+    _mav_put_uint8_t(buf, 2, idx);
+    _mav_put_uint8_t(buf, 3, count);
+    _mav_put_float(buf, 4, lat);
+    _mav_put_float(buf, 8, lng);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_FENCE_POINT, buf, MAVLINK_MSG_ID_FENCE_POINT_LEN, MAVLINK_MSG_ID_FENCE_POINT_CRC);
@@ -226,13 +226,13 @@ static inline void mavlink_msg_fence_point_send_buf(mavlink_message_t *msgbuf, m
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_FENCE_POINT, buf, MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #endif
 #else
-	mavlink_fence_point_t *packet = (mavlink_fence_point_t *)msgbuf;
-	packet->target_system = target_system;
-	packet->target_component = target_component;
-	packet->idx = idx;
-	packet->count = count;
-	packet->lat = lat;
-	packet->lng = lng;
+    mavlink_fence_point_t *packet = (mavlink_fence_point_t *)msgbuf;
+    packet->target_system = target_system;
+    packet->target_component = target_component;
+    packet->idx = idx;
+    packet->count = count;
+    packet->lat = lat;
+    packet->lng = lng;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_FENCE_POINT, (const char *)packet, MAVLINK_MSG_ID_FENCE_POINT_LEN, MAVLINK_MSG_ID_FENCE_POINT_CRC);
@@ -255,7 +255,7 @@ static inline void mavlink_msg_fence_point_send_buf(mavlink_message_t *msgbuf, m
  */
 static inline uint8_t mavlink_msg_fence_point_get_target_system(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint8_t(msg,  0);
+    return _MAV_RETURN_uint8_t(msg,  0);
 }
 
 /**
@@ -265,7 +265,7 @@ static inline uint8_t mavlink_msg_fence_point_get_target_system(const mavlink_me
  */
 static inline uint8_t mavlink_msg_fence_point_get_target_component(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint8_t(msg,  1);
+    return _MAV_RETURN_uint8_t(msg,  1);
 }
 
 /**
@@ -275,7 +275,7 @@ static inline uint8_t mavlink_msg_fence_point_get_target_component(const mavlink
  */
 static inline uint8_t mavlink_msg_fence_point_get_idx(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint8_t(msg,  2);
+    return _MAV_RETURN_uint8_t(msg,  2);
 }
 
 /**
@@ -285,7 +285,7 @@ static inline uint8_t mavlink_msg_fence_point_get_idx(const mavlink_message_t* m
  */
 static inline uint8_t mavlink_msg_fence_point_get_count(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint8_t(msg,  3);
+    return _MAV_RETURN_uint8_t(msg,  3);
 }
 
 /**
@@ -295,7 +295,7 @@ static inline uint8_t mavlink_msg_fence_point_get_count(const mavlink_message_t*
  */
 static inline float mavlink_msg_fence_point_get_lat(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  4);
+    return _MAV_RETURN_float(msg,  4);
 }
 
 /**
@@ -305,7 +305,7 @@ static inline float mavlink_msg_fence_point_get_lat(const mavlink_message_t* msg
  */
 static inline float mavlink_msg_fence_point_get_lng(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_float(msg,  8);
+    return _MAV_RETURN_float(msg,  8);
 }
 
 /**
@@ -317,13 +317,13 @@ static inline float mavlink_msg_fence_point_get_lng(const mavlink_message_t* msg
 static inline void mavlink_msg_fence_point_decode(const mavlink_message_t* msg, mavlink_fence_point_t* fence_point)
 {
 #if MAVLINK_NEED_BYTE_SWAP
-	fence_point->target_system = mavlink_msg_fence_point_get_target_system(msg);
-	fence_point->target_component = mavlink_msg_fence_point_get_target_component(msg);
-	fence_point->idx = mavlink_msg_fence_point_get_idx(msg);
-	fence_point->count = mavlink_msg_fence_point_get_count(msg);
-	fence_point->lat = mavlink_msg_fence_point_get_lat(msg);
-	fence_point->lng = mavlink_msg_fence_point_get_lng(msg);
+    fence_point->target_system = mavlink_msg_fence_point_get_target_system(msg);
+    fence_point->target_component = mavlink_msg_fence_point_get_target_component(msg);
+    fence_point->idx = mavlink_msg_fence_point_get_idx(msg);
+    fence_point->count = mavlink_msg_fence_point_get_count(msg);
+    fence_point->lat = mavlink_msg_fence_point_get_lat(msg);
+    fence_point->lng = mavlink_msg_fence_point_get_lng(msg);
 #else
-	memcpy(fence_point, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_FENCE_POINT_LEN);
+    memcpy(fence_point, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_FENCE_POINT_LEN);
 #endif
 }

@@ -22,9 +22,9 @@ typedef struct __mavlink_raw_aux_t
 
 
 #define MAVLINK_MESSAGE_INFO_RAW_AUX { \
-	"RAW_AUX", \
-	7, \
-	{  { "baro", NULL, MAVLINK_TYPE_INT32_T, 0, 0, offsetof(mavlink_raw_aux_t, baro) }, \
+    "RAW_AUX", \
+    7, \
+    {  { "baro", NULL, MAVLINK_TYPE_INT32_T, 0, 0, offsetof(mavlink_raw_aux_t, baro) }, \
          { "adc1", NULL, MAVLINK_TYPE_UINT16_T, 0, 4, offsetof(mavlink_raw_aux_t, adc1) }, \
          { "adc2", NULL, MAVLINK_TYPE_UINT16_T, 0, 6, offsetof(mavlink_raw_aux_t, adc2) }, \
          { "adc3", NULL, MAVLINK_TYPE_UINT16_T, 0, 8, offsetof(mavlink_raw_aux_t, adc3) }, \
@@ -51,33 +51,33 @@ typedef struct __mavlink_raw_aux_t
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_raw_aux_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-						       uint16_t adc1, uint16_t adc2, uint16_t adc3, uint16_t adc4, uint16_t vbat, int16_t temp, int32_t baro)
+                               uint16_t adc1, uint16_t adc2, uint16_t adc3, uint16_t adc4, uint16_t vbat, int16_t temp, int32_t baro)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_RAW_AUX_LEN];
-	_mav_put_int32_t(buf, 0, baro);
-	_mav_put_uint16_t(buf, 4, adc1);
-	_mav_put_uint16_t(buf, 6, adc2);
-	_mav_put_uint16_t(buf, 8, adc3);
-	_mav_put_uint16_t(buf, 10, adc4);
-	_mav_put_uint16_t(buf, 12, vbat);
-	_mav_put_int16_t(buf, 14, temp);
+    char buf[MAVLINK_MSG_ID_RAW_AUX_LEN];
+    _mav_put_int32_t(buf, 0, baro);
+    _mav_put_uint16_t(buf, 4, adc1);
+    _mav_put_uint16_t(buf, 6, adc2);
+    _mav_put_uint16_t(buf, 8, adc3);
+    _mav_put_uint16_t(buf, 10, adc4);
+    _mav_put_uint16_t(buf, 12, vbat);
+    _mav_put_int16_t(buf, 14, temp);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_RAW_AUX_LEN);
 #else
-	mavlink_raw_aux_t packet;
-	packet.baro = baro;
-	packet.adc1 = adc1;
-	packet.adc2 = adc2;
-	packet.adc3 = adc3;
-	packet.adc4 = adc4;
-	packet.vbat = vbat;
-	packet.temp = temp;
+    mavlink_raw_aux_t packet;
+    packet.baro = baro;
+    packet.adc1 = adc1;
+    packet.adc2 = adc2;
+    packet.adc3 = adc3;
+    packet.adc4 = adc4;
+    packet.vbat = vbat;
+    packet.temp = temp;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_RAW_AUX_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_RAW_AUX;
+    msg->msgid = MAVLINK_MSG_ID_RAW_AUX;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_RAW_AUX_LEN, MAVLINK_MSG_ID_RAW_AUX_CRC);
 #else
@@ -101,34 +101,34 @@ static inline uint16_t mavlink_msg_raw_aux_pack(uint8_t system_id, uint8_t compo
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_raw_aux_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
-							   mavlink_message_t* msg,
-						           uint16_t adc1,uint16_t adc2,uint16_t adc3,uint16_t adc4,uint16_t vbat,int16_t temp,int32_t baro)
+                               mavlink_message_t* msg,
+                                   uint16_t adc1,uint16_t adc2,uint16_t adc3,uint16_t adc4,uint16_t vbat,int16_t temp,int32_t baro)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_RAW_AUX_LEN];
-	_mav_put_int32_t(buf, 0, baro);
-	_mav_put_uint16_t(buf, 4, adc1);
-	_mav_put_uint16_t(buf, 6, adc2);
-	_mav_put_uint16_t(buf, 8, adc3);
-	_mav_put_uint16_t(buf, 10, adc4);
-	_mav_put_uint16_t(buf, 12, vbat);
-	_mav_put_int16_t(buf, 14, temp);
+    char buf[MAVLINK_MSG_ID_RAW_AUX_LEN];
+    _mav_put_int32_t(buf, 0, baro);
+    _mav_put_uint16_t(buf, 4, adc1);
+    _mav_put_uint16_t(buf, 6, adc2);
+    _mav_put_uint16_t(buf, 8, adc3);
+    _mav_put_uint16_t(buf, 10, adc4);
+    _mav_put_uint16_t(buf, 12, vbat);
+    _mav_put_int16_t(buf, 14, temp);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_RAW_AUX_LEN);
 #else
-	mavlink_raw_aux_t packet;
-	packet.baro = baro;
-	packet.adc1 = adc1;
-	packet.adc2 = adc2;
-	packet.adc3 = adc3;
-	packet.adc4 = adc4;
-	packet.vbat = vbat;
-	packet.temp = temp;
+    mavlink_raw_aux_t packet;
+    packet.baro = baro;
+    packet.adc1 = adc1;
+    packet.adc2 = adc2;
+    packet.adc3 = adc3;
+    packet.adc4 = adc4;
+    packet.vbat = vbat;
+    packet.temp = temp;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_RAW_AUX_LEN);
 #endif
 
-	msg->msgid = MAVLINK_MSG_ID_RAW_AUX;
+    msg->msgid = MAVLINK_MSG_ID_RAW_AUX;
 #if MAVLINK_CRC_EXTRA
     return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_RAW_AUX_LEN, MAVLINK_MSG_ID_RAW_AUX_CRC);
 #else
@@ -146,7 +146,7 @@ static inline uint16_t mavlink_msg_raw_aux_pack_chan(uint8_t system_id, uint8_t 
  */
 static inline uint16_t mavlink_msg_raw_aux_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_raw_aux_t* raw_aux)
 {
-	return mavlink_msg_raw_aux_pack(system_id, component_id, msg, raw_aux->adc1, raw_aux->adc2, raw_aux->adc3, raw_aux->adc4, raw_aux->vbat, raw_aux->temp, raw_aux->baro);
+    return mavlink_msg_raw_aux_pack(system_id, component_id, msg, raw_aux->adc1, raw_aux->adc2, raw_aux->adc3, raw_aux->adc4, raw_aux->vbat, raw_aux->temp, raw_aux->baro);
 }
 
 /**
@@ -160,7 +160,7 @@ static inline uint16_t mavlink_msg_raw_aux_encode(uint8_t system_id, uint8_t com
  */
 static inline uint16_t mavlink_msg_raw_aux_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_raw_aux_t* raw_aux)
 {
-	return mavlink_msg_raw_aux_pack_chan(system_id, component_id, chan, msg, raw_aux->adc1, raw_aux->adc2, raw_aux->adc3, raw_aux->adc4, raw_aux->vbat, raw_aux->temp, raw_aux->baro);
+    return mavlink_msg_raw_aux_pack_chan(system_id, component_id, chan, msg, raw_aux->adc1, raw_aux->adc2, raw_aux->adc3, raw_aux->adc4, raw_aux->vbat, raw_aux->temp, raw_aux->baro);
 }
 
 /**
@@ -180,14 +180,14 @@ static inline uint16_t mavlink_msg_raw_aux_encode_chan(uint8_t system_id, uint8_
 static inline void mavlink_msg_raw_aux_send(mavlink_channel_t chan, uint16_t adc1, uint16_t adc2, uint16_t adc3, uint16_t adc4, uint16_t vbat, int16_t temp, int32_t baro)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char buf[MAVLINK_MSG_ID_RAW_AUX_LEN];
-	_mav_put_int32_t(buf, 0, baro);
-	_mav_put_uint16_t(buf, 4, adc1);
-	_mav_put_uint16_t(buf, 6, adc2);
-	_mav_put_uint16_t(buf, 8, adc3);
-	_mav_put_uint16_t(buf, 10, adc4);
-	_mav_put_uint16_t(buf, 12, vbat);
-	_mav_put_int16_t(buf, 14, temp);
+    char buf[MAVLINK_MSG_ID_RAW_AUX_LEN];
+    _mav_put_int32_t(buf, 0, baro);
+    _mav_put_uint16_t(buf, 4, adc1);
+    _mav_put_uint16_t(buf, 6, adc2);
+    _mav_put_uint16_t(buf, 8, adc3);
+    _mav_put_uint16_t(buf, 10, adc4);
+    _mav_put_uint16_t(buf, 12, vbat);
+    _mav_put_int16_t(buf, 14, temp);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_RAW_AUX, buf, MAVLINK_MSG_ID_RAW_AUX_LEN, MAVLINK_MSG_ID_RAW_AUX_CRC);
@@ -195,14 +195,14 @@ static inline void mavlink_msg_raw_aux_send(mavlink_channel_t chan, uint16_t adc
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_RAW_AUX, buf, MAVLINK_MSG_ID_RAW_AUX_LEN);
 #endif
 #else
-	mavlink_raw_aux_t packet;
-	packet.baro = baro;
-	packet.adc1 = adc1;
-	packet.adc2 = adc2;
-	packet.adc3 = adc3;
-	packet.adc4 = adc4;
-	packet.vbat = vbat;
-	packet.temp = temp;
+    mavlink_raw_aux_t packet;
+    packet.baro = baro;
+    packet.adc1 = adc1;
+    packet.adc2 = adc2;
+    packet.adc3 = adc3;
+    packet.adc4 = adc4;
+    packet.vbat = vbat;
+    packet.temp = temp;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_RAW_AUX, (const char *)&packet, MAVLINK_MSG_ID_RAW_AUX_LEN, MAVLINK_MSG_ID_RAW_AUX_CRC);
@@ -223,14 +223,14 @@ static inline void mavlink_msg_raw_aux_send(mavlink_channel_t chan, uint16_t adc
 static inline void mavlink_msg_raw_aux_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint16_t adc1, uint16_t adc2, uint16_t adc3, uint16_t adc4, uint16_t vbat, int16_t temp, int32_t baro)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-	char *buf = (char *)msgbuf;
-	_mav_put_int32_t(buf, 0, baro);
-	_mav_put_uint16_t(buf, 4, adc1);
-	_mav_put_uint16_t(buf, 6, adc2);
-	_mav_put_uint16_t(buf, 8, adc3);
-	_mav_put_uint16_t(buf, 10, adc4);
-	_mav_put_uint16_t(buf, 12, vbat);
-	_mav_put_int16_t(buf, 14, temp);
+    char *buf = (char *)msgbuf;
+    _mav_put_int32_t(buf, 0, baro);
+    _mav_put_uint16_t(buf, 4, adc1);
+    _mav_put_uint16_t(buf, 6, adc2);
+    _mav_put_uint16_t(buf, 8, adc3);
+    _mav_put_uint16_t(buf, 10, adc4);
+    _mav_put_uint16_t(buf, 12, vbat);
+    _mav_put_int16_t(buf, 14, temp);
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_RAW_AUX, buf, MAVLINK_MSG_ID_RAW_AUX_LEN, MAVLINK_MSG_ID_RAW_AUX_CRC);
@@ -238,14 +238,14 @@ static inline void mavlink_msg_raw_aux_send_buf(mavlink_message_t *msgbuf, mavli
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_RAW_AUX, buf, MAVLINK_MSG_ID_RAW_AUX_LEN);
 #endif
 #else
-	mavlink_raw_aux_t *packet = (mavlink_raw_aux_t *)msgbuf;
-	packet->baro = baro;
-	packet->adc1 = adc1;
-	packet->adc2 = adc2;
-	packet->adc3 = adc3;
-	packet->adc4 = adc4;
-	packet->vbat = vbat;
-	packet->temp = temp;
+    mavlink_raw_aux_t *packet = (mavlink_raw_aux_t *)msgbuf;
+    packet->baro = baro;
+    packet->adc1 = adc1;
+    packet->adc2 = adc2;
+    packet->adc3 = adc3;
+    packet->adc4 = adc4;
+    packet->vbat = vbat;
+    packet->temp = temp;
 
 #if MAVLINK_CRC_EXTRA
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_RAW_AUX, (const char *)packet, MAVLINK_MSG_ID_RAW_AUX_LEN, MAVLINK_MSG_ID_RAW_AUX_CRC);
@@ -268,7 +268,7 @@ static inline void mavlink_msg_raw_aux_send_buf(mavlink_message_t *msgbuf, mavli
  */
 static inline uint16_t mavlink_msg_raw_aux_get_adc1(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  4);
+    return _MAV_RETURN_uint16_t(msg,  4);
 }
 
 /**
@@ -278,7 +278,7 @@ static inline uint16_t mavlink_msg_raw_aux_get_adc1(const mavlink_message_t* msg
  */
 static inline uint16_t mavlink_msg_raw_aux_get_adc2(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  6);
+    return _MAV_RETURN_uint16_t(msg,  6);
 }
 
 /**
@@ -288,7 +288,7 @@ static inline uint16_t mavlink_msg_raw_aux_get_adc2(const mavlink_message_t* msg
  */
 static inline uint16_t mavlink_msg_raw_aux_get_adc3(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  8);
+    return _MAV_RETURN_uint16_t(msg,  8);
 }
 
 /**
@@ -298,7 +298,7 @@ static inline uint16_t mavlink_msg_raw_aux_get_adc3(const mavlink_message_t* msg
  */
 static inline uint16_t mavlink_msg_raw_aux_get_adc4(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  10);
+    return _MAV_RETURN_uint16_t(msg,  10);
 }
 
 /**
@@ -308,7 +308,7 @@ static inline uint16_t mavlink_msg_raw_aux_get_adc4(const mavlink_message_t* msg
  */
 static inline uint16_t mavlink_msg_raw_aux_get_vbat(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_uint16_t(msg,  12);
+    return _MAV_RETURN_uint16_t(msg,  12);
 }
 
 /**
@@ -318,7 +318,7 @@ static inline uint16_t mavlink_msg_raw_aux_get_vbat(const mavlink_message_t* msg
  */
 static inline int16_t mavlink_msg_raw_aux_get_temp(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_int16_t(msg,  14);
+    return _MAV_RETURN_int16_t(msg,  14);
 }
 
 /**
@@ -328,7 +328,7 @@ static inline int16_t mavlink_msg_raw_aux_get_temp(const mavlink_message_t* msg)
  */
 static inline int32_t mavlink_msg_raw_aux_get_baro(const mavlink_message_t* msg)
 {
-	return _MAV_RETURN_int32_t(msg,  0);
+    return _MAV_RETURN_int32_t(msg,  0);
 }
 
 /**
@@ -340,14 +340,14 @@ static inline int32_t mavlink_msg_raw_aux_get_baro(const mavlink_message_t* msg)
 static inline void mavlink_msg_raw_aux_decode(const mavlink_message_t* msg, mavlink_raw_aux_t* raw_aux)
 {
 #if MAVLINK_NEED_BYTE_SWAP
-	raw_aux->baro = mavlink_msg_raw_aux_get_baro(msg);
-	raw_aux->adc1 = mavlink_msg_raw_aux_get_adc1(msg);
-	raw_aux->adc2 = mavlink_msg_raw_aux_get_adc2(msg);
-	raw_aux->adc3 = mavlink_msg_raw_aux_get_adc3(msg);
-	raw_aux->adc4 = mavlink_msg_raw_aux_get_adc4(msg);
-	raw_aux->vbat = mavlink_msg_raw_aux_get_vbat(msg);
-	raw_aux->temp = mavlink_msg_raw_aux_get_temp(msg);
+    raw_aux->baro = mavlink_msg_raw_aux_get_baro(msg);
+    raw_aux->adc1 = mavlink_msg_raw_aux_get_adc1(msg);
+    raw_aux->adc2 = mavlink_msg_raw_aux_get_adc2(msg);
+    raw_aux->adc3 = mavlink_msg_raw_aux_get_adc3(msg);
+    raw_aux->adc4 = mavlink_msg_raw_aux_get_adc4(msg);
+    raw_aux->vbat = mavlink_msg_raw_aux_get_vbat(msg);
+    raw_aux->temp = mavlink_msg_raw_aux_get_temp(msg);
 #else
-	memcpy(raw_aux, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_RAW_AUX_LEN);
+    memcpy(raw_aux, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_RAW_AUX_LEN);
 #endif
 }

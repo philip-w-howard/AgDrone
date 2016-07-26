@@ -15,8 +15,9 @@ void send_param_request_list(queue_t *dest, uint8_t sysid, uint8_t compid);
 void send_heartbeat(queue_t *dest, uint8_t sysid, uint8_t compid);
 void send_ping(queue_t *dest, uint8_t sysid, uint8_t compid);
 void send_request_data_stream(queue_t *dest, uint8_t sysid, uint8_t compid,
-		uint8_t target_system, uint8_t target_component, uint8_t req_stream_id,
-		uint16_t req_message_rate, uint8_t start_stop);
+        uint8_t target_system, uint8_t target_component, uint8_t req_stream_id,
+        uint16_t req_message_rate, uint8_t start_stop);
+void send_mav_cmd(int cmd, int param1, int param2, int param3, int param4);
 
 void queue_msg(queue_t *dest, int msg_src, mavlink_message_t *msg);
 void write_tlog(int fd, mavlink_message_t *msg);
