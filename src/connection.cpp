@@ -230,3 +230,20 @@ void Connection::Process()
 
 }
 
+/*
+int Connection::WriteData(char *buff, int len)
+{
+    int size;
+
+    size = write(mFileDescriptor, buf, len);
+    return size;
+}
+
+int Connection::ReadData(char *buff, int len)
+{
+    int size;
+
+    size = read(mFileDescriptor, buf, len);
+    return size;
+}
+*/

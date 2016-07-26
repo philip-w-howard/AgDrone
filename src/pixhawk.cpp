@@ -14,6 +14,8 @@
 #include <termios.h>
 #include <string.h>
 
+#include "mraa.hpp"
+
 #include "pixhawk.h"
 #include "mavlinkif.h"
 #include "connection.h"
@@ -21,104 +23,124 @@
 PixhawkConnection::PixhawkConnection(queue_t *destQueue, char *portName)
   : Connection(0, 1, destQueue, MSG_SRC_PIXHAWK)
 {
-	printf("PixhawkConnection: %s\n", portName);
+    printf("PixhawkConnection: %s\n", portName);
 
-	mPortName = portName;
-	mIsConnected = false;
+    mPortName = portName;
+    mIsConnected = false;
 }
 
 PixhawkConnection::~PixhawkConnection()
 {
-	Disconnect();
+    Disconnect();
 }
 
 int PixhawkConnection::Start()
 {
-	if (!MakeConnection()) return -1;
+    if (!MakeConnection()) return -1;
 
-	return Connection::Start();
+    return Connection::Start();
 }
+
 
 int PixhawkConnection::ConnectSerial(char *port_name)
 {
-	int fileDescr;
-	fileDescr = open (port_name, O_RDWR | O_NOCTTY | O_SYNC);
-	if (fileDescr < 0)
-	{
-		perror ("error opening serial port");
-		return -1;
-	}
+    const char *uart_name = port_name;
+    int fileDescr;
 
-	struct termios tty;
-	memset (&tty, 0, sizeof tty);
-	if (tcgetattr (fileDescr, &tty) != 0)
-	{
-		perror("error %d from tcgetattr");
-		return -1;
-	}
+    if (strcmp(port_name, "uart") == 0)
+    {
+        // If you have a valid platform configuration use numbers to represent uart
+        // device. If not use raw mode where std::string is taken as a constructor
+        // parameter
+        mraa_uart_context dev;
+        try {
+            dev = mraa_uart_init(0);
+        } catch (std::exception& e) {
+            std::cerr << e.what() << ", likely invalid platform config" << std::endl;
+            exit(-1);
+        }
 
+        uart_name = mraa_uart_get_dev_path(dev);
+    }
 
-	/*
-	tty.c_cflag &= ~CSIZE; // Mask the character size bits
-	tty.c_cflag &= ~PARENB;
-	tty.c_cflag &= ~CSTOPB;
-	tty.c_cflag &= ~CRTSCTS ;
-	tty.c_cflag &= ~CBAUD;
+    fprintf(stderr, "Opening serial port on %s\n", uart_name);
 
-	tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    //fileDescr = open (port_name, O_RDWR | O_NOCTTY | O_SYNC);
+    fileDescr = open (uart_name, O_RDWR );
+    if (fileDescr < 0)
+    {
+        perror ("error opening serial port");
+        return -1;
+    }
 
-	tty.c_cflag |= B57600 | CS8 | CLOCAL | CREAD;
-	tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-			| INLCR | IGNCR | ICRNL | IXON);  // IGNPAR;
-	tty.c_oflag &= ~OPOST;		// turn off output processing
-	*/
+    struct termios tty;
+    memset (&tty, 0, sizeof tty);
+    if (tcgetattr (fileDescr, &tty) != 0)
+    {
+        perror("error %d from tcgetattr");
+        return -1;
+    }
 
-	tty.c_cc[VTIME] = 0;	// block until read is ready
-	tty.c_cc[VMIN] = 1;		// wait for one character
+    tty.c_cc[VTIME] = 0;    // block until read is ready
+    tty.c_cc[VMIN] = 1;     // wait for one character
 
-	cfmakeraw(&tty);
-	cfsetispeed(&tty, B57600);
-	cfsetospeed(&tty, B57600);
+    cfmakeraw(&tty);
+    cfsetispeed(&tty, B57600);
+    cfsetospeed(&tty, B57600);
 
-	tcflush(fileDescr, TCIFLUSH);
-	if (tcsetattr (fileDescr, TCSANOW, &tty) != 0)
-	{
-		perror ("error %d from tcsetattr");
-		return -1;
-	}
+    //tty.c_oflag |= CLOCAL;
 
-	return fileDescr;
+    //tcflush(fileDescr, TCIFLUSH);
+    if (tcsetattr (fileDescr, TCSAFLUSH, &tty) != 0)
+    {
+        perror ("error %d from tcsetattr");
+        return -1;
+    }
+
+        //tcflow(fileDescr, TCOON);
+
+    return fileDescr;
 }
 
 bool PixhawkConnection::MakeConnection()
 {
-	if (!mIsConnected)
-	{
-		fprintf(stderr, "Connecting to Pixhawk on port %s\n", mPortName);
+    if (!mIsConnected)
+    {
+        fprintf(stderr, "Connecting to Pixhawk on port %s\n", mPortName);
 
-		mFileDescriptor = ConnectSerial(mPortName);
+        mFileDescriptor = ConnectSerial(mPortName);
 
-		if (mFileDescriptor < 0)
-		{
-			//perror ("error opening serial port");
-			return false;
-		}
+        if (mFileDescriptor < 0)
+        {
+            //perror ("error opening serial port");
+            return false;
+        }
 
-		fprintf(stderr, "Connected to Pixhawk on FD %d\n", mFileDescriptor);
+        fprintf(stderr, "Connected to Pixhawk on FD %d\n", mFileDescriptor);
 
-		mIsConnected = true;
-		return true;
-	}
+        mIsConnected = true;
+        return true;
+    }
 
-	return true;
+    return true;
 }
 void PixhawkConnection::Disconnect()
 {
-	close(mFileDescriptor);
-	mIsConnected = false;
+    close(mFileDescriptor);
+    mIsConnected = false;
 }
 
 bool PixhawkConnection::IsConnected()
 {
-	return mIsConnected;
+    return mIsConnected;
 }
+
+/*
+int PixhawkConnection::WriteData(char *buff, int len)
+{
+}
+
+int PixhawkConnection::ReadData(char *buff, int len)
+{
+}
+*/

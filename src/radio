@@ -1,2 +1,2 @@
 #!/bin/sh
-./AgDrone -pixhawk:usb -mission:radio
+./AgDrone -pixhawk:uart -mission:radio

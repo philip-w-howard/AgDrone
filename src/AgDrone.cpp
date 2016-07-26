@@ -26,8 +26,9 @@
 #include "heartbeat.h"
 
 #define USB_PORT        "/dev/ttyACM0"
-#define RADIO_PORT      "/dev/ttyUSB\%d"
-#define UART_PORT       "/dev/ttyMFD1"
+#define RADIO_PORT      "/dev/ttyUSB0"
+//#define UART_PORT       "/dev/ttyMFD1"
+#define UART_PORT       "uart"
 #define CONSOLE_PORT    "/dev/ttyMFD2"
 #define WIFI            "wifi"
 
@@ -293,8 +294,8 @@ int main(int argc, char **argv)
         return -6;
     }
 
-    PixhawkConnection pixhawk(agdrone_q, g_pixhawk);
-    if (pixhawk.Start() != 0)
+    Connection *pixhawk = new PixhawkConnection(agdrone_q, g_pixhawk);
+    if (pixhawk->Start() != 0)
     {
         fprintf(stderr, "Unable to start pixhawk process\n");
         return -7;
@@ -348,7 +349,7 @@ int main(int argc, char **argv)
             }
             else if (item->msg_src == MSG_SRC_MISSION_PLANNER)
             {
-                pixhawk.QueueToSource(item->msg, item->msg_src);
+                pixhawk->QueueToSource(item->msg, item->msg_src);
                 num_mission_planner++;
             }
             else
@@ -386,54 +387,3 @@ int main(int argc, char **argv)
     std::cout <<  "Exiting\n";
     return MRAA_SUCCESS;
 }
-
-
-/*
-    int target_system = 1;
-    int target_component = 1;
-    int start_stop = 1;
-    int req_stream_id = MAV_DATA_STREAM_EXTENDED_STATUS;
-    int req_message_rate = 2;
-*/
-
-    //send_heartbeat(pixhawk, logfile);
-
-    /*
-    req_stream_id = MAV_DATA_STREAM_EXTENDED_STATUS;
-    req_message_rate = 2;
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    req_stream_id = MAV_DATA_STREAM_POSITION;
-    req_message_rate = 3;
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    req_stream_id = MAV_DATA_STREAM_EXTRA1;
-    req_message_rate = 10;
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    req_stream_id = MAV_DATA_STREAM_EXTRA3;
-    req_message_rate = 2;
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    req_stream_id = MAV_DATA_STREAM_RAW_SENSORS;
-    req_message_rate = 2;
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    req_stream_id = MAV_DATA_STREAM_RC_CHANNELS;
-    req_message_rate = 10;
-    start_stop = 0;
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    send_request_data_stream(pixhawk, logfile,
-            target_system, target_component, req_stream_id, req_message_rate, start_stop);
-    */
