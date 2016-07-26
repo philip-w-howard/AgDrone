@@ -17,233 +17,229 @@
 
 void *writing_thread(void *param)
 {
-	Connection *conn = (Connection *)param;
+    Connection *conn = (Connection *)param;
 
-	conn->WriteMsgs();
+    conn->WriteMsgs();
 
-	return NULL;
+    return NULL;
 }
 
 void *reading_thread(void *param)
 {
-	Connection *conn = (Connection *)param;
-	conn->Process();
+    Connection *conn = (Connection *)param;
+    conn->Process();
 
-	return NULL;
+    return NULL;
 }
 
 Connection::Connection(int mavChannel, int bytesAtATime, queue_t *destQueue, int msgSrc)
 {
-	mMavChannel = mavChannel;
-	mBytesAtATime = bytesAtATime;
-	mDestQueue = destQueue;
-	mMsgSrc = msgSrc;
-	mInpQueue = queue_create();
+    mMavChannel = mavChannel;
+    mBytesAtATime = bytesAtATime;
+    mDestQueue = destQueue;
+    mMsgSrc = msgSrc;
+    mInpQueue = queue_create();
 
-	mRunning = true;
-	mStopWriter = false;
-	mFileDescriptor = -1;
-	mWriter = 0;
-	mReader = 0;
-	mRecvErrors = 0;
-	mSent = 0;
+    mRunning = true;
+    mStopWriter = false;
+    mFileDescriptor = -1;
+    mWriter = 0;
+    mReader = 0;
+    mRecvErrors = 0;
+    mMsgsSent = 0;
+    mMsgsReceived = 0;
+    mCharsSent = 0;
+    mCharsReceived = 0;
 }
 
 Connection::~Connection()
 {
-	queue_mark_closed(mInpQueue);
-	queue_close(mInpQueue);
+    queue_mark_closed(mInpQueue);
+    queue_close(mInpQueue);
 }
 
 int Connection::Start()
 {
-	fprintf(stderr, "Starting connection for channel %d\n", mMavChannel);
+    fprintf(stderr, "Starting connection for channel %d\n", mMavChannel);
 
-	int result = pthread_create(&mReader, NULL, reading_thread, this);
+    int result = pthread_create(&mReader, NULL, reading_thread, this);
 
-	if (result != 0)
-	{
-		perror("Unable to start mavlink reading thread");
-		return -1;
-	}
+    if (result != 0)
+    {
+        perror("Unable to start mavlink reading thread");
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 void Connection::Stop()
 {
-	mRunning = false;
-	pthread_join(mReader, NULL);
+    mRunning = false;
+    pthread_join(mReader, NULL);
 }
 
 void Connection::QueueToDest(mavlink_message_t *msg, int msg_src)
 {
-	queued_msg_t *item;
+    queued_msg_t *item;
 
-	item = (queued_msg_t *)malloc(sizeof(queued_msg_t));
-	assert(item != NULL);
+    item = (queued_msg_t *)malloc(sizeof(queued_msg_t));
+    assert(item != NULL);
 
-	item->msg = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
-	assert(item->msg != NULL);
+    item->msg = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
+    assert(item->msg != NULL);
 
-	item->msg_src = msg_src;
+    item->msg_src = msg_src;
 
-	memcpy(item->msg, msg, sizeof(mavlink_message_t));
-	queue_insert(mDestQueue, item);
+    memcpy(item->msg, msg, sizeof(mavlink_message_t));
+    queue_insert(mDestQueue, item);
 }
 
 void Connection::QueueToSource(mavlink_message_t *msg, int msg_src)
 {
-	queued_msg_t *item;
+    queued_msg_t *item;
 
-	item = (queued_msg_t *)malloc(sizeof(queued_msg_t));
-	assert(item != NULL);
+    item = (queued_msg_t *)malloc(sizeof(queued_msg_t));
+    assert(item != NULL);
 
-	item->msg = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
-	assert(item->msg != NULL);
+    item->msg = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
+    assert(item->msg != NULL);
 
-	item->msg_src = msg_src;
+    item->msg_src = msg_src;
 
-	memcpy(item->msg, msg, sizeof(mavlink_message_t));
-	queue_insert(mInpQueue, item);
+    memcpy(item->msg, msg, sizeof(mavlink_message_t));
+    queue_insert(mInpQueue, item);
 }
 
 void Connection::ReadMsgs()
 {
-	mavlink_message_t msg;
-	mavlink_status_t status;
-	int num_msgs = 0;
-	uint8_t input_buff[mBytesAtATime];
-	int length;
+    mavlink_message_t msg;
+    mavlink_status_t status;
+    uint8_t input_buff[mBytesAtATime];
+    int length;
 
-	memset(&msg, 0, sizeof(msg));
-	memset(&status, 0, sizeof(status));
+    memset(&msg, 0, sizeof(msg));
+    memset(&status, 0, sizeof(status));
 
-	fprintf(stderr, "Reading data on %d\n", mFileDescriptor);
+    fprintf(stderr, "Reading data on %d\n", mFileDescriptor);
 
-	while(mRunning)
-	{
-		length = read(mFileDescriptor, input_buff, mBytesAtATime);
-		if (length < 0 && errno != EINTR) break;
+    while(mRunning)
+    {
+        length = read(mFileDescriptor, input_buff, mBytesAtATime);
+        if (length < 0 && errno != EINTR) break;
 
-		if (length < 0) perror("Error reading file descriptor");
+        if (length < 0) perror("Error reading file descriptor");
 
-		if (length == 0) fprintf(stderr, "Received zero bytes on channel %d\n", mMavChannel);
+        if (length == 0) fprintf(stderr, "Received zero bytes on channel %d\n", mMavChannel);
 
+        for (int ii=0; ii<length; ii++)
+        {
+            mCharsReceived++;
 
-		for (int ii=0; ii<length; ii++)
-		{
-			// Try to get a new message
-			if(mavlink_parse_char(mMavChannel, input_buff[ii], &msg, &status))
-			{
-				num_msgs++;
+            // Try to get a new message
+            if(mavlink_parse_char(mMavChannel, input_buff[ii], &msg, &status))
+            {
+                mMsgsReceived++;
 
-				QueueToDest(&msg, mMsgSrc);
-				mRecvErrors += status.packet_rx_drop_count;
-			}
-		}
-	}
+                QueueToDest(&msg, mMsgSrc);
+                mRecvErrors += status.packet_rx_drop_count;
+            }
+        }
+    }
 
-	if (mRunning)
-	{
-		perror("Error reading");
-		fprintf(stderr, "Stopped reading from %d because of error\n", mFileDescriptor);
-		//fprintf(stderr, "Exiting process\n");
-		//exit(-1);
-	}
-	else
-		fprintf(stderr, "Stopped reading from %d because was told to stop\n", mFileDescriptor);
+    if (mRunning)
+    {
+        perror("Error reading");
+        fprintf(stderr, "Stopped reading from %d because of error\n", mFileDescriptor);
+        //fprintf(stderr, "Exiting process\n");
+        //exit(-1);
+    }
+    else
+        fprintf(stderr, "Stopped reading from %d because was told to stop\n", mFileDescriptor);
 }
 
 void Connection::WriteMsgs()
 {
-	uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-	uint16_t len;
-	int size;
-	queued_msg_t *item;
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+    uint16_t len;
+    int size;
+    queued_msg_t *item;
 
-	fprintf(stderr, "Writing data to %d\n", mFileDescriptor);
+    fprintf(stderr, "Writing data to %d\n", mFileDescriptor);
 
-	while(queue_is_open(mInpQueue) && mRunning && !mStopWriter)
-	{
-		item = (queued_msg_t *)queue_remove(mInpQueue);
-		if (item != NULL)
-		{
-			// Copy the message to the send buffer
-			len = mavlink_msg_to_send_buffer(buf, item->msg);
-			free(item->msg);
-			free(item);
+    while(queue_is_open(mInpQueue) && mRunning && !mStopWriter)
+    {
+        item = (queued_msg_t *)queue_remove(mInpQueue);
+        if (item != NULL)
+        {
+            // Copy the message to the send buffer
+            len = mavlink_msg_to_send_buffer(buf, item->msg);
+            free(item->msg);
+            free(item);
 
-			// write the msg to the destination
-			size = write(mFileDescriptor, buf, len);
-			if (size == len)
-			{
-				mSent++;
-			}
-			else if (size < 0)
-			{
-				if (errno == EPIPE)
-				{
-					fprintf(stderr, "Pipe closed on other end %d\n", mFileDescriptor);
-					break;
-				} else {
-					perror("Error writing message");
-				}
-			}
-			else
-			{
-				fprintf(stderr, "Wrote too few bytes to channel %d (%d, %d)\n", mMavChannel, size, len);
-			}
-		}
-	}
+            // write the msg to the destination
+            size = write(mFileDescriptor, buf, len);
+            if (size == len)
+            {
+                mMsgsSent++;
+                mCharsSent += len;
+            }
+            else if (size < 0)
+            {
+                if (errno == EPIPE)
+                {
+                    fprintf(stderr, "Pipe closed on other end %d\n", mFileDescriptor);
+                    break;
+                } else {
+                    perror("Error writing message");
+                }
+            }
+            else
+            {
+                fprintf(stderr, "Wrote too few bytes to channel %d (%d, %d)\n", mMavChannel, size, len);
+            }
+        }
+    }
 
-	fprintf(stderr, "Done writing data to %d %p\n", mFileDescriptor, mInpQueue);
-	if (!queue_is_open(mInpQueue)) fprintf(stderr, "Done writing because queue is not open\n");
-	if (!mRunning || mStopWriter) fprintf(stderr, "Done writing because told to stop\n");
+    fprintf(stderr, "Done writing data to %d %p\n", mFileDescriptor, mInpQueue);
+    if (!queue_is_open(mInpQueue)) fprintf(stderr, "Done writing because queue is not open\n");
+    if (!mRunning || mStopWriter) fprintf(stderr, "Done writing because told to stop\n");
 
-	close(mFileDescriptor);
+    close(mFileDescriptor);
 }
 
 void Connection::Process()
 {
-	fprintf(stderr, "Processing connection for channel %d\n", mMavChannel);
+    fprintf(stderr, "Processing connection for channel %d\n", mMavChannel);
 
-	while (mRunning)
-	{
-		MakeConnection();
+    while (mRunning)
+    {
+        MakeConnection();
 
-		mStopWriter = false;
-		int result = pthread_create(&mWriter, NULL, writing_thread, this);
+        mStopWriter = false;
+        int result = pthread_create(&mWriter, NULL, writing_thread, this);
 
-		if (result != 0)
-		{
-			perror("Unable to start mavlink write thread");
-			return;
-		}
+        if (result != 0)
+        {
+            perror("Unable to start mavlink write thread");
+            return;
+        }
 
-		ReadMsgs();
-		mStopWriter = true;
-		pthread_join(mWriter, NULL);
-	}
+        ReadMsgs();
+        mStopWriter = true;
+        pthread_join(mWriter, NULL);
+    }
 
-	fprintf(stderr, "Done processing connection for channel %d\n", mMavChannel);
+    fprintf(stderr, "Done processing connection for channel %d\n", mMavChannel);
 
 }
 
-/*
-int Connection::WriteData(char *buff, int len)
+void Connection::GetStats(uint64_t *msgsSent, uint64_t *msgsRevd,
+                          uint64_t *charsSent, uint64_t *charsRevd)
 {
-    int size;
-
-    size = write(mFileDescriptor, buf, len);
-    return size;
+    if (msgsSent != NULL) *msgsSent = mMsgsSent;
+    if (msgsRevd != NULL) *msgsRevd = mMsgsReceived;
+    if (charsSent != NULL) *charsSent = mCharsSent;
+    if (charsRevd != NULL) *charsRevd = mCharsReceived;
 }
 
-int Connection::ReadData(char *buff, int len)
-{
-    int size;
-
-    size = read(mFileDescriptor, buf, len);
-    return size;
-}
-*/

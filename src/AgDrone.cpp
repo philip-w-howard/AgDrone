@@ -104,9 +104,19 @@ static void process_args(int argc, char **argv)
     }
 }
 
-static void print_stats(int total, int pixhawk, int wifi_in, int wifi_out)
+static void print_stats(int total, Connection *pixhawk, Connection *mission)
 {
-    fprintf(stderr, "processed %d msgs %d %d %d\n", total, pixhawk, wifi_in, wifi_out);
+    uint64_t p_sent, p_recv, p_csent, p_crecv;
+    uint64_t m_sent, m_recv, m_csent, m_crecv;
+
+    mission->GetStats(&m_sent, &m_recv, &m_csent, &m_crecv);
+    pixhawk->GetStats(&p_sent, &p_recv, &p_csent, &p_crecv);
+
+    fprintf(stderr, "processed %d pix: %lld %lld %lld %lld "
+                                 "mis: %lld %lld %lld %lld\n",
+            total,
+            p_sent, p_recv, p_csent, p_crecv,
+            m_sent, m_recv, m_csent, m_crecv);
 }
 
 typedef struct
@@ -285,7 +295,8 @@ int main(int argc, char **argv)
     }
     else
     {
-        mission = new PixhawkConnection(agdrone_q, g_mission);
+        mission = new PixhawkConnection(1, agdrone_q, 
+                g_mission, MSG_SRC_MISSION_PLANNER);
     }
 
     if (mission->Start() != 0)
@@ -294,40 +305,15 @@ int main(int argc, char **argv)
         return -6;
     }
 
-    Connection *pixhawk = new PixhawkConnection(agdrone_q, g_pixhawk);
+    Connection *pixhawk = new PixhawkConnection(0, agdrone_q, 
+            g_pixhawk, MSG_SRC_PIXHAWK);
     if (pixhawk->Start() != 0)
     {
         fprintf(stderr, "Unable to start pixhawk process\n");
         return -7;
     }
 
-    Start_Heartbeat();
-
-/*
-    uint8_t data[256];
-    memset(data, 0x55, 256);
-    while (1)
-    {
-        printf("1's\n");
-        memset(data, 0xFF, 256);
-        for (int ii=0; ii<1000; ii++)
-        {
-            if (write(pixhawk, data, 256) != 256)
-            {
-                perror("Error writing ones");
-            }
-        }
-        printf("0's\n");
-        memset(data, 0x00, 256);
-        for (int ii=0; ii<1000; ii++)
-        {
-            if (write(pixhawk, data, 256) != 256)
-            {
-                perror("Error writing zeros");
-            }
-        }
-    }
-*/
+    //Start_Heartbeat();
 
     int num_msgs = 0;
     int num_pixhawk = 0;
@@ -360,9 +346,12 @@ int main(int argc, char **argv)
         }
 
         num_msgs++;
-        if (num_msgs < 100 && num_msgs % 10 == 0)   print_stats(num_msgs, num_pixhawk, num_mission_planner, mission->NumSent());
-        if (num_msgs < 1000 && num_msgs % 100 == 0) print_stats(num_msgs, num_pixhawk, num_mission_planner, mission->NumSent());
-        if (num_msgs % 1000 == 0)                   print_stats(num_msgs, num_pixhawk, num_mission_planner, mission->NumSent());
+        if (num_msgs < 100 && num_msgs % 10 == 0)
+            print_stats(num_msgs, pixhawk, mission);
+        if (num_msgs < 1000 && num_msgs % 100 == 0)
+            print_stats(num_msgs, pixhawk, mission);
+        if (num_msgs % 1000 == 0)
+            print_stats(num_msgs, pixhawk, mission);
 
 /*
         if (num_msgs == 100)

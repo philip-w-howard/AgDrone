@@ -20,8 +20,9 @@
 #include "mavlinkif.h"
 #include "connection.h"
 
-PixhawkConnection::PixhawkConnection(queue_t *destQueue, char *portName)
-  : Connection(0, 1, destQueue, MSG_SRC_PIXHAWK)
+PixhawkConnection::PixhawkConnection(
+        int mavChannel, queue_t *destQueue, char *portName, int msg_src)
+  : Connection(mavChannel, 1, destQueue, msg_src)
 {
     printf("PixhawkConnection: %s\n", portName);
 
@@ -134,13 +135,3 @@ bool PixhawkConnection::IsConnected()
 {
     return mIsConnected;
 }
-
-/*
-int PixhawkConnection::WriteData(char *buff, int len)
-{
-}
-
-int PixhawkConnection::ReadData(char *buff, int len)
-{
-}
-*/

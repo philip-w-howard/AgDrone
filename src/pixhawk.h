@@ -14,7 +14,8 @@
 class PixhawkConnection : public Connection
 {
 public:
-    PixhawkConnection(queue_t *destQueue, char *portName);
+    PixhawkConnection(
+            int mavChannel, queue_t *destQueue, char *portName, int msg_src);
     virtual ~PixhawkConnection();
     virtual bool MakeConnection();
     virtual int Start();
@@ -22,10 +23,6 @@ public:
     virtual bool IsConnected();
     static int ConnectSerial(char *port_name);
 
-    /*
-    virtual int WriteData(char *buff, int len);
-    virtual int ReadData(char *buff, int len);
-    */
 protected:
     char *mPortName;
     bool mIsConnected;

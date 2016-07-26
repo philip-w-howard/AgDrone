@@ -39,8 +39,9 @@ public:
     void Stop();
     void QueueToDest(mavlink_message_t *msg, int msg_src);
     void QueueToSource(mavlink_message_t *msg, int msg_src);
-    int NumSent() { return (int) mSent; }
 
+    void GetStats(uint64_t *msgsSent, uint64_t *msgsRevd, 
+                  uint64_t *charsSent, uint64_t *charsRevd); 
 protected:
     queue_t *mDestQueue;
     queue_t *mInpQueue;
@@ -54,15 +55,14 @@ protected:
     int mBytesAtATime;
     int mMsgSrc;
     uint64_t mRecvErrors;
-    uint64_t mSent;
-
+    uint64_t mMsgsSent;
+    uint64_t mCharsSent;
+    uint64_t mMsgsReceived;
+    uint64_t mCharsReceived;
 
     void Process();
     void ReadMsgs();
     void WriteMsgs();
-
-    //virtual int WriteData(char *buff, int len);
-    //virtual int ReadData(char *buff, int len);
 
     friend void *reading_thread(void *param);
     friend void *writing_thread(void *param);

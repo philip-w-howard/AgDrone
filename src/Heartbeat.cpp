@@ -17,7 +17,7 @@ static void *heartbeat(void *param)
 	d_pin = new mraa::Gpio(13, true, false);
 
 	// set the pin as output
-	if (d_pin->dir(mraa::DIR_OUT) != MRAA_SUCCESS)
+	if ((int)(d_pin->dir(mraa::DIR_OUT)) != (int)MRAA_SUCCESS)
 	{
 		fprintf(stderr, "Can't set digital pin as output, no heartbeat signal\n");
 		return NULL;
