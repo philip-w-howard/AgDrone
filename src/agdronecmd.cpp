@@ -16,8 +16,11 @@
 #include <pthread.h>
 #include <assert.h>
 
+#include "mavlinkif.h"
+
 #include "queue.h"
 #include "agdronecmd.h"
+#include "connection.h"
 
 #define TYPE_CMD 0
 #define TYPE_MSG 1
@@ -26,8 +29,8 @@ typedef struct
 {
     int type;
     int msg_src;
-    mavlink_msg_t *msg;
-    char command[512];
+    mavlink_message_t msg;
+    char cmd[512];
 } queued_cmd_t;
 
 void *socket_thread(void *param)
@@ -48,22 +51,19 @@ void *cmd_thread(void *param)
     return NULL;
 }
 
-void *msg_thread(void *param)
-{
-    AgDroneCmd *agdrone = (AgDroneCmd *)param;
-    agdrone->ProcessMsgs();
-
-    return NULL;
-}
-
 //***************************************
-AgDroneCmd::AgDroneCmd(queue_t *pixhawk_q, int port)
+AgDroneCmd::AgDroneCmd(queue_t *agdrone_q, int port)
 {
     mPort = port;
     mIsConnected = false;
     mListenerFd = -1;
-    m_pixhawk_q = pixhawk_q;
-    m_cmd_q = init_queue();
+    mFileDescriptor = -1;
+    m_agdrone_q = agdrone_q;
+    m_cmd_q = queue_create();
+
+    m_cmd_thread = 0;
+    m_socket_thread = 0;
+    m_active_cmd = NONE;
 
     mListenerFd = socket(AF_INET, SOCK_STREAM, 0);
     if (mListenerFd < 0)
@@ -76,13 +76,10 @@ AgDroneCmd::AgDroneCmd(queue_t *pixhawk_q, int port)
 //***************************************
 AgDroneCmd::~AgDroneCmd()
 {
-    close(mListenerFd);
-    mListenerFd = -1;
-    close(mFileDescriptor);
-    mIsConnected = false;
+    Stop();
 }
 //***************************************
-AgDroneCmd::Start()
+void AgDroneCmd::Start()
 {
     struct sockaddr_in serv_addr;
     bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -98,13 +95,13 @@ AgDroneCmd::Start()
         exit(-1);
     }
 
+    m_Running = true;
+
     listen(mListenerFd,5);
     fprintf(stderr, "Listening for WiFi connections\n");
 
-    int result;
-    result = pthread_create(&m_msg_thread, NULL, msg_thread, this);
-    result = pthread_create(&m_cmd_thread, NULL, cmd_thread, this);
-    result = pthread_create(&m_socket_thread, NULL, socket_thread, this);
+    pthread_create(&m_cmd_thread, NULL, cmd_thread, this);
+    pthread_create(&m_socket_thread, NULL, socket_thread, this);
 }
 //***************************************
 bool AgDroneCmd::MakeConnection()
@@ -143,8 +140,15 @@ bool AgDroneCmd::MakeConnection()
 }
 
 //***************************************
-void AgDroneCmd::Disconnect()
+void AgDroneCmd::Stop()
 {
+    m_Running = false;
+
+    queue_close(m_cmd_q);
+
+    if (m_cmd_thread != 0) pthread_join(m_cmd_thread, NULL);
+    if (m_socket_thread != 0) pthread_join(m_socket_thread, NULL);
+
     close(mListenerFd);
     mListenerFd = -1;
     close(mFileDescriptor);
@@ -152,22 +156,25 @@ void AgDroneCmd::Disconnect()
 }
 
 //***************************************
+/*
 bool AgDroneCmd::IsConnected()
 {
     return mListenerFd >= 0 && mIsConnected;
 }
+*/
 
 //***************************************
 void AgDroneCmd::QueueMsg(mavlink_message_t *msg, int msg_src)
 {
     queued_cmd_t *item;
 
+    // ignore messages if we aren't currently processing a command
+    if (m_active_cmd == NONE) return;
+
     item = (queued_cmd_t *)malloc(sizeof(queued_cmd_t));
     assert(item != NULL);
 
-    item->msg = (mavlink_message_t *)malloc(sizeof(mavlink_message_t));
-    assert(item->msg != NULL);
-    memcpy(item->msg, msg, sizeof(mavlink_message_t));
+    memcpy(&item->msg, msg, sizeof(mavlink_message_t));
 
     item->msg_src = msg_src;
     item->type = TYPE_MSG;
@@ -190,5 +197,66 @@ void AgDroneCmd::QueueCmd(char *cmd, int cmd_src)
     item->type = TYPE_CMD;
 
     queue_insert(m_cmd_q, item);
+}
+//***************************************
+void AgDroneCmd::ProcessCommand(char *command)
+{
+    if (strcmp(command, "loglist") == 0)
+    {
+        m_active_cmd = FILE_LIST;
+        printf("Starting FILE_LIST command\n");
+        send_log_request_list(m_agdrone_q, 0x45, 0x67);
+    }
+}
+//***************************************
+void AgDroneCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
+{
+    static int count = 0;
+    if (m_active_cmd == FILE_LIST)
+    {
+        if (msg->msgid == MAVLINK_MSG_ID_LOG_ENTRY) 
+        {
+            printf("Received LOG_ENTRY\n");
+            if (++count == 5)
+            {
+                count = 0;
+                printf("Finished FILE_LIST command\n");
+                m_active_cmd = NONE;
+            }
+        }
+        else
+            printf("Received %d\n", msg->msgid);
+    }
+}
+//***************************************
+void AgDroneCmd::ProcessCmds()
+{
+    queued_cmd_t *item;
+
+    while(queue_is_open(m_cmd_q) && m_Running)
+    {
+        item = (queued_cmd_t *)queue_remove(m_cmd_q);
+        if (item != NULL)
+        {
+            if (item->type == TYPE_CMD)
+            {
+                ProcessCommand(item->cmd);
+            }
+            else if (m_active_cmd != NONE)
+            {
+                ProcessMessage(&item->msg, item->msg_src);
+            }
+            else
+            {
+                // simply ignore the message
+            }
+
+            free(item);
+        }
+    }
+}
+//***************************************
+void AgDroneCmd::ProcessSocket()
+{
 }
 

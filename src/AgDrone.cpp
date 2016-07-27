@@ -24,6 +24,7 @@
 #include "wificlient.h"
 #include "wifiserver.h"
 #include "heartbeat.h"
+#include "agdronecmd.h"
 
 #define USB_PORT        "/dev/ttyACM0"
 #define RADIO_PORT      "/dev/ttyUSB0"
@@ -272,6 +273,9 @@ int main(int argc, char **argv)
         return -4;
     }
 
+    AgDroneCmd *agdrone_cmd = new AgDroneCmd(agdrone_q, 2003);
+    agdrone_cmd->Start();
+
     char logname[256];
     time_t now = time(NULL);
     sprintf(logname, "/media/sdcard/pixhawk_%ld.tlog", now);
@@ -331,6 +335,7 @@ int main(int argc, char **argv)
             if (item->msg_src == MSG_SRC_PIXHAWK)
             {
                 mission->QueueToSource(item->msg, item->msg_src);
+                agdrone_cmd->QueueMsg(item->msg, item->msg_src);
                 num_pixhawk++;
             }
             else if (item->msg_src == MSG_SRC_MISSION_PLANNER ||
@@ -354,7 +359,7 @@ int main(int argc, char **argv)
         if (num_msgs % 1000 == 0)
         {
             print_stats(num_msgs, pixhawk, mission);
-            send_log_request_list(agdrone_q, 123, 45);
+            agdrone_cmd->QueueCmd("loglist", MSG_SRC_SELF);
         }
     }
 
