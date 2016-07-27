@@ -108,26 +108,34 @@ void send_ping(queue_t *dest, uint8_t sysid, uint8_t compid)
 }
 
 void send_mav_cmd(queue_t *dest,
-        int cmd, int param1, int param2, int param3, int param4)
+        uint8_t sysid, uint8_t compid, uint8_t target_sys, uint8_t target_comp, 
+        int command, float param1, float param2, float param3, float param4)
 {
-    /*
-    static uint32_t seq = 0;
+    // Initialize the required buffers
+    mavlink_message_t msg;
+    uint8_t confirmation = 0;
 
+    // Pack the message
+    mavlink_msg_command_long_pack(sysid, compid, &msg,
+            target_sys, target_comp,
+            command, confirmation, param1, param2, param3, param4,
+            0.0, 0.0, 0.0);
+
+    queue_msg(dest, MSG_SRC_SELF, &msg);
+}
+
+void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid)
+{
     // Initialize the required buffers
     mavlink_message_t msg;
 
-    uint8_t target_system = 0;
-    uint8_t target_component = 0;
-    seq++;
-
-        // Pack the message
-    mavlink_msg_ping_pack(sysid, compid, &msg,
-            microsSinceEpoch(), seq, target_system, target_component);
+    // Pack the message
+    mavlink_msg_log_request_list_pack(sysid, compid, &msg,
+            1, 1,       // target system, target component
+            0, -1);     // start, end
 
     queue_msg(dest, MSG_SRC_SELF, &msg);
-    */
 }
-
 void send_heartbeat(queue_t *dest, uint8_t sysid, uint8_t compid)
 {
     // Define the system type, in this case an airplane

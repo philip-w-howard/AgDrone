@@ -333,7 +333,8 @@ int main(int argc, char **argv)
                 mission->QueueToSource(item->msg, item->msg_src);
                 num_pixhawk++;
             }
-            else if (item->msg_src == MSG_SRC_MISSION_PLANNER)
+            else if (item->msg_src == MSG_SRC_MISSION_PLANNER ||
+                     item->msg_src == MSG_SRC_SELF)
             {
                 pixhawk->QueueToSource(item->msg, item->msg_src);
                 num_mission_planner++;
@@ -351,24 +352,10 @@ int main(int argc, char **argv)
         if (num_msgs < 1000 && num_msgs % 100 == 0)
             print_stats(num_msgs, pixhawk, mission);
         if (num_msgs % 1000 == 0)
+        {
             print_stats(num_msgs, pixhawk, mission);
-
-/*
-        if (num_msgs == 100)
-        {
-            send_param_request_list(pixhawk_q, EDISON_SYSID, EDISON_COMPID);
+            send_log_request_list(agdrone_q, 123, 45);
         }
-        if (num_msgs == 1000 || num_msgs == 1005)
-        {
-            send_request_data_stream(pixhawk_q, EDISON_SYSID, EDISON_COMPID,
-                    1, 1, MAV_DATA_STREAM_POSITION, 1, 1);
-        }
-        if (num_msgs == 2000 || num_msgs == 2005)
-        {
-            send_request_data_stream(pixhawk_q, EDISON_SYSID, EDISON_COMPID,
-                    1, 1, MAV_DATA_STREAM_POSITION, 20, 1);
-        }
-*/
     }
 
     close(logfile);

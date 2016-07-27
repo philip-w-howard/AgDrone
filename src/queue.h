@@ -33,6 +33,7 @@ typedef struct
 queue_t *queue_create();
 void queue_insert(queue_t *q, void *data);
 void *queue_remove(queue_t *q);
+void *queue_remove_timed(queue_t *q, int msecs);
 void queue_mark_closed(queue_t *q);
 int queue_is_open(queue_t *q);
 void queue_close(queue_t *q);

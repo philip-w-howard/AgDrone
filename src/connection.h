@@ -42,6 +42,11 @@ public:
 
     void GetStats(uint64_t *msgsSent, uint64_t *msgsRevd, 
                   uint64_t *charsSent, uint64_t *charsRevd); 
+
+    virtual void Process();
+    virtual void ReadMsgs();
+    virtual void WriteMsgs();
+
 protected:
     queue_t *mDestQueue;
     queue_t *mInpQueue;
@@ -60,12 +65,8 @@ protected:
     uint64_t mMsgsReceived;
     uint64_t mCharsReceived;
 
-    void Process();
-    void ReadMsgs();
-    void WriteMsgs();
-
-    friend void *reading_thread(void *param);
-    friend void *writing_thread(void *param);
+    //friend void *reading_thread(void *param);
+    //friend void *writing_thread(void *param);
 
 };
 

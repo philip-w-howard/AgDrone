@@ -5,9 +5,18 @@
  *      Author: philhow
  */
 
+//#define _POSIX_C_SOURCE 200809L
+
 #include <assert.h>
 #include <stdlib.h>
 #include <pthread.h>
+
+#include <inttypes.h>
+#include <stdio.h>
+#include <time.h>
+#include <errno.h>
+
+
 
 #include "queue.h"
 
@@ -66,6 +75,57 @@ void *queue_remove(queue_t *q)
     while (q->head == NULL && q->is_open)
     {
         pthread_cond_wait(&q->cond, &q->lock);
+    }
+
+    if (q->head == NULL)
+    {
+        if (!q->is_open) pthread_cond_broadcast(&q->cond);
+        pthread_mutex_unlock(&q->lock);
+        return NULL;
+    }
+
+    item = q->head;
+    q->head = item->next;
+    if (q->head == NULL) q->tail = NULL;
+
+    if (!q->is_open) pthread_cond_broadcast(&q->cond);
+    pthread_mutex_unlock(&q->lock);
+
+    data = item->data;
+
+    free(item);
+
+    return data;
+}
+//********************************
+void *queue_remove_timed(queue_t *q, int msecs)
+{
+    struct timespec stop_time;
+    item_qt *item;
+    void *data;
+    int status;
+
+    assert(q != NULL);
+
+    clock_gettime(CLOCK_REALTIME, &stop_time);
+    stop_time.tv_nsec += msecs*1000000;
+    while (stop_time.tv_nsec > 1000000000)
+    {
+        stop_time.tv_sec++;
+        stop_time.tv_nsec -= 1000000000;
+    }
+
+    pthread_mutex_lock(&q->lock);
+    while (q->head == NULL && q->is_open)
+    {
+        status = pthread_cond_timedwait(&q->cond, &q->lock, &stop_time);
+
+        // if we timed out and there is no data, return NULL
+        if (status == ETIMEDOUT && q->head == NULL)
+        {
+            pthread_mutex_unlock(&q->lock);
+            return NULL;
+        }
     }
 
     if (q->head == NULL)

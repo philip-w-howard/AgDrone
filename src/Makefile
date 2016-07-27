@@ -8,6 +8,7 @@ OBJS=  AgDrone.o \
        pixhawk.o \
        wificlient.o \
        wifiserver.o \
+       agdronecmd.o \
        queue.o \
 
 all: AgDrone
