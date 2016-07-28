@@ -124,7 +124,8 @@ void send_mav_cmd(queue_t *dest,
     queue_msg(dest, MSG_SRC_SELF, &msg);
 }
 
-void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid)
+void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid,
+        uint16_t start, uint16_t end)
 {
     // Initialize the required buffers
     mavlink_message_t msg;
@@ -132,7 +133,7 @@ void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid)
     // Pack the message
     mavlink_msg_log_request_list_pack(sysid, compid, &msg,
             1, 1,       // target system, target component
-            0, -1);     // start, end
+            start, end);
 
     queue_msg(dest, MSG_SRC_SELF, &msg);
 }

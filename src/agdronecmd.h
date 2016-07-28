@@ -20,12 +20,12 @@ public:
     virtual ~AgDroneCmd();
     void Start();
     void Stop();
-    void QueueCmd(char *cmd, int cmd_src);
+    void QueueCmd(const char *cmd, int cmd_src);
     void QueueMsg(mavlink_message_t *msg, int msg_src);
     void ProcessCmds();
     void ProcessSocket();
 protected:
-    enum COMMAND_T {NONE, FILE_LIST};
+    enum COMMAND_T {NONE, LOG_LIST};
 
     bool m_Running;
     int  mPort;
@@ -41,6 +41,7 @@ protected:
     bool MakeConnection();
     void ProcessCommand(char *command);
     void ProcessMessage(mavlink_message_t *msg, int msg_src);
+    void ProcessLogListMsg(mavlink_message_t *msg);
 };
 
 #endif /* AGDRONECMD_H_ */

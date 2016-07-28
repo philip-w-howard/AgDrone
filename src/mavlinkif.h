@@ -19,7 +19,8 @@ void send_request_data_stream(queue_t *dest, uint8_t sysid, uint8_t compid,
         uint16_t req_message_rate, uint8_t start_stop);
 void send_mav_cmd(queue_t *dest, uint8_t sysid, uint8_t compid,
         int cmd, int param1, int param2, int param3, int param4);
-void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid);
+void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid, 
+        uint16_t start, uint16_t end);
 
 void queue_msg(queue_t *dest, int msg_src, mavlink_message_t *msg);
 void write_tlog(int fd, mavlink_message_t *msg);
