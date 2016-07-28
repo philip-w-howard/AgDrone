@@ -8,6 +8,8 @@
 #ifndef AGDRONE_SRC_QUEUE_H_
 #define AGDRONE_SRC_QUEUE_H_
 
+#include <pthread.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

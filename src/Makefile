@@ -9,6 +9,7 @@ OBJS=  AgDrone.o \
        wificlient.o \
        wifiserver.o \
        agdronecmd.o \
+       loglistcmd.o \
        queue.o \
 
 all: AgDrone

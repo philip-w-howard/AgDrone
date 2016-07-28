@@ -10,6 +10,7 @@
 
 #include <pthread.h>
 
+#include "cmdprocessor.h"
 #include "mavlinkif.h"
 #include "queue.h"
 
@@ -25,14 +26,12 @@ public:
     void ProcessCmds();
     void ProcessSocket();
 protected:
-    enum COMMAND_T {NONE, LOG_LIST};
-
     bool m_Running;
     int  mPort;
     bool mIsConnected;
     int mListenerFd;
     int mFileDescriptor;
-    COMMAND_T m_active_cmd;
+    CommandProcessor *m_cmd_proc;
     queue_t *m_cmd_q;
     queue_t *m_agdrone_q;
     pthread_t m_cmd_thread;
@@ -41,7 +40,7 @@ protected:
     bool MakeConnection();
     void ProcessCommand(char *command);
     void ProcessMessage(mavlink_message_t *msg, int msg_src);
-    void ProcessLogListMsg(mavlink_message_t *msg);
+    bool CommandIsActive();
 };
 
 #endif /* AGDRONECMD_H_ */

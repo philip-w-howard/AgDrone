@@ -22,6 +22,8 @@
 #include "agdronecmd.h"
 #include "connection.h"
 
+#include "loglistcmd.h"
+
 #define TYPE_CMD 0
 #define TYPE_MSG 1
 
@@ -63,7 +65,7 @@ AgDroneCmd::AgDroneCmd(queue_t *agdrone_q, int port)
 
     m_cmd_thread = 0;
     m_socket_thread = 0;
-    m_active_cmd = NONE;
+    m_cmd_proc = NULL;
 
     mListenerFd = socket(AF_INET, SOCK_STREAM, 0);
     if (mListenerFd < 0)
@@ -169,17 +171,18 @@ void AgDroneCmd::QueueMsg(mavlink_message_t *msg, int msg_src)
     queued_cmd_t *item;
 
     // ignore messages if we aren't currently processing a command
-    if (m_active_cmd == NONE) return;
+    if (CommandIsActive()) 
+    {
+        item = (queued_cmd_t *)malloc(sizeof(queued_cmd_t));
+        assert(item != NULL);
 
-    item = (queued_cmd_t *)malloc(sizeof(queued_cmd_t));
-    assert(item != NULL);
+        memcpy(&item->msg, msg, sizeof(mavlink_message_t));
 
-    memcpy(&item->msg, msg, sizeof(mavlink_message_t));
+        item->msg_src = msg_src;
+        item->type = TYPE_MSG;
 
-    item->msg_src = msg_src;
-    item->type = TYPE_MSG;
-
-    queue_insert(m_cmd_q, item);
+        queue_insert(m_cmd_q, item);
+    }
 }
 
 //***************************************
@@ -201,111 +204,23 @@ void AgDroneCmd::QueueCmd(const char *cmd, int cmd_src)
 //***************************************
 void AgDroneCmd::ProcessCommand(char *command)
 {
+    if (m_cmd_proc != NULL)
+    {
+        m_cmd_proc->Abort();
+        delete m_cmd_proc;
+        m_cmd_proc = NULL;
+    }
+
     if (strcmp(command, "loglist") == 0)
     {
-        m_active_cmd = LOG_LIST;
-        printf("Starting LOG_LIST command\n");
-        send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
+        m_cmd_proc = new LogListCmd(m_agdrone_q);
+        m_cmd_proc->Start();
     }
 }
 //***************************************
 void AgDroneCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 {
-    switch (m_active_cmd)
-    {
-        case LOG_LIST:
-            ProcessLogListMsg(msg);
-            break;
-        case NONE:
-            // ignore the message
-            break;
-    }
-}
-//***************************************
-void AgDroneCmd::ProcessLogListMsg(mavlink_message_t *msg)
-{
-    typedef struct
-    {
-        uint16_t filled;
-        mavlink_log_entry_t entry;
-    } entry_t;
-
-    static int other_count = 0;
-    static int filled_entries = 0;
-    static int entries_capacity = 0;
-    static entry_t *entries = NULL;
-
-    if (msg->msgid == MAVLINK_MSG_ID_LOG_ENTRY) 
-    {
-        if (rand() % 100 < 33) return;  //************************************
-
-        mavlink_log_entry_t log_entry;
-        mavlink_msg_log_entry_decode(msg, &log_entry);
-        if (log_entry.last_log_num > entries_capacity)
-        {
-            entries = (entry_t *)realloc(entries, sizeof(entry_t)*(log_entry.last_log_num + 1));
-            assert(entries != NULL);
-
-            for (int ii=entries_capacity; ii<log_entry.last_log_num; ii++)
-            {
-                entries[ii].filled = 0;
-            }
-
-            entries_capacity = log_entry.last_log_num + 1;
-        }
-
-        if (log_entry.id >= entries_capacity)
-        {
-            printf("Invalid log entry************************\n");
-            printf("Log entry: id %d size %d num %d last %d\n",
-                log_entry.id, log_entry.size, log_entry.num_logs,
-                log_entry.last_log_num);
-        }
-        else
-        {
-            entries[log_entry.id].entry = log_entry;
-            if (!entries[log_entry.id].filled)
-            {
-                entries[log_entry.id].filled = 1;
-                filled_entries++;
-                printf("Log entry: id %d size %d num %d last %d\n",
-                        log_entry.id, log_entry.size, log_entry.num_logs,
-                        log_entry.last_log_num);
-            }
-        }
-
-        if (filled_entries == log_entry.num_logs)
-        {
-            filled_entries = 0;
-            entries_capacity = 0;
-            entries = NULL;
-            
-            printf("Finished LOG_LIST command\n");
-            m_active_cmd = NONE;
-        }
-    }
-    else
-    {
-        if (++other_count > 20)
-        {
-            if (filled_entries == 0)
-            {
-                send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
-            }
-            else
-            {
-                for (int ii=1; ii<entries_capacity; ii++)
-                {
-                    if (!entries[ii].filled)
-                    {
-                        send_log_request_list(m_agdrone_q, 0x45, 0x67, ii, -1);
-                        break;
-                    }
-                }
-            }
-        }
-        printf("Received %d\n", msg->msgid);
-    }
+    if (CommandIsActive()) m_cmd_proc->ProcessMessage(msg, msg_src);
 }
 //***************************************
 void AgDroneCmd::ProcessCmds()
@@ -321,7 +236,7 @@ void AgDroneCmd::ProcessCmds()
             {
                 ProcessCommand(item->cmd);
             }
-            else if (m_active_cmd != NONE)
+            else if (CommandIsActive())
             {
                 ProcessMessage(&item->msg, item->msg_src);
             }
@@ -338,4 +253,8 @@ void AgDroneCmd::ProcessCmds()
 void AgDroneCmd::ProcessSocket()
 {
 }
-
+//***************************************
+bool AgDroneCmd::CommandIsActive()
+{
+    return (m_cmd_proc != NULL) && !m_cmd_proc->IsFinished();
+}

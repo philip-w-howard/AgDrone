@@ -359,7 +359,7 @@ int main(int argc, char **argv)
         if (num_msgs % 1000 == 0)
         {
             print_stats(num_msgs, pixhawk, mission);
-            //agdrone_cmd->QueueCmd("loglist", MSG_SRC_SELF);
+            agdrone_cmd->QueueCmd("loglist", MSG_SRC_SELF);
         }
     }
 
