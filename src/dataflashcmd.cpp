@@ -11,6 +11,7 @@ DataFlashCmd::DataFlashCmd(queue_t *q, int log_id) : CommandProcessor(q)
     m_highwater = 0;
     m_logId = log_id;
     m_lastHighwater = 0;
+    m_receivedLastBlock = false;
 }
 
 //**********************************************
@@ -41,6 +42,8 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
         printf("Received id %d offset %d size %d\n",
                 log_data.id, log_data.ofs, log_data.count);
+        if (log_data.ofs > 8000) exit(1);
+
         m_data.Insert(log_data.ofs, log_data.count, log_data.data);
 
         if (log_data.ofs + log_data.count > m_highwater)
@@ -48,8 +51,13 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
         if (log_data.count < sizeof(log_data.data))
         {
-            m_finished = true;
-            printf("LOG_DATA command is finished\n");
+            m_receivedLastBlock = true;
+
+            if (!LookForHoles())
+            {
+                m_finished = true;
+                printf("LOG_DATA command is finished\n");
+            }
         }
     }
     else
@@ -58,33 +66,49 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         {
             if (m_highwater == m_lastHighwater)
             {
-                m_finished = true;
-                printf("LOG_DATA command is being aborted %d %d\n",
-                        m_highwater, m_lastHighwater);
+                if (!LookForHoles())
+                {
+                    m_finished = true;
+                    printf("LOG_DATA command is being aborted %d %d\n",
+                                m_highwater, m_lastHighwater);
+                }
             } 
             else 
             {
                 m_highwater = m_lastHighwater;
                 m_otherCount = 0;
             }
-                /*
-                if (m_filled_entries == 0)
-                {
-                    send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
-                }
-                else
-                {
-                    for (int ii=1; ii<m_entries_capacity; ii++)
-                    {
-                        if (!m_entries[ii].filled)
-                        {
-                            send_log_request_list(m_agdrone_q, 0x45, 0x67, ii, -1);
-                            break;
-                        }
-                    }
-                }
-                */
-            }
+        }
         printf("Received %d\n", msg->msgid);
     }
 }
+
+bool DataFlashCmd::LookForHoles()
+{
+    int start;
+    int size;
+    void *data;
+    bool requestedMore = false;
+
+    //while (m_data.GetHole(&start, &size))
+    while (m_data.GetUnsentBlock(&start, &size, &data))
+    {
+        //printf("DATA_FLASH filling hole: %d %d\n", start, size);
+        printf("DATA_FLASH data block: %d %d\n", start, size);
+        //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
+        requestedMore = true;
+    }
+
+    // handle the end-of-file
+    if (size == -1 && !m_receivedLastBlock)
+    {
+        //printf("DATA_FLASH filling hole: %d %d\n", start, size);
+        printf("DATA_FLASH data block: %d %d\n", start, size);
+        //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
+        requestedMore = true;
+    }
+
+    //return requestedMore;
+    return false;
+}
+

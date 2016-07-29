@@ -21,7 +21,10 @@ class DataFlashCmd : public CommandProcessor
 
         int m_otherCount;
         int m_logId;
+        bool m_receivedLastBlock;
         uint32_t m_highwater;
         uint32_t m_lastHighwater;
         DataList m_data;
+
+        bool LookForHoles();
 };
