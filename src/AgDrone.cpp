@@ -359,8 +359,8 @@ int main(int argc, char **argv)
         if (num_msgs % 1000 == 0)
         {
             print_stats(num_msgs, pixhawk, mission);
-            agdrone_cmd->QueueCmd("loglist", MSG_SRC_SELF);
         }
+        if (num_msgs == 500) agdrone_cmd->QueueCmd("logdata 4", MSG_SRC_SELF);
     }
 
     close(logfile);

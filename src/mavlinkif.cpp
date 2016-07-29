@@ -137,6 +137,19 @@ void send_log_request_list(queue_t *dest, uint8_t sysid, uint8_t compid,
 
     queue_msg(dest, MSG_SRC_SELF, &msg);
 }
+void send_log_request_data(queue_t *dest, uint8_t sysid, uint8_t compid, 
+        uint16_t id, uint32_t offset, uint32_t count)
+{
+    // Initialize the required buffers
+    mavlink_message_t msg;
+
+    // Pack the message
+    mavlink_msg_log_request_data_pack(sysid, compid, &msg,
+            1, 1,       // target system, target component
+            id, offset, count);
+
+    queue_msg(dest, MSG_SRC_SELF, &msg);
+}
 void send_heartbeat(queue_t *dest, uint8_t sysid, uint8_t compid)
 {
     // Define the system type, in this case an airplane

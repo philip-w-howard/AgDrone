@@ -1,4 +1,4 @@
-OPTS= -Wall -c -pthread
+OPTS= -Wall -c -pthread -O0 -g
 LIBS= -lmraa
 
 OBJS=  AgDrone.o \
@@ -8,8 +8,10 @@ OBJS=  AgDrone.o \
        pixhawk.o \
        wificlient.o \
        wifiserver.o \
+       datalist.o \
        agdronecmd.o \
        loglistcmd.o \
+       dataflashcmd.o \
        queue.o \
 
 all: AgDrone

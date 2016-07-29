@@ -23,6 +23,7 @@
 #include "connection.h"
 
 #include "loglistcmd.h"
+#include "dataflashcmd.h"
 
 #define TYPE_CMD 0
 #define TYPE_MSG 1
@@ -214,6 +215,13 @@ void AgDroneCmd::ProcessCommand(char *command)
     if (strcmp(command, "loglist") == 0)
     {
         m_cmd_proc = new LogListCmd(m_agdrone_q);
+        m_cmd_proc->Start();
+    }
+    else if (strncmp(command, "logdata", strlen("logdata")) == 0)
+    {
+        int log_id;
+        sscanf(&command[strlen("logdata")], "%d", &log_id);
+        m_cmd_proc = new DataFlashCmd(m_agdrone_q, log_id);
         m_cmd_proc->Start();
     }
 }
