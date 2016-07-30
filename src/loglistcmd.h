@@ -8,12 +8,17 @@
 class LogListCmd : public CommandProcessor
 {
     public:
-        LogListCmd(queue_t *agdrone_q);
+        LogListCmd(queue_t *agdrone_q, int id=0);
         virtual ~LogListCmd();
 
         virtual void Start();
+        void Start(int id);
         virtual void Abort();
         virtual void ProcessMessage(mavlink_message_t *msg, int msg_src);
+        int NumLogs();
+        int ValidLog(int index); 
+        mavlink_log_entry_t *LogEntry(int index); 
+
     protected:
         static const int OTHERS_PER_RETRY = 20;
         typedef struct
@@ -24,6 +29,7 @@ class LogListCmd : public CommandProcessor
         int m_other_count;
         int m_filled_entries;
         int m_entries_capacity;
+        int m_id;
         entry_t *m_entries;
 
 };

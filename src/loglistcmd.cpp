@@ -5,13 +5,14 @@
 #include "loglistcmd.h"
 
 //**********************************************
-LogListCmd::LogListCmd(queue_t *q) : CommandProcessor(q)
+LogListCmd::LogListCmd(queue_t *q, int id) : CommandProcessor(q)
 {
     m_other_count = 0;
     m_filled_entries = 0;
     m_entries_capacity = 0;
     m_entries = NULL;
     m_finished = false;
+    m_id = id;
 }
 
 //**********************************************
@@ -24,8 +25,17 @@ LogListCmd::~LogListCmd()
 void LogListCmd::Start()
 {
     printf("Starting LOG_LIST command\n");
-    send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
+    if (m_id == 0)
+        send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
+    else
+        send_log_request_list(m_agdrone_q, 0x45, 0x67, m_id, m_id);
     m_finished = false;
+}
+//**********************************************
+void LogListCmd::Start(int id)
+{
+    m_id = id;
+    Start();
 }
 //**********************************************
 void LogListCmd::Abort()
@@ -74,7 +84,8 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                         log_entry.last_log_num);
         }
 
-        if (m_filled_entries == log_entry.num_logs)
+        if (m_filled_entries == log_entry.num_logs ||
+            (m_id != 0 && log_entry.id == m_id))
         {
             m_finished = true;
             printf("LOG_LIST command is finished\n");
@@ -105,4 +116,23 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         }
         printf("Received %d\n", msg->msgid);
     }
+}
+//**********************************************
+int LogListCmd::NumLogs()
+{
+    return m_entries_capacity;
+}
+//**********************************************
+int LogListCmd::ValidLog(int index)
+{
+    if (index >= m_entries_capacity) return false;
+    return m_entries[index].filled;
+}
+//**********************************************
+mavlink_log_entry_t *LogListCmd::LogEntry(int index)
+{
+    if (index >= m_entries_capacity) return NULL;
+    if (!m_entries[index].filled) return NULL;
+
+    return &m_entries[index].entry;
 }

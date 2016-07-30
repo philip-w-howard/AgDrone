@@ -5,7 +5,8 @@
 #include "dataflashcmd.h"
 
 //**********************************************
-DataFlashCmd::DataFlashCmd(queue_t *q, int log_id) : CommandProcessor(q)
+DataFlashCmd::DataFlashCmd(queue_t *q, int log_id) : 
+    CommandProcessor(q), m_logList(q, log_id)
 {
     m_otherCount = 0;
     m_highwater = 0;
@@ -23,9 +24,12 @@ DataFlashCmd::~DataFlashCmd()
 //**********************************************
 void DataFlashCmd::Start()
 {
-    printf("Starting DATA_FLASH command for id %d\n", m_logId);
-    send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
     m_finished = false;
+
+    m_logList.Start(m_logId);
+
+    //printf("Starting DATA_FLASH command for id %d\n", m_logId);
+    //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
 }
 //**********************************************
 void DataFlashCmd::Abort()
@@ -35,6 +39,32 @@ void DataFlashCmd::Abort()
 void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 {
     if (m_finished) return;
+
+    if (!m_logList.IsFinished())
+    {
+        m_logList.ProcessMessage(msg, msg_src);
+
+        // If we just got the list, save data and start the log rolling
+        if (m_logList.IsFinished())
+        {
+            mavlink_log_entry_t *entry;
+            entry = m_logList.LogEntry(m_logId);
+            if (entry == NULL)
+            {
+                printf("Unable to get log list entry.\n");
+                printf("Aborting DATA_FLASH command\n");
+                m_finished = true;
+                return;
+            }
+
+            m_logTime = entry->time_utc;
+            m_logEstSize = entry->size;
+
+            printf("Starting DATA_FLASH command for id %d\n", m_logId);
+            send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
+        }
+        return;
+    }
 
     if (msg->msgid == MAVLINK_MSG_ID_LOG_DATA) 
     {

@@ -3,6 +3,7 @@
 #include <list>
 
 #include "cmdprocessor.h"
+#include "loglistcmd.h"
 #include "mavlinkif.h"
 #include "datalist.h"
 #include "queue.h"
@@ -25,6 +26,10 @@ class DataFlashCmd : public CommandProcessor
         uint32_t m_highwater;
         uint32_t m_lastHighwater;
         DataList m_data;
+
+        LogListCmd m_logList;
+        uint32_t m_logTime;
+        uint32_t m_logEstSize;
 
         uint64_t m_dataPackets;
         uint64_t m_otherPackets;
