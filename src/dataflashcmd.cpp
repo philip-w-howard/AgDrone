@@ -42,7 +42,6 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
         printf("Received id %d offset %d size %d\n",
                 log_data.id, log_data.ofs, log_data.count);
-        if (log_data.ofs > 8000) exit(1);
 
         m_data.Insert(log_data.ofs, log_data.count, log_data.data);
 
@@ -69,46 +68,50 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                 if (!LookForHoles())
                 {
                     m_finished = true;
-                    printf("LOG_DATA command is being aborted %d %d\n",
+                    if (m_receivedLastBlock)
+                        printf("LOG_DATA command is finished\n");
+                    else
+                        printf("LOG_DATA command is being aborted %d %d\n",
                                 m_highwater, m_lastHighwater);
                 }
             } 
             else 
             {
                 m_highwater = m_lastHighwater;
-                m_otherCount = 0;
             }
+
+            m_otherCount = 0;
         }
-        printf("Received %d\n", msg->msgid);
+        //printf("Received %d\n", msg->msgid);
     }
 }
 
 bool DataFlashCmd::LookForHoles()
 {
-    int start;
+    int start = -1;
     int size;
-    void *data;
     bool requestedMore = false;
 
-    //while (m_data.GetHole(&start, &size))
-    while (m_data.GetUnsentBlock(&start, &size, &data))
+    printf("Looking for holes\n");
+    m_data.ListAllBlocks();
+    fflush(stdout);
+
+    while (m_data.GetHole(&start, &size, start))
     {
-        //printf("DATA_FLASH filling hole: %d %d\n", start, size);
-        printf("DATA_FLASH data block: %d %d\n", start, size);
-        //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
+        printf("DATA_FLASH filling hole: %d %d\n", start, size);
+        send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
         requestedMore = true;
     }
 
     // handle the end-of-file
     if (size == -1 && !m_receivedLastBlock)
     {
-        //printf("DATA_FLASH filling hole: %d %d\n", start, size);
-        printf("DATA_FLASH data block: %d %d\n", start, size);
-        //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
+        printf("DATA_FLASH filling hole: %d %d\n", start, size);
+        send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
         requestedMore = true;
     }
 
-    //return requestedMore;
-    return false;
+    if (!requestedMore) printf("didn't find any holes\n");
+    return requestedMore;
 }
 

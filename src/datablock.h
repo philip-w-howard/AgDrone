@@ -11,8 +11,6 @@ class DataBlock
         {
             m_start = 0;
             m_size = 0;
-            m_data = NULL;
-            m_data_extent = 0;
             m_sent = false;
         }
 
@@ -20,29 +18,16 @@ class DataBlock
         {
             m_start = start;
             m_size = size;
-            m_data = (char *)malloc(M_EXTEND_SIZE);
-            m_data_extent = M_EXTEND_SIZE;
             m_sent = false;
         }
 
         virtual ~DataBlock()
         {
-            if (m_data != NULL) free(m_data);
         }
 
         bool Append(int size, void *data)
         {
-            if (m_size + size > M_MAX_SIZE) return false;
-
-            if (m_size + size > m_data_extent)
-            {
-                if (size < M_EXTEND_SIZE)
-                    m_data = (char *)realloc(m_data, 
-                            m_data_extent + M_EXTEND_SIZE);
-                else
-                    m_data = (char *)realloc(m_data, m_data_extent + size);
-                assert(m_data != NULL);
-            }
+            if (m_size + size > M_SIZE) return false;
 
             memcpy(m_data+m_size, data, size);
             m_size += size;
@@ -57,12 +42,10 @@ class DataBlock
         void MarkSent() { m_sent = true; }
 
     protected:
-        static const int M_EXTEND_SIZE = 4069;
-        static const int M_MAX_SIZE = 4069;
+        static const int M_SIZE = 4069;
 
         int m_start;
         int m_size;
-        char *m_data;
-        int m_data_extent;
+        char m_data[M_SIZE];
         bool m_sent;
 };

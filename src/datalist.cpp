@@ -61,17 +61,17 @@ void DataList::Insert(int start, int size, void *data)
     }
 }
 //************************************************
-bool DataList::GetHole(int *start, int *size)
+bool DataList::GetHole(int *start, int *size, int start_addr)
 {
     int prev_block_end = 0;
     std::list<DataBlock>::iterator it = m_data.begin();
 
     while (it != m_data.end())
     {
-        if (it->Start() > prev_block_end)
+        if (it->Start() > prev_block_end && prev_block_end > start_addr)
         {
             *start = prev_block_end;
-            *size = prev_block_end - it->Start();
+            *size = it->Start() - prev_block_end;
             return true;
         }
 
@@ -98,12 +98,10 @@ bool DataList::GetUnsentBlock(int *start, int *size, void **data)
         *data = it->Data();
 
         // look for a hole
-        /*
         if (it->Start() > prev_block_end)
         {
             return false;
         }
-        */
 
         // unsent?
         if (!it->IsSent())
@@ -129,4 +127,15 @@ bool DataList::DataIsComplete()
 void DataList::SetDataComplete()
 {
     m_DataComplete = true;
+}
+//************************************************
+void DataList::ListAllBlocks()
+{
+    std::list<DataBlock>::iterator it = m_data.begin();
+
+    while (it != m_data.end())
+    {
+        printf("Block %d %d\n", it->Start(), it->Size());
+        it++;
+    }
 }

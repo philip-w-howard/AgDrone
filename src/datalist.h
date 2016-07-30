@@ -11,8 +11,9 @@ class DataList
         virtual ~DataList();
 
         void Insert(int start, int size, void *data);
-        bool GetHole(int *start, int *size);
+        bool GetHole(int *start, int *size, int start_addr = -1);
         bool GetUnsentBlock(int *start, int *size, void **data);
+        void ListAllBlocks();
         bool DataIsComplete();
         void SetDataComplete();
     protected:
