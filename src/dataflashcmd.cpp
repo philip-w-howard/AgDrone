@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "dataflashcmd.h"
 
@@ -54,13 +55,22 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                 printf("Unable to get log list entry.\n");
                 printf("Aborting DATA_FLASH command\n");
                 m_finished = true;
+                WriteLog();
                 return;
             }
 
             m_logTime = entry->time_utc;
             m_logEstSize = entry->size;
+            struct tm logTime;
+            localtime_r(&m_logTime, &logTime);
+            logTime.tm_year += 1900;
+            sprintf(m_logName, "log%04d%02d%02d%02d%02d%02d",
+                    logTime.tm_year, logTime.tm_mon, logTime.tm_mday,
+                    logTime.tm_hour, logTime.tm_min, logTime.tm_sec);
 
-            printf("Starting DATA_FLASH command for id %d\n", m_logId);
+
+            printf("Starting DATA_FLASH command for id %d %s\n", 
+                    m_logId, m_logName);
             send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
         }
         return;
@@ -97,7 +107,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
             if (!LookForHoles())
             {
                 m_finished = true;
-                m_data.ListAllBlocks();
+                WriteLog();
                 printf("LOG_DATA command is finished\n");
             }
         }
@@ -119,7 +129,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     m_finished = true;
                     if (m_receivedLastBlock)
                     {
-                        m_data.ListAllBlocks();
+                        WriteLog();
                         printf("LOG_DATA command is finished\n");
                     }
                     else
@@ -196,5 +206,34 @@ void DataFlashCmd::LogProgress()
             m_highwater, m_dataBytes,
             m_numHoles, m_holesBytes);
     fflush(stdout);
+}
+bool DataFlashCmd::WriteLog()
+{
+    FILE *logfile;
+
+    struct tm logTime;
+    localtime_r(&m_logTime, &logTime);
+    logTime.tm_year += 1900;
+    sprintf(m_logName, "/media/sdcard/log%04d%02d%02d%02d%02d%02d.bin",
+            logTime.tm_year, logTime.tm_mon, logTime.tm_mday,
+            logTime.tm_hour, logTime.tm_min, logTime.tm_sec);
+    logfile = fopen(m_logName, "wb");
+    if (logfile == NULL)
+    {
+        printf("Unable to open log file: %s\n", m_logName);
+        return false;
+    }
+    
+    int start;
+    int size;
+    int count;
+    void *data;
+    while (m_data.GetUnsentBlock(&start, &size, &data))
+    {
+        count = fwrite(data, size, 1, logfile);
+    }
+
+    fclose(logfile);
+    return true;
 }
 

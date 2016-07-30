@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <time.h>
 
 #include "cmdprocessor.h"
 #include "loglistcmd.h"
@@ -28,8 +29,9 @@ class DataFlashCmd : public CommandProcessor
         DataList m_data;
 
         LogListCmd m_logList;
-        uint32_t m_logTime;
+        time_t m_logTime;
         uint32_t m_logEstSize;
+        char m_logName[256];
 
         uint64_t m_dataPackets;
         uint64_t m_otherPackets;
@@ -42,4 +44,5 @@ class DataFlashCmd : public CommandProcessor
 
         bool LookForHoles();
         void LogProgress();
+        bool WriteLog();
 };
