@@ -17,7 +17,7 @@ DataList::~DataList()
 {}
 
 //************************************************
-void DataList::Insert(int start, int size, void *data)
+bool DataList::Insert(int start, int size, void *data)
 {
     std::list<DataBlock>::iterator it = m_data.begin();
     int block_start;
@@ -31,24 +31,39 @@ void DataList::Insert(int start, int size, void *data)
         if (block_start < start && block_start + block_size > start)
         {
             // must be a duplicate block
-            printf("Found duplicate block at %d %d : %d %d\n", 
-                    start, size, block_start, block_size);
-            return;
+            //printf("Found duplicate block at %d %d : %d %d\n", 
+            //        start, size, block_start, block_size);
+            return false;
         }
-
-        if (block_start + block_size == start)
+        else if (block_start + block_size == start)
         {
+            // belongs in this block
+
+            // check to see if this is a duplicate of the beginning of the 
+            // next block
+            it++;
+            if (start == it->Start()) return false; // duplicate
+            it--;
+
             bool room_in_block = it->Append(size, data);
             if (!room_in_block) 
             {
-                printf("Creating new data block %d %d\n", start, size);
+                //printf("Creating new data block %d %d\n", start, size);
                 it++;
                 if (it ==  m_data.end())
                     m_data.push_back(DataBlock(start, size, data));
                 else
                     m_data.insert(it, DataBlock(start, size, data));
             }
-            return;
+            return true;
+        }
+        else if (block_start > start)
+        {
+            // belongs as new block before this one
+
+            //printf("Creating new data block %d %d\n", start, size);
+            m_data.insert(it, DataBlock(start, size, data));
+            return true;
         }
 
         it++;
@@ -56,9 +71,11 @@ void DataList::Insert(int start, int size, void *data)
 
     if (it == m_data.end()) 
     {
-        printf("Creating new data block %d %d\n", start, size);
+        //printf("Creating new data block %d %d\n", start, size);
         m_data.push_back(DataBlock(start, size, data));
     }
+
+    return true;
 }
 //************************************************
 bool DataList::GetHole(int *start, int *size, int start_addr)
@@ -138,4 +155,5 @@ void DataList::ListAllBlocks()
         printf("Block %d %d\n", it->Start(), it->Size());
         it++;
     }
+    fflush(stdout);
 }

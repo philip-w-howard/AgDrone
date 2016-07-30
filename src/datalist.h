@@ -10,7 +10,7 @@ class DataList
         DataList();
         virtual ~DataList();
 
-        void Insert(int start, int size, void *data);
+        bool Insert(int start, int size, void *data);
         bool GetHole(int *start, int *size, int start_addr = -1);
         bool GetUnsentBlock(int *start, int *size, void **data);
         void ListAllBlocks();
