@@ -57,6 +57,7 @@ void *cmd_thread(void *param)
 //***************************************
 AgDroneCmd::AgDroneCmd(queue_t *agdrone_q, int port)
 {
+    m_Running = false;
     mPort = port;
     mIsConnected = false;
     mListenerFd = -1;
@@ -212,6 +213,8 @@ void AgDroneCmd::ProcessCommand(char *command)
         m_cmd_proc = NULL;
     }
 
+    printf("Processing command %s\n", command);
+
     if (strcmp(command, "loglist") == 0)
     {
         m_cmd_proc = new LogListCmd(m_agdrone_q);
@@ -258,8 +261,61 @@ void AgDroneCmd::ProcessCmds()
     }
 }
 //***************************************
+int ReadLine(int fd, char *buffer, int max)
+{
+    static char in_buff[100];
+    static int index = 0;
+    static int extent = 0;
+    int size;
+
+    size = 0;
+    buffer[0] = 0;
+    do
+    {
+        if (index == extent) 
+        {
+            extent = read(fd, in_buff, sizeof(in_buff));
+            if (extent <= 0) return -1;
+            in_buff[extent] = 0;
+            printf("Read from Cmd: %s\n", in_buff);
+
+            index = 0;
+        }
+
+        buffer[size] = in_buff[index];
+        size++;
+        index++;
+    } while (buffer[size-1] != '\n' && size < max-1);
+
+    buffer[size] = 0;
+
+    return size;
+}
+
+//***************************************
 void AgDroneCmd::ProcessSocket()
 {
+    char buffer[100];
+    int length;
+
+    while (m_Running)
+    {
+        MakeConnection();
+
+        while (mFileDescriptor >= 0)
+        {
+            length = ReadLine(mFileDescriptor, buffer, sizeof(buffer));
+            if (length < 0) 
+            {
+                close(mFileDescriptor);
+                mFileDescriptor = -1;
+            }
+            else
+            {
+                QueueCmd(buffer, MSG_SRC_AGDRONE_CONTROL);
+            }
+        }
+    }
 }
 //***************************************
 bool AgDroneCmd::CommandIsActive()

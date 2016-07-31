@@ -16,6 +16,7 @@
 #define MSG_SRC_SELF 0
 #define MSG_SRC_PIXHAWK 1
 #define MSG_SRC_MISSION_PLANNER 2
+#define MSG_SRC_AGDRONE_CONTROL 3
 
 
 typedef struct

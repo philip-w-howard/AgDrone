@@ -360,7 +360,7 @@ int main(int argc, char **argv)
         {
             print_stats(num_msgs, pixhawk, mission);
         }
-        if (num_msgs == 500) agdrone_cmd->QueueCmd("logdata 4", MSG_SRC_SELF);
+        //if (num_msgs == 500) agdrone_cmd->QueueCmd("logdata 4", MSG_SRC_SELF);
     }
 
     close(logfile);
