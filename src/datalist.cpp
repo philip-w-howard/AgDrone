@@ -5,6 +5,8 @@
 #include "datablock.h"
 #include "datalist.h"
 
+#include "log.h"
+
 //************************************************
 DataList::DataList()
 {
@@ -31,7 +33,7 @@ bool DataList::Insert(int start, int size, void *data)
         if (block_start < start && block_start + block_size > start)
         {
             // must be a duplicate block
-            //printf("Found duplicate block at %d %d : %d %d\n", 
+            //WriteLog("Found duplicate block at %d %d : %d %d\n", 
             //        start, size, block_start, block_size);
             return false;
         }
@@ -48,7 +50,7 @@ bool DataList::Insert(int start, int size, void *data)
             bool room_in_block = it->Append(size, data);
             if (!room_in_block) 
             {
-                //printf("Creating new data block %d %d\n", start, size);
+                //WriteLog("Creating new data block %d %d\n", start, size);
                 it++;
                 if (it ==  m_data.end())
                     m_data.push_back(DataBlock(start, size, data));
@@ -61,7 +63,7 @@ bool DataList::Insert(int start, int size, void *data)
         {
             // belongs as new block before this one
 
-            //printf("Creating new data block %d %d\n", start, size);
+            //WriteLog("Creating new data block %d %d\n", start, size);
             m_data.insert(it, DataBlock(start, size, data));
             return true;
         }
@@ -71,7 +73,7 @@ bool DataList::Insert(int start, int size, void *data)
 
     if (it == m_data.end()) 
     {
-        //printf("Creating new data block %d %d\n", start, size);
+        //WriteLog("Creating new data block %d %d\n", start, size);
         m_data.push_back(DataBlock(start, size, data));
     }
 
@@ -152,7 +154,7 @@ void DataList::ListAllBlocks()
 
     while (it != m_data.end())
     {
-        printf("Block %d %d\n", it->Start(), it->Size());
+        WriteLog("Block %d %d\n", it->Start(), it->Size());
         it++;
     }
     fflush(stdout);

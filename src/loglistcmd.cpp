@@ -4,6 +4,8 @@
 
 #include "loglistcmd.h"
 
+#include "log.h"
+
 //**********************************************
 LogListCmd::LogListCmd(queue_t *q, int id) : CommandProcessor(q)
 {
@@ -24,7 +26,7 @@ LogListCmd::~LogListCmd()
 //**********************************************
 void LogListCmd::Start()
 {
-    printf("Starting LOG_LIST command\n");
+    WriteLog("Starting LOG_LIST command\n");
     if (m_id == 0)
         send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
     else
@@ -66,8 +68,8 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
         if (log_entry.id >= m_entries_capacity)
         {
-            printf("Invalid log entry************************\n");
-            printf("Log entry: id %d size %d num %d last %d\n",
+            WriteLog("Invalid log entry************************\n");
+            WriteLog("Log entry: id %d size %d num %d last %d\n",
                 log_entry.id, log_entry.size, log_entry.num_logs,
                 log_entry.last_log_num);
         }
@@ -79,7 +81,7 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                 m_entries[log_entry.id].filled = true;
                 m_filled_entries++;
             }
-            printf("Log entry: id %d size %d num %d last %d\n",
+            WriteLog("Log entry: id %d size %d num %d last %d\n",
                         log_entry.id, log_entry.size, log_entry.num_logs,
                         log_entry.last_log_num);
         }
@@ -88,10 +90,10 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
             (m_id != 0 && log_entry.id == m_id))
         {
             m_finished = true;
-            printf("LOG_LIST command is finished\n");
+            WriteLog("LOG_LIST command is finished\n");
         }
         else
-            printf("filled: %d expecting %d\n", 
+            WriteLog("filled: %d expecting %d\n", 
                     m_filled_entries, log_entry.num_logs);
     }
     else
@@ -114,7 +116,7 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                 }
             }
         }
-        printf("Received %d\n", msg->msgid);
+        WriteLog("Received %d\n", msg->msgid);
     }
 }
 //**********************************************

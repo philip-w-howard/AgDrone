@@ -15,6 +15,8 @@
 #include "mavlinkif.h"
 #include "connection.h"
 
+#include "log.h"
+
 void *writing_thread(void *param)
 {
     Connection *conn = (Connection *)param;
@@ -60,7 +62,7 @@ Connection::~Connection()
 
 int Connection::Start()
 {
-    fprintf(stderr, "Starting connection for channel %d\n", mMavChannel);
+    WriteLog("Starting connection for channel %d\n", mMavChannel);
 
     int result = pthread_create(&mReader, NULL, reading_thread, this);
 
@@ -121,7 +123,7 @@ void Connection::ReadMsgs()
     memset(&msg, 0, sizeof(msg));
     memset(&status, 0, sizeof(status));
 
-    fprintf(stderr, "Reading data on %d\n", mFileDescriptor);
+    WriteLog("Reading data on %d\n", mFileDescriptor);
 
     while(mRunning)
     {
@@ -130,7 +132,11 @@ void Connection::ReadMsgs()
 
         if (length < 0) perror("Error reading file descriptor");
 
-        if (length == 0) fprintf(stderr, "Received zero bytes on channel %d\n", mMavChannel);
+        if (length == 0) 
+        {
+            fprintf(stderr, "Received zero bytes on channel %d\n", mMavChannel);
+            WriteLog("Received zero bytes on channel %d\n", mMavChannel);
+        }
 
         for (int ii=0; ii<length; ii++)
         {
@@ -150,12 +156,15 @@ void Connection::ReadMsgs()
     if (mRunning)
     {
         perror("Error reading");
-        fprintf(stderr, "Stopped reading from %d because of error\n", mFileDescriptor);
+        fprintf(stderr, "Stopped reading from %d because of error\n", 
+                mFileDescriptor);
+        WriteLog("Stopped reading from %d because of error\n", mFileDescriptor);
         //fprintf(stderr, "Exiting process\n");
         //exit(-1);
     }
     else
-        fprintf(stderr, "Stopped reading from %d because was told to stop\n", mFileDescriptor);
+        WriteLog("Stopped reading from %d because was told to stop\n", 
+                mFileDescriptor);
 }
 
 void Connection::WriteMsgs()
@@ -165,7 +174,7 @@ void Connection::WriteMsgs()
     int size;
     queued_msg_t *item;
 
-    fprintf(stderr, "Writing data to %d\n", mFileDescriptor);
+    WriteLog("Writing data to %d\n", mFileDescriptor);
 
     while(queue_is_open(mInpQueue) && mRunning && !mStopWriter)
     {
@@ -188,7 +197,10 @@ void Connection::WriteMsgs()
             {
                 if (errno == EPIPE)
                 {
-                    fprintf(stderr, "Pipe closed on other end %d\n", mFileDescriptor);
+                    fprintf(stderr, "Pipe closed on other end %d\n", 
+                            mFileDescriptor);
+                    WriteLog("Pipe closed on other end %d\n", 
+                            mFileDescriptor);
                     break;
                 } else {
                     perror("Error writing message");
@@ -196,21 +208,24 @@ void Connection::WriteMsgs()
             }
             else
             {
-                fprintf(stderr, "Wrote too few bytes to channel %d (%d, %d)\n", mMavChannel, size, len);
+                WriteLog("Wrote too few bytes to channel %d (%d, %d)\n", 
+                        mMavChannel, size, len);
             }
         }
     }
 
-    fprintf(stderr, "Done writing data to %d %p\n", mFileDescriptor, mInpQueue);
-    if (!queue_is_open(mInpQueue)) fprintf(stderr, "Done writing because queue is not open\n");
-    if (!mRunning || mStopWriter) fprintf(stderr, "Done writing because told to stop\n");
+    WriteLog("Done writing data to %d %p\n", mFileDescriptor, mInpQueue);
+    if (!queue_is_open(mInpQueue)) 
+        WriteLog("Done writing because queue is not open\n");
+    if (!mRunning || mStopWriter) 
+        WriteLog("Done writing because told to stop\n");
 
     close(mFileDescriptor);
 }
 
 void Connection::Process()
 {
-    fprintf(stderr, "Processing connection for channel %d\n", mMavChannel);
+    WriteLog("Processing connection for channel %d\n", mMavChannel);
 
     while (mRunning)
     {
@@ -230,7 +245,7 @@ void Connection::Process()
         pthread_join(mWriter, NULL);
     }
 
-    fprintf(stderr, "Done processing connection for channel %d\n", mMavChannel);
+    WriteLog("Done processing connection for channel %d\n", mMavChannel);
 
 }
 

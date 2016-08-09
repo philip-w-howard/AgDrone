@@ -20,11 +20,13 @@
 #include "mavlinkif.h"
 #include "connection.h"
 
+#include "log.h"
+
 PixhawkConnection::PixhawkConnection(
         int mavChannel, queue_t *destQueue, char *portName, int msg_src)
   : Connection(mavChannel, 1, destQueue, msg_src)
 {
-    printf("PixhawkConnection: %s\n", portName);
+    WriteLog("PixhawkConnection: %s\n", portName);
 
     mPortName = portName;
     mIsConnected = false;
@@ -64,7 +66,7 @@ int PixhawkConnection::ConnectSerial(char *port_name)
         uart_name = mraa_uart_get_dev_path(dev);
     }
 
-    fprintf(stderr, "Opening serial port on %s\n", uart_name);
+    WriteLog("Opening serial port on %s\n", uart_name);
 
     //fileDescr = open (port_name, O_RDWR | O_NOCTTY | O_SYNC);
     fileDescr = open (uart_name, O_RDWR );
@@ -107,7 +109,7 @@ bool PixhawkConnection::MakeConnection()
 {
     if (!mIsConnected)
     {
-        fprintf(stderr, "Connecting to Pixhawk on port %s\n", mPortName);
+        WriteLog("Connecting to Pixhawk on port %s\n", mPortName);
 
         mFileDescriptor = ConnectSerial(mPortName);
 
@@ -117,7 +119,7 @@ bool PixhawkConnection::MakeConnection()
             return false;
         }
 
-        fprintf(stderr, "Connected to Pixhawk on FD %d\n", mFileDescriptor);
+        WriteLog("Connected to Pixhawk on FD %d\n", mFileDescriptor);
 
         mIsConnected = true;
         return true;

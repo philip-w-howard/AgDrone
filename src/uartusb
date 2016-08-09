@@ -1,0 +1,2 @@
+#!/bin/sh
+./AgDrone -pixhawk:usb -mission:uart

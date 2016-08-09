@@ -20,6 +20,8 @@
 #include "connection.h"
 #include "wifiserver.h"
 
+#include "log.h"
+
 WifiServerConnection::WifiServerConnection(queue_t *destQueue, int port)
     : Connection(1, 256, destQueue, MSG_SRC_MISSION_PLANNER)
 {
@@ -50,7 +52,7 @@ WifiServerConnection::WifiServerConnection(queue_t *destQueue, int port)
     }
 
     listen(mListenerFd,5);
-    fprintf(stderr, "Listening for WiFi connections\n");
+    WriteLog("Listening for WiFi connections\n");
 }
 WifiServerConnection::~WifiServerConnection()
 {
@@ -86,7 +88,7 @@ bool WifiServerConnection::MakeConnection()
 
     setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
-    fprintf(stderr, "processing wifi data on %d\n", mFileDescriptor);
+    WriteLog("processing wifi data on %d\n", mFileDescriptor);
 
     mIsConnected = true;
 

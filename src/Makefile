@@ -13,6 +13,7 @@ OBJS=  AgDrone.o \
        loglistcmd.o \
        dataflashcmd.o \
        queue.o \
+       log.o \
 
 all: AgDrone
 

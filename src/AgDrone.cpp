@@ -25,6 +25,7 @@
 #include "wifiserver.h"
 #include "heartbeat.h"
 #include "agdronecmd.h"
+#include "log.h"
 
 #define USB_PORT        "/dev/ttyACM0"
 #define RADIO_PORT      "/dev/ttyUSB0"
@@ -114,6 +115,11 @@ static void print_stats(int total, Connection *pixhawk, Connection *mission)
     pixhawk->GetStats(&p_sent, &p_recv, &p_csent, &p_crecv);
 
     fprintf(stderr, "processed %d pix: %lld %lld %lld %lld "
+                                 "mis: %lld %lld %lld %lld\n",
+            total,
+            p_sent, p_recv, p_csent, p_crecv,
+            m_sent, m_recv, m_csent, m_crecv);
+    WriteLog("processed %d pix: %lld %lld %lld %lld "
                                  "mis: %lld %lld %lld %lld\n",
             total,
             p_sent, p_recv, p_csent, p_crecv,
@@ -222,15 +228,19 @@ void do_tx_test()
 
 int main(int argc, char **argv)
 {
-    printf("AgDrone V%s\n", __DATE__);
+    fprintf(stderr, "AgDrone Vs_%s_%s\n", __DATE__, __TIME__);
+
+    OpenLog();
+    WriteLog("AgDrone Vs_%s_%s\n", __DATE__, __TIME__);
+
     // check that we are running on Galileo or Edison
     mraa_platform_t platform = mraa_get_platform_type();
     if (platform != MRAA_INTEL_EDISON_FAB_C) {
-        std::cerr << "Unsupported platform, exiting" << std::endl;
+        fprintf(stderr, "Unsupported platform, exiting\n");
         return MRAA_ERROR_INVALID_PLATFORM;
     }
 
-    std::cerr << "pixhawk interface running on " << mraa_get_version() << std::endl;
+    WriteLog("pixhawk interface running on %s\n", mraa_get_version());
 
     process_args(argc, argv);
 
@@ -238,13 +248,15 @@ int main(int argc, char **argv)
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
     {
         perror("can't ignore SIGPIPE");
+        CloseLog();
         return -1;
     }
 
     if (Do_Echo)
     {
         do_echo();
-        printf("Done with echo\n");
+        fprintf(stderr, "Done with echo\n");
+        CloseLog();
         return 0;
     }
     else if (Do_TX)
@@ -306,6 +318,7 @@ int main(int argc, char **argv)
     if (mission->Start() != 0)
     {
         fprintf(stderr, "Unable to start Mission Planner process\n");
+        WriteLog("Unable to start Mission Planner process\n");
         return -6;
     }
 
@@ -314,6 +327,7 @@ int main(int argc, char **argv)
     if (pixhawk->Start() != 0)
     {
         fprintf(stderr, "Unable to start pixhawk process\n");
+        WriteLog("Unable to start pixhawk process\n");
         return -7;
     }
 
@@ -345,7 +359,7 @@ int main(int argc, char **argv)
                 num_mission_planner++;
             }
             else
-                fprintf(stderr, "Received msg from unknown source: %d\n", item->msg_src);
+                WriteLog("Received msg from unknown source: %d\n", item->msg_src);
 
             free(item->msg);
             free(item);
@@ -363,8 +377,10 @@ int main(int argc, char **argv)
         //if (num_msgs == 500) agdrone_cmd->QueueCmd("logdata 4", MSG_SRC_SELF);
     }
 
+    WriteLog("AgDrone exiting\n");
     close(logfile);
+    CloseLog();
 
-    std::cout <<  "Exiting\n";
+    printf("AgDrone exiting\n");
     return MRAA_SUCCESS;
 }

@@ -44,5 +44,5 @@ class DataFlashCmd : public CommandProcessor
 
         bool LookForHoles();
         void LogProgress();
-        bool WriteLog();
+        bool WriteLogFile();
 };

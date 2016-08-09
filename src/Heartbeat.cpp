@@ -8,6 +8,8 @@
 #include <pthread.h>
 #include "mraa.hpp"
 
+#include "log.h"
+
 static volatile bool HeartbeatRunning = false;
 static pthread_t Heartbeat_Thread;
 
@@ -20,6 +22,7 @@ static void *heartbeat(void *param)
     if ((int)(d_pin->dir(mraa::DIR_OUT)) != (int)MRAA_SUCCESS)
     {
         fprintf(stderr, "Can't set digital pin as output, no heartbeat signal\n");
+        WriteLog("Can't set digital pin as output, no heartbeat signal\n");
         return NULL;
     }
 

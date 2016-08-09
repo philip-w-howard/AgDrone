@@ -17,6 +17,8 @@
 #include "queue.h"
 #include "connection.h"
 
+#include "log.h"
+
 // use MAV_TYPE_ONBOARD_CONTROLLER in heartbeat for type
 // use MAV_COMP_ID_SYSTEM_CONTROL for compid
 // use 1 for sysid (same as pixhawk)
@@ -58,7 +60,7 @@ void send_msg(int fd, mavlink_message_t *msg)
 
     // Send the message to destination
     bytes = write(fd, buf, len);
-    if (bytes != len) fprintf(stderr, "Failed to write msg: %d %d %d\n", fd, bytes, len);
+    if (bytes != len) WriteLog("Failed to write msg: %d %d %d\n", fd, bytes, len);
 }
 
 void queue_msg(queue_t *dest, int msg_src, mavlink_message_t *msg)

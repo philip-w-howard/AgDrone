@@ -15,6 +15,7 @@
 #include <netdb.h>
 #include <pthread.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "mavlinkif.h"
 
@@ -22,6 +23,7 @@
 #include "agdronecmd.h"
 #include "connection.h"
 
+#include "log.h"
 #include "loglistcmd.h"
 #include "dataflashcmd.h"
 
@@ -103,6 +105,7 @@ void AgDroneCmd::Start()
 
     listen(mListenerFd,5);
     fprintf(stderr, "Listening for WiFi connections\n");
+    WriteLog("Listening for WiFi connections\n");
 
     pthread_create(&m_cmd_thread, NULL, cmd_thread, this);
     pthread_create(&m_socket_thread, NULL, socket_thread, this);
@@ -127,6 +130,7 @@ bool AgDroneCmd::MakeConnection()
         }
     }
 
+    /*
     // Set a timeout on the socket reads
     struct timeval tv;
 
@@ -135,8 +139,10 @@ bool AgDroneCmd::MakeConnection()
 
     setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, 
             sizeof(struct timeval));
+    */
 
     fprintf(stderr, "processing AgDroneCmd data on %d\n", mFileDescriptor);
+    WriteLog("processing AgDroneCmd data on %d\n", mFileDescriptor);
 
     mIsConnected = true;
 
@@ -213,7 +219,7 @@ void AgDroneCmd::ProcessCommand(char *command)
         m_cmd_proc = NULL;
     }
 
-    printf("Processing command %s\n", command);
+    WriteLog("Processing command %s\n", command);
 
     if (strcmp(command, "loglist") == 0)
     {
@@ -272,12 +278,21 @@ int ReadLine(int fd, char *buffer, int max)
     buffer[0] = 0;
     do
     {
-        if (index == extent) 
+        while (index == extent) 
         {
             extent = read(fd, in_buff, sizeof(in_buff));
-            if (extent <= 0) return -1;
-            in_buff[extent] = 0;
-            printf("Read from Cmd: %s\n", in_buff);
+            if (extent < 0 && errno != EINTR) 
+            {
+                perror("Error reading CMD socket: ");
+                return -1;
+            }
+            if (extent < 0) 
+                extent = 0;
+            else if (extent > 0)
+            {
+                in_buff[extent] = 0;
+                WriteLog("Read from Cmd: %s\n", in_buff);
+            }
 
             index = 0;
         }
@@ -285,7 +300,7 @@ int ReadLine(int fd, char *buffer, int max)
         buffer[size] = in_buff[index];
         size++;
         index++;
-    } while (buffer[size-1] != '\n' && size < max-1);
+    } while (buffer[size-1] != '\n' && size < max-1 && index < extent);
 
     buffer[size] = 0;
 
@@ -307,6 +322,8 @@ void AgDroneCmd::ProcessSocket()
             length = ReadLine(mFileDescriptor, buffer, sizeof(buffer));
             if (length < 0) 
             {
+                fprintf(stderr, "Closing CMD connection due to error\n");
+                WriteLog("Closing CMD connection due to error\n");
                 close(mFileDescriptor);
                 mFileDescriptor = -1;
             }

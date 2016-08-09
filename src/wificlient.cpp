@@ -21,6 +21,8 @@
 #include "connection.h"
 #include "wificlient.h"
 
+#include "log.h"
+
 WifiClientConnection::WifiClientConnection(queue_t *destQueue, char *host, int port)
         : Connection(1, 256, destQueue, MSG_SRC_MISSION_PLANNER)
 
@@ -42,7 +44,7 @@ bool WifiClientConnection::MakeConnection()
 
     mIsConnected = false;
 
-    fprintf(stderr, "Waiting for WiFi connection\n");
+    WriteLog("Waiting for WiFi connection\n");
 
     mFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (mFileDescriptor < 0)
@@ -53,7 +55,7 @@ bool WifiClientConnection::MakeConnection()
     server = gethostbyname(mHost);
     if (server == NULL)
     {
-        fprintf(stderr,"ERROR, no such host: %s\n", mHost);
+        WriteLog("ERROR, no such host: %s\n", mHost);
         return false;
     }
 
@@ -71,7 +73,7 @@ bool WifiClientConnection::MakeConnection()
         server = gethostbyname(mHost);
         if (server == NULL)
         {
-            fprintf(stderr,"ERROR, no such host: %s\n", mHost);
+            WriteLog("ERROR, no such host: %s\n", mHost);
             return false;
         }
 
@@ -91,7 +93,7 @@ bool WifiClientConnection::MakeConnection()
 
     setsockopt(mFileDescriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
-    fprintf(stderr, "Connected to WiFi on FD %d\n", mFileDescriptor);
+    WriteLog("Connected to WiFi on FD %d\n", mFileDescriptor);
 
     mIsConnected = true;
 

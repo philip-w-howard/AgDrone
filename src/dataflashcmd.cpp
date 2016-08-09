@@ -5,6 +5,8 @@
 
 #include "dataflashcmd.h"
 
+#include "log.h"
+
 //**********************************************
 DataFlashCmd::DataFlashCmd(queue_t *q, int log_id) : 
     CommandProcessor(q), m_logList(q, log_id)
@@ -29,7 +31,7 @@ void DataFlashCmd::Start()
 
     m_logList.Start(m_logId);
 
-    //printf("Starting DATA_FLASH command for id %d\n", m_logId);
+    //WriteLog("Starting DATA_FLASH command for id %d\n", m_logId);
     //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
 }
 //**********************************************
@@ -52,10 +54,10 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
             entry = m_logList.LogEntry(m_logId);
             if (entry == NULL)
             {
-                printf("Unable to get log list entry.\n");
-                printf("Aborting DATA_FLASH command\n");
+                WriteLog("Unable to get log list entry.\n");
+                WriteLog("Aborting DATA_FLASH command\n");
                 m_finished = true;
-                WriteLog();
+                WriteLogFile();
                 return;
             }
 
@@ -69,7 +71,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     logTime.tm_hour, logTime.tm_min, logTime.tm_sec);
 
 
-            printf("Starting DATA_FLASH command for id %d %s\n", 
+            WriteLog("Starting DATA_FLASH command for id %d %s\n", 
                     m_logId, m_logName);
             send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
         }
@@ -83,7 +85,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
         if (m_detailLog)
         {
-            printf("Received id %d offset %d size %d\n",
+            WriteLog("Received id %d offset %d size %d\n",
                 log_data.id, log_data.ofs, log_data.count);
         }
 
@@ -107,8 +109,8 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
             if (!LookForHoles())
             {
                 m_finished = true;
-                WriteLog();
-                printf("LOG_DATA command is finished\n");
+                WriteLogFile();
+                WriteLog("LOG_DATA command is finished\n");
             }
         }
 
@@ -129,11 +131,11 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     m_finished = true;
                     if (m_receivedLastBlock)
                     {
-                        WriteLog();
-                        printf("LOG_DATA command is finished\n");
+                        WriteLogFile();
+                        WriteLog("LOG_DATA command is finished\n");
                     }
                     else
-                        printf("LOG_DATA command is being aborted %d %d\n",
+                        WriteLog("LOG_DATA command is being aborted %d %d\n",
                                 m_highwater, m_lastHighwater);
                 }
             } 
@@ -142,7 +144,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                 m_lastHighwater = m_highwater;
             }
         }
-        //printf("Received %d\n", msg->msgid);
+        //WriteLog("Received %d\n", msg->msgid);
     }
 }
 
@@ -153,7 +155,7 @@ bool DataFlashCmd::LookForHoles()
     bool requestedMore = false;
     static uint64_t lastHolesSize = 0;
 
-    //printf("Looking for holes\n");
+    //WriteLog("Looking for holes\n");
     fflush(stdout);
 
     if (m_detailLog) m_data.ListAllBlocks();
@@ -169,7 +171,7 @@ bool DataFlashCmd::LookForHoles()
         if (m_numHoles <= 5)
         {
             if (m_detailLog)
-                printf("DATA_FLASH filling hole: %d %d\n", start, size);
+                WriteLog("DATA_FLASH filling hole: %d %d\n", start, size);
             send_log_request_data(m_agdrone_q, 0x45, 0x67, 
                     m_logId, start, size);
         }
@@ -180,7 +182,7 @@ bool DataFlashCmd::LookForHoles()
     if (size == -1 && !m_receivedLastBlock)
     {
         if (m_detailLog)
-            printf("DATA_FLASH filling hole: %d %d\n", start, size);
+            WriteLog("DATA_FLASH filling hole: %d %d\n", start, size);
         send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, start, size);
         requestedMore = true;
     }
@@ -194,20 +196,20 @@ bool DataFlashCmd::LookForHoles()
     lastHolesSize = m_holesBytes;
 
 
-    if (!requestedMore) printf("didn't find any holes\n");
+    if (!requestedMore) WriteLog("didn't find any holes\n");
     return requestedMore;
 }
 
 //***********************************************
 void DataFlashCmd::LogProgress()
 {
-    printf("Pkts: %lld %lld %lld Bytes: %d %lld Holes: %lld %lld\n",
+    WriteLog("Pkts: %lld %lld %lld Bytes: %d %lld Holes: %lld %lld\n",
             m_dataPackets, m_otherPackets, m_dupPackets,
             m_highwater, m_dataBytes,
             m_numHoles, m_holesBytes);
     fflush(stdout);
 }
-bool DataFlashCmd::WriteLog()
+bool DataFlashCmd::WriteLogFile()
 {
     FILE *logfile;
 
@@ -220,7 +222,7 @@ bool DataFlashCmd::WriteLog()
     logfile = fopen(m_logName, "wb");
     if (logfile == NULL)
     {
-        printf("Unable to open log file: %s\n", m_logName);
+        WriteLog("Unable to open log file: %s\n", m_logName);
         return false;
     }
     
@@ -231,6 +233,7 @@ bool DataFlashCmd::WriteLog()
     while (m_data.GetUnsentBlock(&start, &size, &data))
     {
         count = fwrite(data, size, 1, logfile);
+        if (count != size) WriteLog( "Error writing to dataflash log file\n");
     }
 
     fclose(logfile);
