@@ -25,6 +25,7 @@
 
 #include "log.h"
 #include "dataflashcmd.h"
+#include "getfilecmd.h"
 #include "gettimecmd.h"
 #include "loglistcmd.h"
 
@@ -239,6 +240,12 @@ void AgDroneCmd::ProcessCommand(char *command)
         m_cmd_proc = new GetTimeCmd(m_agdrone_q);
         m_cmd_proc->Start();
     }
+    else if (strncmp(command, "get", 3) == 0)
+    {
+        m_cmd_proc = new GetFileCmd(m_agdrone_q, mFileDescriptor, command);
+        m_cmd_proc->Start();
+    }
+
 }
 //***************************************
 void AgDroneCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
@@ -284,29 +291,34 @@ int ReadLine(int fd, char *buffer, int max)
     buffer[0] = 0;
     do
     {
-        while (index == extent) 
+        do
         {
-            extent = read(fd, in_buff, sizeof(in_buff));
-            if (extent < 0 && errno != EINTR) 
+            while (index == extent) 
             {
-                perror("Error reading CMD socket: ");
-                return -1;
-            }
-            if (extent < 0) 
-                extent = 0;
-            else if (extent > 0)
-            {
-                in_buff[extent] = 0;
-                WriteLog("Read from Cmd: %s\n", in_buff);
+                extent = read(fd, in_buff, sizeof(in_buff));
+                if (extent < 0 && errno != EINTR) 
+                {
+                    perror("Error reading CMD socket: ");
+                    index = 0;
+                    extent = 0;
+                    return -1;
+                }
+                if (extent < 0) 
+                    extent = 0;
+                else if (extent > 0)
+                {
+                    in_buff[extent] = 0;
+                    WriteLog("Read from Cmd: '%s'\n", in_buff);
+                }
+
+                index = 0;
             }
 
-            index = 0;
-        }
-
-        buffer[size] = in_buff[index];
-        size++;
-        index++;
-    } while (buffer[size-1] != '\n' && size < max-1 && index < extent);
+            buffer[size] = in_buff[index];
+            size++;
+            index++;
+        } while (buffer[size-1] != '\n' && size < max-1 && index < extent);
+    } while (buffer[size-1] != '\n' && size < max-1);
 
     buffer[size] = 0;
 

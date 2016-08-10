@@ -12,6 +12,7 @@ OBJS=  AgDrone.o \
        agdronecmd.o \
        loglistcmd.o \
        dataflashcmd.o \
+       getfilecmd.o \
        gettimecmd.o \
        queue.o \
        log.o \
