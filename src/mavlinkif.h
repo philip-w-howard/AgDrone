@@ -5,8 +5,7 @@
  *      Author: philhow
  */
 
-#ifndef AGDRONE_SRC_MAVLINKIF_H_
-#define AGDRONE_SRC_MAVLINKIF_H_
+#pragma once
 
 #include "mavlink/ardupilotmega/mavlink.h"
 #include "queue.h"
@@ -27,4 +26,3 @@ void send_log_request_data(queue_t *dest, uint8_t sysid, uint8_t compid,
 void queue_msg(queue_t *dest, int msg_src, mavlink_message_t *msg);
 void write_tlog(int fd, mavlink_message_t *msg);
 
-#endif /* AGDRONE_SRC_MAVLINKIF_H_ */

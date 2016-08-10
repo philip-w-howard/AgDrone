@@ -5,8 +5,7 @@
  *      Author: philhow
  */
 
-#ifndef AGDRONE_SRC_QUEUE_H_
-#define AGDRONE_SRC_QUEUE_H_
+#pragma once
 
 #include <pthread.h>
 
@@ -45,4 +44,3 @@ void queue_signal_waiters(queue_t *q);
 }
 #endif
 
-#endif /* AGDRONE_SRC_QUEUE_H_ */

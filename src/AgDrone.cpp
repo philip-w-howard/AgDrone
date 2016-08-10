@@ -25,6 +25,7 @@
 #include "wifiserver.h"
 #include "heartbeat.h"
 #include "agdronecmd.h"
+#include "gettimecmd.h"
 #include "log.h"
 
 #define USB_PORT        "/dev/ttyACM0"
@@ -39,9 +40,11 @@ static int Wifi_Port = 2002;
 static char Wifi_Addr[256] = "192.168.2.3";
 static bool Do_Echo = false;
 static bool Do_TX = false;
+static bool g_GetPixhawkTime = false;
 static char g_echoname[256] = CONSOLE_PORT;
 static char g_pixhawk[256] = USB_PORT;
-static char g_mission[256] = WIFI;
+static char g_mission[256] = UART_PORT;
+static time_t g_StartTime = 0;
 
 /*
 static void signal_handler(int sig)
@@ -73,6 +76,10 @@ static void process_args(int argc, char **argv)
         {
             Do_Echo = true;
             strcpy(g_echoname, port_name(&argv[ii][6]));
+        }
+        else if (strncmp(argv[ii], "-gettime", 8) == 0)
+        {
+            g_GetPixhawkTime = true;
         }
         else if (strncmp(argv[ii], "-mission:", 9) == 0)
         {
@@ -333,6 +340,18 @@ int main(int argc, char **argv)
 
     //Start_Heartbeat();
 
+    GetTimeCmd getTimeCmd(agdrone_q);
+
+    if (g_GetPixhawkTime)
+    {
+        getTimeCmd.Start();
+    }
+    else
+    {
+        time(&g_StartTime);
+        WriteLog("Start time: %s\n", ctime(&g_StartTime));
+    }
+
     int num_msgs = 0;
     int num_pixhawk = 0;
     int num_mission_planner = 0;
@@ -348,6 +367,17 @@ int main(int argc, char **argv)
 
             if (item->msg_src == MSG_SRC_PIXHAWK)
             {
+                if (g_GetPixhawkTime)
+                {
+                    getTimeCmd.ProcessMessage(item->msg, item->msg_src);
+                    if (getTimeCmd.IsFinished())
+                    {
+                        g_GetPixhawkTime = false;
+                        g_StartTime = getTimeCmd.GetTime();
+                        WriteLog("Initial pixhawk time: %s\n", 
+                                ctime(&g_StartTime));
+                    }
+                }
                 mission->QueueToSource(item->msg, item->msg_src);
                 agdrone_cmd->QueueMsg(item->msg, item->msg_src);
                 num_pixhawk++;

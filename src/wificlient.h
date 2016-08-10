@@ -5,8 +5,7 @@
  *      Author: philhow
  */
 
-#ifndef AGDRONE_SRC_WIFI_H_
-#define AGDRONE_SRC_WIFI_H_
+#pragma once
 
 #include "queue.h"
 #include "connection.h"
@@ -25,4 +24,3 @@ protected:
     bool mIsConnected;
 };
 
-#endif /* AGDRONE_SRC_WIFI_H_ */

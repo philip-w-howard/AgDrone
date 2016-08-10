@@ -5,12 +5,9 @@
  *      Author: philhow
  */
 
-#ifndef HEARTBEAT_H_
-#define HEARTBEAT_H_
+#pragma once
 
 
 void Start_Heartbeat();
 void Stop_Heartbeat();
 
-
-#endif /* HEARTBEAT_H_ */

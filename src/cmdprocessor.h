@@ -1,5 +1,4 @@
-#ifndef _CMDPROCESSOR_H_
-#define _CMDPROCESSOR_H_
+#pragma once
 
 #include "queue.h"
 #include "mavlinkif.h"
@@ -22,4 +21,3 @@ class CommandProcessor
         queue_t *m_agdrone_q;
         bool    m_finished;
 };
-#endif // _CMDPROCESSOR_H_

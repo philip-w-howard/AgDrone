@@ -24,8 +24,9 @@
 #include "connection.h"
 
 #include "log.h"
-#include "loglistcmd.h"
 #include "dataflashcmd.h"
+#include "gettimecmd.h"
+#include "loglistcmd.h"
 
 #define TYPE_CMD 0
 #define TYPE_MSG 1
@@ -231,6 +232,11 @@ void AgDroneCmd::ProcessCommand(char *command)
         int log_id;
         sscanf(&command[strlen("logdata")], "%d", &log_id);
         m_cmd_proc = new DataFlashCmd(m_agdrone_q, log_id);
+        m_cmd_proc->Start();
+    }
+    else if (strncmp(command, "gettime", strlen("gettime")) == 0)
+    {
+        m_cmd_proc = new GetTimeCmd(m_agdrone_q);
         m_cmd_proc->Start();
     }
 }

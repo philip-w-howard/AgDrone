@@ -5,8 +5,7 @@
  *      Author: philhow
  */
 
-#ifndef WIFISERVER_H_
-#define WIFISERVER_H_
+#pragma once
 
 #include "queue.h"
 #include "connection.h"
@@ -25,4 +24,3 @@ protected:
     int mListenerFd;
 };
 
-#endif /* WIFISERVER_H_ */

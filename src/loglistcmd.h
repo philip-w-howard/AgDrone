@@ -1,5 +1,4 @@
-#ifndef _LOGLISTCMD_H_
-#define _LOGLISTCMD_H_
+#pragma once
 
 #include "cmdprocessor.h"
 #include "mavlinkif.h"
@@ -33,4 +32,3 @@ class LogListCmd : public CommandProcessor
         entry_t *m_entries;
 
 };
-#endif // _LOGLISTCMD_H_

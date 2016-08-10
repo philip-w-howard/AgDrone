@@ -72,6 +72,8 @@ int PixhawkConnection::ConnectSerial(char *port_name)
     fileDescr = open (uart_name, O_RDWR );
     if (fileDescr < 0)
     {
+        WriteLog("Error opening serial port on %s\n", uart_name);
+        fprintf(stderr, "Error opening serial port on %s\n", uart_name);
         perror ("error opening serial port");
         return -1;
     }

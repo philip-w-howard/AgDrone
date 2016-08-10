@@ -5,8 +5,7 @@
  *      Author: philhow
  */
 
-#ifndef AGDRONE_SRC_PIXHAWK_H_
-#define AGDRONE_SRC_PIXHAWK_H_
+#pragma once
 
 #include "queue.h"
 #include "connection.h"
@@ -44,4 +43,3 @@ int open_pixhawk(char *portname);
 void pixhawk_proc_msg(mavlink_message_t *msg, void *param);
 */
 
-#endif /* AGDRONE_SRC_PIXHAWK_H_ */

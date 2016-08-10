@@ -5,8 +5,7 @@
  *      Author: philhow
  */
 
-#ifndef CONNECTION_H_
-#define CONNECTION_H_
+#pragma once
 
 #include <assert.h>
 
@@ -71,4 +70,3 @@ protected:
 
 };
 
-#endif /* CONNECTION_H_ */

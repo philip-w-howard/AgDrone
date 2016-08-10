@@ -5,8 +5,7 @@
  * Author: philhow
  */
 
-#ifndef AGDRONECMD_H_
-#define AGDRONECMD_H_
+#pragma once
 
 #include <pthread.h>
 
@@ -43,4 +42,3 @@ protected:
     bool CommandIsActive();
 };
 
-#endif /* AGDRONECMD_H_ */
