@@ -212,7 +212,7 @@ void AgDroneCmd::QueueCmd(const char *cmd, int cmd_src)
     queue_insert(m_cmd_q, item);
 }
 //***************************************
-void AgDroneCmd::ProcessCommand(char *command)
+void AgDroneCmd::ProcessCommand(char *command, int msg_src)
 {
     if (m_cmd_proc != NULL)
     {
@@ -223,16 +223,16 @@ void AgDroneCmd::ProcessCommand(char *command)
 
     WriteLog("Processing command %s\n", command);
 
-    if (strcmp(command, "loglist") == 0)
+    if (strncmp(command, "loglist", strlen("loglist")) == 0)
     {
-        m_cmd_proc = new LogListCmd(m_agdrone_q);
+        m_cmd_proc = new LogListCmd(m_agdrone_q, msg_src);
         m_cmd_proc->Start();
     }
     else if (strncmp(command, "logdata", strlen("logdata")) == 0)
     {
         int log_id;
         sscanf(&command[strlen("logdata")], "%d", &log_id);
-        m_cmd_proc = new DataFlashCmd(m_agdrone_q, log_id);
+        m_cmd_proc = new DataFlashCmd(m_agdrone_q, msg_src, log_id);
         m_cmd_proc->Start();
     }
     else if (strncmp(command, "gettime", strlen("gettime")) == 0)
@@ -264,7 +264,7 @@ void AgDroneCmd::ProcessCmds()
         {
             if (item->type == TYPE_CMD)
             {
-                ProcessCommand(item->cmd);
+                ProcessCommand(item->cmd, item->msg_src);
             }
             else if (CommandIsActive())
             {

@@ -7,7 +7,7 @@
 #include "log.h"
 
 //**********************************************
-LogListCmd::LogListCmd(queue_t *q, int id) : CommandProcessor(q)
+LogListCmd::LogListCmd(queue_t *q, int msg_src, int id) : CommandProcessor(q)
 {
     m_other_count = 0;
     m_filled_entries = 0;
@@ -15,6 +15,7 @@ LogListCmd::LogListCmd(queue_t *q, int id) : CommandProcessor(q)
     m_entries = NULL;
     m_finished = false;
     m_id = id;
+    m_msg_src = msg_src;
 }
 
 //**********************************************
@@ -91,6 +92,7 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         {
             m_finished = true;
             WriteLog("LOG_LIST command is finished\n");
+            SendEntries();
         }
         else
             WriteLog("filled: %d expecting %d\n", 
@@ -138,3 +140,23 @@ mavlink_log_entry_t *LogListCmd::LogEntry(int index)
 
     return &m_entries[index].entry;
 }
+//**********************************************
+void LogListCmd::SendEntries()
+{
+    int ii;
+    time_t log_time;
+    mavlink_log_entry_t *entry;
+
+    for (ii=0; ii<NumLogs(); ii++)
+    {
+        if (ValidLog(ii))
+        {
+            entry = LogEntry(ii);
+            log_time = entry->time_utc;
+            WriteLog("Log Entry: %d %d %ld %s", 
+                    entry->id, entry->size, log_time, ctime(&log_time));
+        }
+    }
+}
+
+

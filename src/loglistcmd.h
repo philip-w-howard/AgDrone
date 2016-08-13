@@ -7,7 +7,7 @@
 class LogListCmd : public CommandProcessor
 {
     public:
-        LogListCmd(queue_t *agdrone_q, int id=0);
+        LogListCmd(queue_t *agdrone_q, int msg_src, int id=0);
         virtual ~LogListCmd();
 
         virtual void Start();
@@ -29,6 +29,9 @@ class LogListCmd : public CommandProcessor
         int m_filled_entries;
         int m_entries_capacity;
         int m_id;
+        int m_msg_src;
         entry_t *m_entries;
+
+        void SendEntries();
 
 };

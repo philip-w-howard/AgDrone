@@ -37,7 +37,7 @@ protected:
     pthread_t m_socket_thread;
 
     bool MakeConnection();
-    void ProcessCommand(char *command);
+    void ProcessCommand(char *command, int msg_src);
     void ProcessMessage(mavlink_message_t *msg, int msg_src);
     bool CommandIsActive();
 };

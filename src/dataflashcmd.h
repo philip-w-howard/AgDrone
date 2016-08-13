@@ -12,7 +12,7 @@
 class DataFlashCmd : public CommandProcessor
 {
     public:
-        DataFlashCmd(queue_t *agdrone_q, int log_id);
+        DataFlashCmd(queue_t *agdrone_q, int msg_src, int log_id);
         virtual ~DataFlashCmd();
 
         virtual void Start();
@@ -27,6 +27,7 @@ class DataFlashCmd : public CommandProcessor
         uint32_t m_highwater;
         uint32_t m_lastHighwater;
         DataList m_data;
+        int m_msg_src;
 
         LogListCmd m_logList;
         time_t m_logTime;

@@ -8,8 +8,8 @@
 #include "log.h"
 
 //**********************************************
-DataFlashCmd::DataFlashCmd(queue_t *q, int log_id) : 
-    CommandProcessor(q), m_logList(q, log_id)
+DataFlashCmd::DataFlashCmd(queue_t *q, int msg_src, int log_id) : 
+    CommandProcessor(q), m_logList(q, msg_src, log_id)
 {
     m_otherCount = 0;
     m_highwater = 0;
@@ -17,6 +17,7 @@ DataFlashCmd::DataFlashCmd(queue_t *q, int log_id) :
     m_lastHighwater = 0;
     m_receivedLastBlock = false;
     m_detailLog = false;
+    m_msg_src = msg_src;
 }
 
 //**********************************************
