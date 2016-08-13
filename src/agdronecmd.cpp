@@ -225,7 +225,7 @@ void AgDroneCmd::ProcessCommand(char *command, int msg_src)
 
     if (strncmp(command, "loglist", strlen("loglist")) == 0)
     {
-        m_cmd_proc = new LogListCmd(m_agdrone_q, msg_src);
+        m_cmd_proc = new LogListCmd(m_agdrone_q, mFileDescriptor, msg_src);
         m_cmd_proc->Start();
     }
     else if (strncmp(command, "logdata", strlen("logdata")) == 0)

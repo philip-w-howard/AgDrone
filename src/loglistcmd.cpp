@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 #include "loglistcmd.h"
@@ -7,7 +8,8 @@
 #include "log.h"
 
 //**********************************************
-LogListCmd::LogListCmd(queue_t *q, int msg_src, int id) : CommandProcessor(q)
+LogListCmd::LogListCmd(queue_t *q, int client_socket, int msg_src, int id) 
+    : CommandProcessor(q, client_socket, msg_src)
 {
     m_other_count = 0;
     m_filled_entries = 0;
@@ -15,7 +17,6 @@ LogListCmd::LogListCmd(queue_t *q, int msg_src, int id) : CommandProcessor(q)
     m_entries = NULL;
     m_finished = false;
     m_id = id;
-    m_msg_src = msg_src;
 }
 
 //**********************************************
@@ -146,6 +147,7 @@ void LogListCmd::SendEntries()
     int ii;
     time_t log_time;
     mavlink_log_entry_t *entry;
+    char buff[500];
 
     for (ii=0; ii<NumLogs(); ii++)
     {
@@ -155,7 +157,18 @@ void LogListCmd::SendEntries()
             log_time = entry->time_utc;
             WriteLog("Log Entry: %d %d %ld %s", 
                     entry->id, entry->size, log_time, ctime(&log_time));
+            if (m_msg_src == MSG_SRC_AGDRONE_CONTROL && m_client_socket >= 0)
+            {
+                sprintf(buff, "LogEntry %d %d %ld %s\n",
+                        entry->id, entry->size, log_time, ctime(&log_time));
+                write(m_client_socket, buff, strlen(buff));
+            }
         }
+    }
+    if (m_msg_src == MSG_SRC_AGDRONE_CONTROL && m_client_socket >= 0)
+    {
+        sprintf(buff, "LogEntryDone\n");
+        write(m_client_socket, buff, strlen(buff));
     }
 }
 
