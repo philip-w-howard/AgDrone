@@ -12,7 +12,8 @@
 class DataFlashCmd : public CommandProcessor
 {
     public:
-        DataFlashCmd(queue_t *agdrone_q, int msg_src, int log_id);
+        DataFlashCmd(queue_t *agdrone_q, int client_socket, int msg_src, 
+                int log_id);
         virtual ~DataFlashCmd();
 
         virtual void Start();

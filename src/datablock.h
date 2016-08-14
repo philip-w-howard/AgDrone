@@ -27,6 +27,7 @@ class DataBlock
 
         bool Append(int size, void *data)
         {
+            if (m_sent) return false;
             if (m_size + size > M_SIZE) return false;
 
             memcpy(m_data+m_size, data, size);

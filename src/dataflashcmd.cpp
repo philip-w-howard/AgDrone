@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
 
 #include "dataflashcmd.h"
@@ -8,8 +9,10 @@
 #include "log.h"
 
 //**********************************************
-DataFlashCmd::DataFlashCmd(queue_t *q, int msg_src, int log_id) : 
-    CommandProcessor(q), m_logList(q, msg_src, log_id)
+DataFlashCmd::DataFlashCmd(queue_t *q, int client_socket, int msg_src, 
+        int log_id) : 
+    CommandProcessor(q, client_socket, msg_src), 
+    m_logList(q, client_socket, msg_src, log_id)
 {
     m_otherCount = 0;
     m_highwater = 0;
@@ -71,6 +74,14 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     logTime.tm_year, logTime.tm_mon, logTime.tm_mday,
                     logTime.tm_hour, logTime.tm_min, logTime.tm_sec);
 
+            if (m_msg_src == MSG_SRC_AGDRONE_CONTROL)
+            {
+                // FIX THIS: open socket
+                char msg[200];
+                sprintf(msg, "filesize %d\n", entry->size);
+                write(m_client_socket, msg, strlen(msg));
+            }
+
 
             WriteLog("Starting DATA_FLASH command for id %d %s\n", 
                     m_logId, m_logName);
@@ -94,6 +105,18 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         {
             m_dataPackets++;
             m_dataBytes += log_data.count;
+
+            if (m_msg_src == MSG_SRC_AGDRONE_CONTROL)
+            {
+                int start;
+                int size;
+                void *data;
+                if (m_data.GetUnsentBlock(&start, &size, &data))
+                {
+                    WriteLog("Sending block at %d size %d\n", start, size);
+                }
+            }
+
         }
         else
             m_dupPackets++;
@@ -212,32 +235,48 @@ void DataFlashCmd::LogProgress()
 }
 bool DataFlashCmd::WriteLogFile()
 {
-    FILE *logfile;
-
-    struct tm logTime;
-    localtime_r(&m_logTime, &logTime);
-    logTime.tm_year += 1900;
-    sprintf(m_logName, "/media/sdcard/log%04d%02d%02d%02d%02d%02d.bin",
-            logTime.tm_year, logTime.tm_mon, logTime.tm_mday,
-            logTime.tm_hour, logTime.tm_min, logTime.tm_sec);
-    logfile = fopen(m_logName, "wb");
-    if (logfile == NULL)
+    if (m_msg_src == MSG_SRC_AGDRONE_CONTROL)
     {
-        WriteLog("Unable to open log file: %s\n", m_logName);
-        return false;
-    }
-    
-    int start;
-    int size;
-    int count;
-    void *data;
-    while (m_data.GetUnsentBlock(&start, &size, &data))
-    {
-        count = fwrite(data, size, 1, logfile);
-        if (count != size) WriteLog( "Error writing to dataflash log file\n");
-    }
+        int start;
+        int size;
+        void *data;
+        while (m_data.GetUnsentBlock(&start, &size, &data))
+        {
+            WriteLog("Sending block at %d size %d\n", start, size);
+        }
 
-    fclose(logfile);
+        // close socket
+    }
+    else
+    {
+        FILE *logfile;
+
+        struct tm logTime;
+        localtime_r(&m_logTime, &logTime);
+        logTime.tm_year += 1900;
+        sprintf(m_logName, "/media/sdcard/log%04d%02d%02d%02d%02d%02d.bin",
+                logTime.tm_year, logTime.tm_mon, logTime.tm_mday,
+                logTime.tm_hour, logTime.tm_min, logTime.tm_sec);
+        logfile = fopen(m_logName, "wb");
+        if (logfile == NULL)
+        {
+            WriteLog("Unable to open log file: %s\n", m_logName);
+            return false;
+        }
+        
+        int start;
+        int size;
+        int count;
+        void *data;
+        while (m_data.GetUnsentBlock(&start, &size, &data))
+        {
+            count = fwrite(data, size, 1, logfile);
+            if (count != size) 
+                WriteLog( "Error writing to dataflash log file\n");
+        }
+
+        fclose(logfile);
+    }
     return true;
 }
 

@@ -225,14 +225,24 @@ void AgDroneCmd::ProcessCommand(char *command, int msg_src)
 
     if (strncmp(command, "loglist", strlen("loglist")) == 0)
     {
-        m_cmd_proc = new LogListCmd(m_agdrone_q, mFileDescriptor, msg_src);
+        int log_id;
+        if (sscanf(&command[strlen("loglist")], "%d", &log_id) == 1)
+        {
+            m_cmd_proc = new LogListCmd(m_agdrone_q, mFileDescriptor, 
+                    msg_src, log_id);
+        }
+        else
+        {
+            m_cmd_proc = new LogListCmd(m_agdrone_q, mFileDescriptor, msg_src);
+        }
         m_cmd_proc->Start();
     }
     else if (strncmp(command, "logdata", strlen("logdata")) == 0)
     {
         int log_id;
         sscanf(&command[strlen("logdata")], "%d", &log_id);
-        m_cmd_proc = new DataFlashCmd(m_agdrone_q, msg_src, log_id);
+        m_cmd_proc = new DataFlashCmd(m_agdrone_q, mFileDescriptor, msg_src, 
+                log_id);
         m_cmd_proc->Start();
     }
     else if (strncmp(command, "gettime", strlen("gettime")) == 0)
