@@ -18,6 +18,7 @@ class DataBlock
         {
             m_start = start;
             m_size = size;
+            memcpy(m_data, data, size);
             m_sent = false;
         }
 

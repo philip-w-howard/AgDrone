@@ -21,6 +21,7 @@ class DataFlashCmd : public CommandProcessor
         virtual void ProcessMessage(mavlink_message_t *msg, int msg_src);
     protected:
         static const int OTHERS_PER_RETRY = 10;
+        static const int DATA_PORT = 2004;
 
         int m_otherCount;
         int m_logId;
@@ -29,6 +30,8 @@ class DataFlashCmd : public CommandProcessor
         uint32_t m_lastHighwater;
         DataList m_data;
         int m_msg_src;
+        int m_data_socket;
+        int m_data_server;
 
         LogListCmd m_logList;
         time_t m_logTime;
