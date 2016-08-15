@@ -82,11 +82,17 @@ bool DataList::Insert(int start, int size, void *data)
 //************************************************
 bool DataList::GetHole(int *start, int *size, int start_addr)
 {
+    int lastBlock = -1;
     int prev_block_end = 0;
     std::list<DataBlock>::iterator it = m_data.begin();
 
     while (it != m_data.end())
     {
+        if (lastBlock >= it->Start())
+        {
+            ListAllBlocks();
+            exit(1);
+        }
         if (it->Start() > prev_block_end && prev_block_end > start_addr)
         {
             *start = prev_block_end;
@@ -126,6 +132,14 @@ bool DataList::GetUnsentBlock(int *start, int *size, void **data)
         if (!it->IsSent())
         {
             it->MarkSent();
+            if (it != m_data.begin())
+            {
+                it--;
+                //WriteLog("Erasing sent block %d %d\n", 
+                //        it->Start(), it->Size());
+                m_data.erase(it);
+            }
+
             return true;
         }
 
@@ -150,11 +164,22 @@ void DataList::SetDataComplete()
 //************************************************
 void DataList::ListAllBlocks()
 {
+    int lastBlock = -1;
     std::list<DataBlock>::iterator it = m_data.begin();
 
     while (it != m_data.end())
     {
-        WriteLog("Block %d %d\n", it->Start(), it->Size());
+        if (lastBlock >= it->Start())
+        {
+            WriteLog("Data List out of order %d %d\n", lastBlock, it->Start());
+            fprintf(stderr, "Data List out of order %d %d\n", 
+                    lastBlock, it->Start());
+        }
+
+        if (it->IsSent())
+            WriteLog("Block %d %d sent\n", it->Start(), it->Size());
+        else
+            WriteLog("Block %d %d\n", it->Start(), it->Size());
         it++;
     }
     fflush(stdout);

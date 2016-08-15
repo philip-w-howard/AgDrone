@@ -174,8 +174,8 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     if (m_detailLog)
                     {
                         WriteLog("Sending block at %d size %d\n", start, size);
-                        write(m_data_socket, data, size);
                     }
+                    write(m_data_socket, data, size);
                 }
             }
 
@@ -304,14 +304,17 @@ bool DataFlashCmd::WriteLogFile()
         void *data;
         while (m_data.GetUnsentBlock(&start, &size, &data))
         {
-            WriteLog("Sending block at %d size %d\n", start, size);
+            if (m_detailLog)
+            {
+                WriteLog("Sending block at %d size %d\n", start, size);
+            }
             write(m_data_socket, data, size);
         }
 
         // close socket
         if (m_data_socket >= 0) 
         {
-            WriteLog("Closing data connection");
+            WriteLog("Closing data connection\n");
             close(m_data_socket);
         }
         if (m_data_server >= 0) close(m_data_server);

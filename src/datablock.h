@@ -41,7 +41,7 @@ class DataBlock
         int Size() { return m_size; }
         void *Data() { return m_data; }
         bool IsSent() { return m_sent; }
-        void MarkSent() { m_sent = true; }
+        void MarkSent() { m_sent = true; m_size = m_start+m_size; m_start = 0;}
 
     protected:
         static const int M_SIZE = 4069;
