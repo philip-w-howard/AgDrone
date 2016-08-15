@@ -90,7 +90,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
             if (m_msg_src == MSG_SRC_AGDRONE_CONTROL)
             {
-                // FIX THIS: open socket
+                // open socket
                 struct sockaddr_in serv_addr;
                 m_data_server = socket(AF_INET, SOCK_STREAM, 0);
                 if (m_data_server < 0)
@@ -174,6 +174,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     if (m_detailLog)
                     {
                         WriteLog("Sending block at %d size %d\n", start, size);
+                        write(m_data_socket, data, size);
                     }
                 }
             }
@@ -304,10 +305,15 @@ bool DataFlashCmd::WriteLogFile()
         while (m_data.GetUnsentBlock(&start, &size, &data))
         {
             WriteLog("Sending block at %d size %d\n", start, size);
+            write(m_data_socket, data, size);
         }
 
         // close socket
-        if (m_data_socket >= 0) close(m_data_socket);
+        if (m_data_socket >= 0) 
+        {
+            WriteLog("Closing data connection");
+            close(m_data_socket);
+        }
         if (m_data_server >= 0) close(m_data_server);
     }
     else
