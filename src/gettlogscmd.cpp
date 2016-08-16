@@ -9,7 +9,8 @@
 #include <netdb.h>
 #include <dirent.h>
 #include <errno.h>
-
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "gettlogscmd.h"
 
 #include "log.h"
@@ -20,6 +21,9 @@ GetTlogsCmd::GetTlogsCmd(queue_t *q, int client_socket, int msg_src) :
 {
     m_data_socket = -1;
     m_data_server = -1;
+    m_logfile = -1;
+    m_bytesSent = 0;
+    m_totalBytesSent = 0;
 }
 
 //**********************************************
@@ -69,7 +73,83 @@ void GetTlogsCmd::Abort()
 //**********************************************
 void GetTlogsCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 {
+    while (m_logfile  < 0 && !m_finished)
+    {
+        element_t file = m_fileList.front();
+        char filename[256];
+        strcpy(filename, "/media/sdcard/");
+        strcat(filename, file.m_filename);
+        m_logfile = open(filename, O_RDONLY);
+
+        if (m_logfile < 0) 
+        {
+            WriteLog("GetTlogsCmd is finished\n");
+            if (m_client_socket >= 0)
+            {
+                const char *buff = "gettlogs done\n";
+                write(m_client_socket, buff, strlen(buff));
+            }
+            m_finished = true;
+        }
+        else
+        {
+            if (m_client_socket >= 0)
+            {
+                char buff[256];
+                sprintf(buff, "sending %s\n", file.m_filename);
+                write(m_client_socket, buff, strlen(buff));
+                MakeDataConnection();
+                m_bytesSent = 0;
+
+                // return at this point to let main loop have some CPU time
+                return;
+            }
+        }
+        m_fileList.pop_front();
+    }
+
     if (m_finished) return;
+
+    int ii;
+    for (ii=0; ii<BLOCKS_PER_MSG; ii++)
+    {
+        int size = read(m_logfile, m_buffer, sizeof(m_buffer));
+        if (size > 0)
+        {
+            int count = write(m_data_socket, m_buffer, size);
+            if (count != size)
+            {
+                WriteLog("Error sending file\n");
+                close(m_logfile);
+                m_logfile = -1;
+                close(m_data_socket);
+                m_data_socket = -1;
+                return;
+            }
+            else
+            {
+                m_bytesSent += size;
+                m_totalBytesSent += size;
+            }
+        } 
+        else if (size == 0)
+        {
+            close(m_logfile);
+            m_logfile = -1;
+            close(m_data_socket);
+            m_data_socket = -1;
+            return;
+        }
+        else
+        {
+            WriteLog("Error sending file\n");
+            close(m_logfile);
+            m_logfile = -1;
+            close(m_data_socket);
+            m_data_socket = -1;
+            return;
+        }
+    }
 }
 
 //***********************************************

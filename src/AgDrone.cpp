@@ -406,7 +406,7 @@ int main(int argc, char **argv)
         {
             print_stats(num_msgs, pixhawk, mission);
         }
-        if (num_msgs == 500) agdrone_cmd->QueueCmd("gettlogs", MSG_SRC_SELF);
+        //if (num_msgs == 500) agdrone_cmd->QueueCmd("gettlogs", MSG_SRC_SELF);
     }
 
     WriteLog("AgDrone exiting\n");

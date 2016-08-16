@@ -20,6 +20,8 @@ class GetTlogsCmd : public CommandProcessor
         virtual void ProcessMessage(mavlink_message_t *msg, int msg_src);
     protected:
         static const int DATA_PORT = 2004;
+        static const int BLOCKS_PER_MSG = 2;
+
         class element_t
         {
             public:
@@ -36,6 +38,10 @@ class GetTlogsCmd : public CommandProcessor
 
         int m_data_socket;
         int m_data_server;
+        int m_logfile;
+        int64_t m_bytesSent;
+        int64_t m_totalBytesSent;
+        char m_buffer[1024*1024];
 
         void LogProgress();
         void MakeDataConnection();
