@@ -1,4 +1,4 @@
-OPTS= -Wall -c -pthread -O0 -g
+OPTS= -Wall -c -pthread -O2 -g
 LIBS= -lmraa
 
 OBJS=  AgDrone.o \
@@ -14,6 +14,7 @@ OBJS=  AgDrone.o \
        dataflashcmd.o \
        getfilecmd.o \
        gettimecmd.o \
+       gettlogscmd.o \
        queue.o \
        log.o \
 

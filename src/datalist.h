@@ -19,4 +19,6 @@ class DataList
     protected:
         std::list<DataBlock> m_data;
         bool m_DataComplete;
+
+        bool ValidateList();
 };

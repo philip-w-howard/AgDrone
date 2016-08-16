@@ -242,7 +242,6 @@ bool DataFlashCmd::LookForHoles()
     static uint64_t lastHolesSize = 0;
 
     //WriteLog("Looking for holes\n");
-    fflush(stdout);
 
     if (m_detailLog) m_data.ListAllBlocks();
 
@@ -254,7 +253,7 @@ bool DataFlashCmd::LookForHoles()
         m_numHoles++;
         m_holesBytes += size;
 
-        if (m_numHoles <= 5)
+        if (m_numHoles <= HOLES_AT_A_TIME)
         {
             if (m_detailLog)
                 WriteLog("DATA_FLASH filling hole: %d %d\n", start, size);

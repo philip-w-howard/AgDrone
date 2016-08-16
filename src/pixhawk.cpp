@@ -90,8 +90,17 @@ int PixhawkConnection::ConnectSerial(char *port_name)
     tty.c_cc[VMIN] = 1;     // wait for one character
 
     cfmakeraw(&tty);
-    cfsetispeed(&tty, B57600);
-    cfsetospeed(&tty, B57600);
+    if (strstr(uart_name, "ACM") != NULL)
+    {
+        fprintf(stderr, "Running %s at 115K baud\n", uart_name);
+        cfsetispeed(&tty, B115200);
+        cfsetospeed(&tty, B115200);
+    }
+    else
+    {
+        cfsetispeed(&tty, B57600);
+        cfsetospeed(&tty, B57600);
+    }
 
     //tty.c_oflag |= CLOCAL;
 

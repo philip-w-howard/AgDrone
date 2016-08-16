@@ -67,32 +67,31 @@ bool DataList::Insert(int start, int size, void *data)
             m_data.insert(it, DataBlock(start, size, data));
             return true;
         }
+        else
+        {
+            // belongs later in the list, so keep looking
+        }
 
         it++;
     }
 
-    if (it == m_data.end()) 
-    {
-        //WriteLog("Creating new data block %d %d\n", start, size);
-        m_data.push_back(DataBlock(start, size, data));
-    }
+    // Got to the end of the list, so tack this onto the end
+
+    //WriteLog("Creating new data block %d %d\n", start, size);
+    m_data.push_back(DataBlock(start, size, data));
 
     return true;
 }
 //************************************************
 bool DataList::GetHole(int *start, int *size, int start_addr)
 {
-    int lastBlock = -1;
     int prev_block_end = 0;
     std::list<DataBlock>::iterator it = m_data.begin();
 
+    if (!ValidateList()) exit(1);
+
     while (it != m_data.end())
     {
-        if (lastBlock >= it->Start())
-        {
-            ListAllBlocks();
-            exit(1);
-        }
         if (it->Start() > prev_block_end && prev_block_end > start_addr)
         {
             *start = prev_block_end;
@@ -115,6 +114,8 @@ bool DataList::GetUnsentBlock(int *start, int *size, void **data)
 {
     int prev_block_end = 0;
     std::list<DataBlock>::iterator it = m_data.begin();
+
+    if (!ValidateList()) exit(1);
 
     while (it != m_data.end())
     {
@@ -165,11 +166,12 @@ void DataList::SetDataComplete()
 void DataList::ListAllBlocks()
 {
     int lastBlock = -1;
+    int lastSize = -1;
     std::list<DataBlock>::iterator it = m_data.begin();
 
     while (it != m_data.end())
     {
-        if (lastBlock >= it->Start())
+        if (lastBlock+lastSize > it->Start())
         {
             WriteLog("Data List out of order %d %d\n", lastBlock, it->Start());
             fprintf(stderr, "Data List out of order %d %d\n", 
@@ -180,7 +182,37 @@ void DataList::ListAllBlocks()
             WriteLog("Block %d %d sent\n", it->Start(), it->Size());
         else
             WriteLog("Block %d %d\n", it->Start(), it->Size());
+
+        lastBlock = it->Start();
+        lastSize = it->Size();
+
         it++;
     }
     fflush(stdout);
+}
+//************************************************
+bool DataList::ValidateList()
+{
+    int lastBlock = -1;
+    int lastSize = -1;
+    std::list<DataBlock>::iterator it = m_data.begin();
+
+    while (it != m_data.end())
+    {
+        if (lastBlock+lastSize > it->Start())
+        {
+            WriteLog("Data List out of order %d %d\n", lastBlock, it->Start());
+            fprintf(stderr, "Data List out of order %d %d\n", 
+                    lastBlock, it->Start());
+            ListAllBlocks();
+            return false;
+        }
+
+        lastBlock = it->Start();
+        lastSize = it->Size();
+
+        it++;
+    }
+
+    return true;
 }

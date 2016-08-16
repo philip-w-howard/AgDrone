@@ -288,7 +288,7 @@ int main(int argc, char **argv)
     queue_t *agdrone_q = queue_create();
     if (agdrone_q == NULL)
     {
-        perror("Error opening mission planner queue");
+        perror("Error opening AgDrone queue");
         return -4;
     }
 
@@ -304,6 +304,8 @@ int main(int argc, char **argv)
         perror("Unable to open log file");
         return -5;
     }
+
+    fprintf(stderr, "Mission: %s Pixhawk: %s\n", g_mission, g_pixhawk);
 
     Connection *mission;
 
@@ -404,7 +406,7 @@ int main(int argc, char **argv)
         {
             print_stats(num_msgs, pixhawk, mission);
         }
-        //if (num_msgs == 500) agdrone_cmd->QueueCmd("logdata 4", MSG_SRC_SELF);
+        if (num_msgs == 500) agdrone_cmd->QueueCmd("gettlogs", MSG_SRC_SELF);
     }
 
     WriteLog("AgDrone exiting\n");

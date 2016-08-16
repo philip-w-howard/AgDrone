@@ -20,8 +20,9 @@ class DataFlashCmd : public CommandProcessor
         virtual void Abort();
         virtual void ProcessMessage(mavlink_message_t *msg, int msg_src);
     protected:
-        static const int OTHERS_PER_RETRY = 10;
+        static const int OTHERS_PER_RETRY = 5;
         static const int DATA_PORT = 2004;
+        static const int HOLES_AT_A_TIME = 5;
 
         int m_otherCount;
         int m_logId;
