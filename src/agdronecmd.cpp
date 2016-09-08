@@ -251,7 +251,7 @@ void AgDroneCmd::ProcessCommand(char *command, int msg_src)
         m_cmd_proc = new GetTimeCmd(m_agdrone_q);
         m_cmd_proc->Start();
     }
-    else if (strncmp(command, "gettlogs", 3) == 0)
+    else if (strncmp(command, "gettlogs", strlen("gettlogs")) == 0)
     {
         m_cmd_proc = new GetTlogsCmd(m_agdrone_q, mFileDescriptor, msg_src);
         m_cmd_proc->Start();
