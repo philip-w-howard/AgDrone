@@ -16,7 +16,8 @@
 DataFlashCmd::DataFlashCmd(queue_t *q, int client_socket, int msg_src, 
         int log_id) : 
     CommandProcessor(q, client_socket, msg_src), 
-    m_logList(q, client_socket, msg_src, log_id)
+    m_logList(q, client_socket, msg_src, log_id),
+    m_fileSender(client_socket)
 {
     m_otherCount = 0;
     m_highwater = 0;
@@ -32,9 +33,6 @@ DataFlashCmd::DataFlashCmd(queue_t *q, int client_socket, int msg_src,
     m_dataBytes     = 0;
     m_numHoles      = 0;
     m_holesBytes    = 0;
-
-    m_data_socket = -1;
-    m_data_server = -1;
 }
 
 //**********************************************
@@ -90,53 +88,10 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 
             if (m_msg_src == MSG_SRC_AGDRONE_CONTROL)
             {
-                // open socket
-                struct sockaddr_in serv_addr;
-                m_data_server = socket(AF_INET, SOCK_STREAM, 0);
-                if (m_data_server < 0)
-                {
-                    WriteLog("Failed to open data server");
-                    // Report to AgDroneCtrl
-                    m_finished = true;
-                    return;
-                }
-
-                bzero((char *)&serv_addr, sizeof(serv_addr));
-                serv_addr.sin_family = AF_INET;
-                serv_addr.sin_addr.s_addr = INADDR_ANY;
-                serv_addr.sin_port = htons(DATA_PORT);
-                if (bind(m_data_server, (struct sockaddr *) &serv_addr,
-                           sizeof(serv_addr)) < 0)
-                {
-                    WriteLog("Failed to bind to  data server");
-                    // Report to AgDroneCtrl
-                    m_finished = true;
-                    return;
-                }
-
-                listen(m_data_server, 5);
-
                 WriteLog("Starting DATA_FLASH command for id %d %s\n", 
                         m_logId, m_logName);
+                m_fileSender.Start(m_logName, entry->size);
                 send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
-
-                char msg[200];
-                sprintf(msg, "filesize %d\n", entry->size);
-                write(m_client_socket, msg, strlen(msg));
-
-                struct sockaddr_in data_addr;
-                socklen_t data_len;
-                data_len = sizeof(data_addr);
-                m_data_socket = accept(m_data_server, 
-                        (struct sockaddr *)&data_addr, &data_len);
-
-                if (m_data_socket < 0)
-                {
-                    WriteLog("Failed to connect to data client");
-                    // Report to AgDroneCtrl
-                    m_finished = true;
-                    return;
-                }
             }
             else
             {
@@ -175,7 +130,6 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     {
                         WriteLog("Sending block at %d size %d\n", start, size);
                     }
-                    write(m_data_socket, data, size);
                 }
             }
 
@@ -294,6 +248,7 @@ void DataFlashCmd::LogProgress()
             m_numHoles, m_holesBytes);
     fflush(stdout);
 }
+//**********************************************
 bool DataFlashCmd::WriteLogFile()
 {
     if (m_msg_src == MSG_SRC_AGDRONE_CONTROL)
@@ -307,16 +262,10 @@ bool DataFlashCmd::WriteLogFile()
             {
                 WriteLog("Sending block at %d size %d\n", start, size);
             }
-            write(m_data_socket, data, size);
+            m_fileSender.Send((unsigned char *)data, size);
         }
 
-        // close socket
-        if (m_data_socket >= 0) 
-        {
-            WriteLog("Closing data connection\n");
-            close(m_data_socket);
-        }
-        if (m_data_server >= 0) close(m_data_server);
+        m_fileSender.Finish();
     }
     else
     {

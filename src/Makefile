@@ -1,5 +1,5 @@
 OPTS= -Wall -c -pthread -O2 -g
-LIBS= -lmraa
+LIBS= -lmraa -lssl -lgnutls-openssl
 
 OBJS=  AgDrone.o \
        Heartbeat.o \
@@ -15,6 +15,7 @@ OBJS=  AgDrone.o \
        getfilecmd.o \
        gettimecmd.o \
        gettlogscmd.o \
+       sendfile.o \
        queue.o \
        log.o \
 

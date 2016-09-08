@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <netdb.h>
 
 #include "sendfile.h"
 #include "log.h"
 
 //**********************************************
-SendFile::SendFile()
+SendFile::SendFile(int client_socket)
 {
+    m_client_socket = client_socket;
+
     MD5_Init(&m_md5Summer);
     memset(m_md5Sum, 0, sizeof(m_md5Sum));
 }
@@ -21,11 +26,6 @@ SendFile::SendFile()
 //**********************************************
 SendFile::~SendFile()
 {
-}
-//**********************************************
-void SendFile::SendTo(char *destname)
-{
-    strcpy(m_destname, destname);
 }
 //**********************************************
 void SendFile::Send(char *srcname)
@@ -54,10 +54,11 @@ void SendFile::Send(char *srcname)
     Finish();
 }
 //**********************************************
-void SendFile::Send(unsigned char buff, int size)
+void SendFile::Send(unsigned char *buff, int size)
 {
     MD5_Update(&m_md5Summer, buff, size);
 
+    write(m_data_socket, buff, size);
 }
 //**********************************************
 void SendFile::Abort()
@@ -67,20 +68,30 @@ void SendFile::Abort()
 void SendFile::Finish()
 {
     int ii;
+    char charBuff[4];
 
     MD5_Final(m_md5Sum, &m_md5Summer);
 
     strcpy(m_md5CharSum, "");
     for (ii=0; ii<MD5_DIGEST_LENGTH; ii++)
     {
-        strcat(m_md5CharSum, "%02x");
-        sprintf(m_md5CharSum, m_md5Sum[ii]);
+        sprintf(charBuff, "%02x", m_md5Sum[ii]);
+        strcat(m_md5CharSum, charBuff);
     }
 
     WriteLog("MD5 Sum: %s\n", m_md5CharSum);
-}
 
-void Start(char *dstFile, int size)
+    if (m_data_server != -1) close(m_data_server);
+    if (m_data_socket != -1) close(m_data_socket);
+    m_data_server = -1;
+    m_data_socket = -1;
+
+    char md5buff[sizeof(m_md5CharSum) + 20];
+    sprintf(md5buff, "md5sum %s\n", m_md5CharSum);
+    write(m_client_socket, md5buff, strlen(md5buff));
+}
+//**********************************************
+void SendFile::Start(char *dstFile, int size)
 {
     // open socket
     struct sockaddr_in serv_addr;
@@ -111,7 +122,7 @@ void Start(char *dstFile, int size)
     WriteLog("Starting file transfer: %s\n", dstFile);
 
     char msg[200];
-    sprintf(msg, "filename %s\nfilesize %d\n", dstFile, size)
+    sprintf(msg, "filename %s\nfilesize %d\n", dstFile, size);
     write(m_client_socket, msg, strlen(msg));
 
     struct sockaddr_in data_addr;

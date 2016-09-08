@@ -8,6 +8,7 @@
 #include "mavlinkif.h"
 #include "datalist.h"
 #include "queue.h"
+#include "sendfile.h"
 
 class DataFlashCmd : public CommandProcessor
 {
@@ -31,8 +32,6 @@ class DataFlashCmd : public CommandProcessor
         uint32_t m_lastHighwater;
         DataList m_data;
         int m_msg_src;
-        int m_data_socket;
-        int m_data_server;
 
         LogListCmd m_logList;
         time_t m_logTime;
@@ -51,4 +50,6 @@ class DataFlashCmd : public CommandProcessor
         bool LookForHoles();
         void LogProgress();
         bool WriteLogFile();
+
+        SendFile m_fileSender;
 };

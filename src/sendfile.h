@@ -8,15 +8,16 @@ class SendFile
         SendFile(int client_socket);
         virtual ~SendFile();
 
-        void SendTo(char *destname);
+        void Start(char *dstFile, int size);
         void Send(char *srcname);
         void Send(unsigned char *buff, int size);
         void Abort();
         void Finish();
     protected:
+        static const int DATA_PORT = 2004;
         MD5_CTX m_md5Summer;
         unsigned char m_md5Sum[MD5_DIGEST_LENGTH];
-        unsigned char m_md5CharSum[MD5_DIGEST_LENGTH*2 + 5];
+        char m_md5CharSum[MD5_DIGEST_LENGTH*2 + 5];
         char m_destname[512];
         char m_srcname[512];
 
