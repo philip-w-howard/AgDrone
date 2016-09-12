@@ -47,8 +47,8 @@ void DataFlashCmd::Start()
 
     m_logList.Start(m_logId);
 
-    //WriteLog("Starting DATA_FLASH command for id %d\n", m_logId);
-    //send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
+    WriteLog("Starting DATA_FLASH command for id %d\n", m_logId);
+    send_log_request_data(m_agdrone_q, 0x45, 0x67, m_logId, 0, -1);
 }
 //**********************************************
 void DataFlashCmd::Abort()
@@ -67,7 +67,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         if (m_logList.IsFinished())
         {
             mavlink_log_entry_t *entry;
-            entry = m_logList.LogEntry(m_logId);
+            entry = m_logList.LogEntry(0);
             if (entry == NULL)
             {
                 WriteLog("Unable to get log list entry.\n");
@@ -130,6 +130,7 @@ void DataFlashCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
                     {
                         WriteLog("Sending block at %d size %d\n", start, size);
                     }
+                    m_fileSender.Send((unsigned char *)data, size);
                 }
             }
 

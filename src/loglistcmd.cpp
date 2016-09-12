@@ -28,11 +28,16 @@ LogListCmd::~LogListCmd()
 //**********************************************
 void LogListCmd::Start()
 {
-    WriteLog("Starting LOG_LIST command\n");
     if (m_id == 0)
+    {
+        WriteLog("Starting LOG_LIST command\n");
         send_log_request_list(m_agdrone_q, 0x45, 0x67, 0, -1);
+    }
     else
+    {
+        WriteLog("Starting LOG_LIST %d command\n", m_id);
         send_log_request_list(m_agdrone_q, 0x45, 0x67, m_id, m_id);
+    }
     m_finished = false;
 }
 //**********************************************
@@ -74,6 +79,18 @@ void LogListCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
             WriteLog("Log entry: id %d size %d num %d last %d\n",
                 log_entry.id, log_entry.size, log_entry.num_logs,
                 log_entry.last_log_num);
+        }
+        else if (m_id != 0 && log_entry.id == m_id)
+        {
+            m_entries[0].entry = log_entry;
+            if (!m_entries[0].filled)
+            {
+                m_entries[0].filled = true;
+                m_filled_entries++;
+            }
+            WriteLog("Log entry[0]: id %d size %d num %d last %d\n",
+                        log_entry.id, log_entry.size, log_entry.num_logs,
+                        log_entry.last_log_num);
         }
         else
         {
