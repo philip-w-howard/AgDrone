@@ -58,7 +58,7 @@ void SendFile::Send(unsigned char *buff, int size)
 {
     MD5_Update(&m_md5Summer, buff, size);
 
-    write(m_data_socket, buff, size);
+    if (m_data_socket >= 0) write(m_data_socket, buff, size);
 }
 //**********************************************
 void SendFile::Abort()
@@ -81,8 +81,16 @@ void SendFile::Finish()
 
     WriteLog("MD5 Sum: %s\n", m_md5CharSum);
 
-    if (m_data_server != -1) close(m_data_server);
-    if (m_data_socket != -1) close(m_data_socket);
+    if (m_data_server != -1) 
+    {
+        WriteLog("Closing data server\n");
+        close(m_data_server);
+    }
+    if (m_data_socket != -1) 
+    {
+        WriteLog("Closing data socket\n");
+        close(m_data_socket);
+    }
     m_data_server = -1;
     m_data_socket = -1;
 
@@ -98,9 +106,13 @@ void SendFile::Start(char *dstFile, int size)
     m_data_server = socket(AF_INET, SOCK_STREAM, 0);
     if (m_data_server < 0)
     {
-        WriteLog("Failed to open data server");
+        WriteLog("Failed to open data server\n");
+        perror("Failed to open data server\n");
         // Report to AgDroneCtrl
         m_finished = true;
+        m_data_server = -1;
+        m_data_socket = -1;
+
         return;
     }
 
@@ -133,7 +145,7 @@ void SendFile::Start(char *dstFile, int size)
 
     if (m_data_socket < 0)
     {
-        WriteLog("Failed to connect to data client");
+        WriteLog("Failed to connect to data client\n");
         // Report to AgDroneCtrl
         m_finished = true;
         return;

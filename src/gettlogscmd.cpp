@@ -11,19 +11,18 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+
 #include "gettlogscmd.h"
 
 #include "log.h"
+#include "sendfile.h"
 
 //**********************************************
 GetTlogsCmd::GetTlogsCmd(queue_t *q, int client_socket, int msg_src) :
     CommandProcessor(q, client_socket, msg_src) 
 {
-    m_data_socket = -1;
-    m_data_server = -1;
-    m_logfile = -1;
-    m_bytesSent = 0;
-    m_totalBytesSent = 0;
 }
 
 //**********************************************
@@ -35,33 +34,6 @@ GetTlogsCmd::~GetTlogsCmd()
 void GetTlogsCmd::Start()
 {
     m_finished = false;
-
-    // open socket
-    struct sockaddr_in serv_addr;
-    m_data_server = socket(AF_INET, SOCK_STREAM, 0);
-    if (m_data_server < 0)
-    {
-        WriteLog("Failed to open data server");
-        // Report to AgDroneCtrl
-        m_finished = true;
-        return;
-    }
-
-    bzero((char *)&serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(DATA_PORT);
-    if (bind(m_data_server, (struct sockaddr *) &serv_addr,
-               sizeof(serv_addr)) < 0)
-    {
-        WriteLog("Failed to bind to  data server");
-        // Report to AgDroneCtrl
-        m_finished = true;
-        return;
-    }
-
-    listen(m_data_server, 5);
-
     WriteLog("Processing GetTlogsCmd\n");
 
     GetFileList();
@@ -73,112 +45,28 @@ void GetTlogsCmd::Abort()
 //**********************************************
 void GetTlogsCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
 {
-    while (m_logfile  < 0 && !m_finished)
+    if (!m_finished && m_fileList.size() > 0)
     {
         element_t file = m_fileList.front();
+        m_fileList.pop_front();
+
         char filename[256];
         strcpy(filename, "/media/sdcard/");
         strcat(filename, file.m_filename);
-        m_logfile = open(filename, O_RDONLY);
 
-        if (m_logfile < 0) 
-        {
-            WriteLog("GetTlogsCmd is finished\n");
-            if (m_client_socket >= 0)
-            {
-                const char *buff = "gettlogs done\n";
-                write(m_client_socket, buff, strlen(buff));
-            }
-            m_finished = true;
-        }
-        else
-        {
-            if (m_client_socket >= 0)
-            {
-                char buff[256];
-                sprintf(buff, "sending %s\n", file.m_filename);
-                write(m_client_socket, buff, strlen(buff));
-                MakeDataConnection();
-                m_bytesSent = 0;
+        write(m_client_socket, "sendingfile\n", strlen("sendingfile\n"));
+        SendFile sender(m_client_socket);
+        sender.Start(file.m_filename, file.m_size);
+        sender.Send(filename);
 
-                // return at this point to let main loop have some CPU time
-                return;
-            }
-        }
-        m_fileList.pop_front();
     }
-
-    if (m_finished) return;
-
-    int ii;
-    for (ii=0; ii<BLOCKS_PER_MSG; ii++)
+    else if (!m_finished)
     {
-        int size = read(m_logfile, m_buffer, sizeof(m_buffer));
-        if (size > 0)
-        {
-            int count = write(m_data_socket, m_buffer, size);
-            if (count != size)
-            {
-                WriteLog("Error sending file\n");
-                close(m_logfile);
-                m_logfile = -1;
-                close(m_data_socket);
-                m_data_socket = -1;
-                return;
-            }
-            else
-            {
-                m_bytesSent += size;
-                m_totalBytesSent += size;
-            }
-        } 
-        else if (size == 0)
-        {
-            close(m_logfile);
-            m_logfile = -1;
-            close(m_data_socket);
-            m_data_socket = -1;
-            return;
-        }
-        else
-        {
-            WriteLog("Error sending file\n");
-            close(m_logfile);
-            m_logfile = -1;
-            close(m_data_socket);
-            m_data_socket = -1;
-            return;
-        }
-    }
-}
-
-//***********************************************
-void GetTlogsCmd::MakeDataConnection()
-{
-    struct sockaddr_in data_addr;
-    socklen_t data_len;
-    data_len = sizeof(data_addr);
-    m_data_socket = accept(m_data_server, 
-            (struct sockaddr *)&data_addr, &data_len);
-
-    if (m_data_socket < 0)
-    {
-        WriteLog("Failed to connect to data client");
-        // Report to AgDroneCtrl
+        write(m_client_socket, "tlogsdone\n", strlen("sendingfile\n"));
         m_finished = true;
-        return;
     }
-}
 
-//***********************************************
-void GetTlogsCmd::LogProgress()
-{
-    WriteLog("gettlogs files left: %d\n", m_fileList.size());
 }
-
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
 
 void GetTlogsCmd::GetFileList()
 {
@@ -219,12 +107,4 @@ void GetTlogsCmd::GetFileList()
     std::list<element_t>::iterator it;
 
     WriteLog("Found %d tlogs\n", m_fileList.size());
-
-    int index = 1;
-    for (it=m_fileList.begin(); it != m_fileList.end(); it++)
-    {
-        WriteLog("Log: %d %s\n", index++, it->m_filename);
-    }
-
-    m_finished = true;
 }
