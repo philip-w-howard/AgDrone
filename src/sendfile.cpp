@@ -19,9 +19,6 @@ SendFile::SendFile(int client_socket)
 {
     m_client_socket = client_socket;
 
-    MD5_Init(&m_md5Summer);
-    memset(m_md5Sum, 0, sizeof(m_md5Sum));
-
     m_data_server = -1;
     m_data_socket = -1;
     m_finished = false;
@@ -142,6 +139,9 @@ void SendFile::Finish()
 void SendFile::Start(char *dstFile, int size)
 {
     m_finished = false;
+
+    MD5_Init(&m_md5Summer);
+    memset(m_md5Sum, 0, sizeof(m_md5Sum));
 
     WriteLog("Starting file transfer: %s\n", dstFile);
 

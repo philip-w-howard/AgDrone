@@ -62,7 +62,7 @@ void GetTlogsCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
     }
     else if (!m_finished)
     {
-        write(m_client_socket, "tlogsdone\n", strlen("sendingfile\n"));
+        write(m_client_socket, "tlogsdone\n", strlen("tlogsdone\n"));
         m_finished = true;
     }
 
