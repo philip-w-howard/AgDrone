@@ -21,7 +21,8 @@
 
 //**********************************************
 GetTlogsCmd::GetTlogsCmd(queue_t *q, int client_socket, int msg_src) :
-    CommandProcessor(q, client_socket, msg_src) 
+    CommandProcessor(q, client_socket, msg_src),
+    m_sender(m_client_socket)
 {
 }
 
@@ -55,9 +56,8 @@ void GetTlogsCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         strcat(filename, file.m_filename);
 
         write(m_client_socket, "sendingfile\n", strlen("sendingfile\n"));
-        SendFile sender(m_client_socket);
-        sender.Start(file.m_filename, file.m_size);
-        sender.Send(filename);
+        m_sender.Start(file.m_filename, file.m_size);
+        m_sender.Send(filename);
 
     }
     else if (!m_finished)

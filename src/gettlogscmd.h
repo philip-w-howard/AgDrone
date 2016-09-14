@@ -8,6 +8,7 @@
 #include "mavlinkif.h"
 #include "datalist.h"
 #include "queue.h"
+#include "sendfile.h"
 
 class GetTlogsCmd : public CommandProcessor
 {
@@ -32,6 +33,7 @@ class GetTlogsCmd : public CommandProcessor
         };
 
         std::list<element_t> m_fileList;
+        SendFile m_sender;
 
         void GetFileList();
 };

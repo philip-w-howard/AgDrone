@@ -21,11 +21,57 @@ SendFile::SendFile(int client_socket)
 
     MD5_Init(&m_md5Summer);
     memset(m_md5Sum, 0, sizeof(m_md5Sum));
+
+    m_data_server = -1;
+    m_data_socket = -1;
+    m_finished = false;
+
+    // open socket
+    struct sockaddr_in serv_addr;
+    m_data_server = socket(AF_INET, SOCK_STREAM, 0);
+    if (m_data_server < 0)
+    {
+        WriteLog("Failed to open data server\n");
+        perror("Failed to open data server\n");
+        // Report to AgDroneCtrl
+        m_finished = true;
+        m_data_server = -1;
+        m_data_socket = -1;
+
+        return;
+    }
+
+    bzero((char *)&serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(DATA_PORT);
+    if (bind(m_data_server, (struct sockaddr *) &serv_addr,
+               sizeof(serv_addr)) < 0)
+    {
+        WriteLog("Failed to bind to data server");
+        // Report to AgDroneCtrl
+        m_finished = true;
+        return;
+    }
+
+    listen(m_data_server, 5);
 }
 
 //**********************************************
 SendFile::~SendFile()
 {
+    if (m_data_server != -1) 
+    {
+        WriteLog("Closing data server\n");
+        close(m_data_server);
+    }
+    if (m_data_socket != -1) 
+    {
+        WriteLog("Closing data socket\n");
+        close(m_data_socket);
+    }
+    m_data_server = -1;
+    m_data_socket = -1;
 }
 //**********************************************
 void SendFile::Send(char *srcname)
@@ -81,17 +127,11 @@ void SendFile::Finish()
 
     WriteLog("MD5 Sum: %s\n", m_md5CharSum);
 
-    if (m_data_server != -1) 
-    {
-        WriteLog("Closing data server\n");
-        close(m_data_server);
-    }
     if (m_data_socket != -1) 
     {
         WriteLog("Closing data socket\n");
         close(m_data_socket);
     }
-    m_data_server = -1;
     m_data_socket = -1;
 
     char md5buff[sizeof(m_md5CharSum) + 20];
@@ -101,35 +141,7 @@ void SendFile::Finish()
 //**********************************************
 void SendFile::Start(char *dstFile, int size)
 {
-    // open socket
-    struct sockaddr_in serv_addr;
-    m_data_server = socket(AF_INET, SOCK_STREAM, 0);
-    if (m_data_server < 0)
-    {
-        WriteLog("Failed to open data server\n");
-        perror("Failed to open data server\n");
-        // Report to AgDroneCtrl
-        m_finished = true;
-        m_data_server = -1;
-        m_data_socket = -1;
-
-        return;
-    }
-
-    bzero((char *)&serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(DATA_PORT);
-    if (bind(m_data_server, (struct sockaddr *) &serv_addr,
-               sizeof(serv_addr)) < 0)
-    {
-        WriteLog("Failed to bind to data server");
-        // Report to AgDroneCtrl
-        m_finished = true;
-        return;
-    }
-
-    listen(m_data_server, 5);
+    m_finished = false;
 
     WriteLog("Starting file transfer: %s\n", dstFile);
 
@@ -147,6 +159,7 @@ void SendFile::Start(char *dstFile, int size)
     {
         WriteLog("Failed to connect to data client\n");
         // Report to AgDroneCtrl
+        m_data_socket = -1;
         m_finished = true;
         return;
     }
