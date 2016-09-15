@@ -55,8 +55,18 @@ void GetTlogsCmd::ProcessMessage(mavlink_message_t *msg, int msg_src)
         strcpy(filename, "/media/sdcard/");
         strcat(filename, file.m_filename);
 
+        FILE *stream = fopen(filename, "r");
+        if (stream == NULL)
+        {
+            WriteLog("Unable to open %s\n", filename);
+            return;
+        }
+        fseek(stream, 0, SEEK_END);
+        int filesize = ftell(stream);
+        fclose(stream);
+
         write(m_client_socket, "sendingfile\n", strlen("sendingfile\n"));
-        m_sender.Start(file.m_filename, file.m_size);
+        m_sender.Start(file.m_filename, filesize);
         m_sender.Send(filename);
 
     }
