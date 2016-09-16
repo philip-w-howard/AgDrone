@@ -9,10 +9,14 @@
 #include "mraa.hpp"
 
 #include "log.h"
+#include "agdronecmd.h"
+#include "connection.h"
 
-static volatile bool HeartbeatRunning = false;
+static volatile bool g_HeartbeatRunning = false;
 static pthread_t Heartbeat_Thread;
+static AgDroneCmd *g_agdrone;
 
+/*
 static void *heartbeat(void *param)
 {
     mraa::Gpio* d_pin = NULL;
@@ -36,19 +40,36 @@ static void *heartbeat(void *param)
 
     return NULL;
 }
+*/
 
-void Start_Heartbeat()
+static void *heartbeat(void *param)
 {
-    HeartbeatRunning = true;
+    mavlink_message_t msg;
+
+    memset(&msg, 0, sizeof(msg));
+
+    // loop forever toggling the on board LED every second
+    while (g_HeartbeatRunning)
+    {
+        sleep(1);
+        g_agdrone->QueueMsg(&msg, MSG_SRC_SELF);
+    }
+
+    return NULL;
+}
+void Start_Heartbeat(AgDroneCmd *agdrone)
+{
+    g_agdrone = agdrone;
+    g_HeartbeatRunning = true;
     pthread_create(&Heartbeat_Thread, NULL, heartbeat, NULL);
 
 }
 
 void Stop_Heartbeat()
 {
-    if (HeartbeatRunning)
+    if (g_HeartbeatRunning)
     {
-        HeartbeatRunning = false;
+        g_HeartbeatRunning = false;
         pthread_join(Heartbeat_Thread, NULL);
     }
 }

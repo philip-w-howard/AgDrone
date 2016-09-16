@@ -7,7 +7,8 @@
 
 #pragma once
 
+#include "agdronecmd.h"
 
-void Start_Heartbeat();
+void Start_Heartbeat(AgDroneCmd *agdrone);
 void Stop_Heartbeat();
 

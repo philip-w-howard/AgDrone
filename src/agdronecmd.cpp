@@ -26,12 +26,10 @@
 #include "log.h"
 #include "dataflashcmd.h"
 #include "getfilecmd.h"
+#include "getimagescmd.h"
 #include "gettimecmd.h"
 #include "gettlogscmd.h"
 #include "loglistcmd.h"
-
-#define TYPE_CMD 0
-#define TYPE_MSG 1
 
 typedef struct
 {
@@ -244,6 +242,11 @@ void AgDroneCmd::ProcessCommand(char *command, int msg_src)
         sscanf(&command[strlen("logdata")], "%d", &log_id);
         m_cmd_proc = new DataFlashCmd(m_agdrone_q, mFileDescriptor, msg_src, 
                 log_id);
+        m_cmd_proc->Start();
+    }
+    else if (strncmp(command, "getimages", strlen("getimages")) == 0)
+    {
+        m_cmd_proc = new GetImagesCmd(m_agdrone_q, mFileDescriptor, msg_src);
         m_cmd_proc->Start();
     }
     else if (strncmp(command, "gettime", strlen("gettime")) == 0)

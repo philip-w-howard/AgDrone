@@ -27,6 +27,7 @@
 #include "agdronecmd.h"
 #include "gettimecmd.h"
 #include "log.h"
+#include "heartbeat.h"
 
 #define USB_PORT        "/dev/ttyACM0"
 #define RADIO_PORT      "/dev/ttyUSB0"
@@ -340,7 +341,7 @@ int main(int argc, char **argv)
         return -7;
     }
 
-    //Start_Heartbeat();
+    Start_Heartbeat(agdrone_cmd);
 
     GetTimeCmd getTimeCmd(agdrone_q);
 
@@ -360,6 +361,7 @@ int main(int argc, char **argv)
 
     queued_msg_t      *item;
 
+    agdrone_cmd->QueueCmd("getimages", MSG_SRC_SELF);
     while (1)
     {
         item = (queued_msg_t *)queue_remove(agdrone_q);
@@ -408,6 +410,8 @@ int main(int argc, char **argv)
         }
         //if (num_msgs == 500) agdrone_cmd->QueueCmd("gettlogs", MSG_SRC_SELF);
     }
+
+    Stop_Heartbeat();
 
     WriteLog("AgDrone exiting\n");
     close(logfile);

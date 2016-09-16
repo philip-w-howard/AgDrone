@@ -15,6 +15,7 @@ OBJS=  AgDrone.o \
        getfilecmd.o \
        gettimecmd.o \
        gettlogscmd.o \
+       getimagescmd.o \
        sendfile.o \
        queue.o \
        log.o \

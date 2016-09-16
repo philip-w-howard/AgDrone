@@ -18,6 +18,9 @@
 #define MSG_SRC_AGDRONE_CONTROL 3
 
 
+#define TYPE_CMD 0
+#define TYPE_MSG 1
+
 typedef struct
 {
     int msg_src;
