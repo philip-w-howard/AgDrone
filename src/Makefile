@@ -1,5 +1,5 @@
 OPTS= -Wall -c -pthread -O2 -g
-LIBS= -lmraa -lssl -lgnutls-openssl
+LIBS= -lmraa -lssl -lgnutls-openssl -lgphoto2
 
 OBJS=  AgDrone.o \
        Heartbeat.o \

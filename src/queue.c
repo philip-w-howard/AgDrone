@@ -44,6 +44,9 @@ queue_t *queue_create()
 //********************************
 void queue_close(queue_t *q)
 {
+    while (queue_remove(q) != NULL)
+    {}
+
     free(q);
 }
 //********************************

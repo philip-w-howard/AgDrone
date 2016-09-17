@@ -3,6 +3,8 @@
 #include <list>
 #include <time.h>
 
+#include <gphoto2/gphoto2.h>
+
 #include "cmdprocessor.h"
 #include "loglistcmd.h"
 #include "mavlinkif.h"
@@ -35,6 +37,14 @@ class GetImagesCmd : public CommandProcessor
 
         std::list<element_t> m_fileList;
         SendFile m_sender;
+        Camera *m_camera;
+        GPContext *m_camera_context;
+        queue_t *m_file_queue;
+        int m_files_found;
+        int m_files_fetched;
+        int m_files_sent;
+        bool m_processing;
 
         void GetFileList();
+        void ProcessList();
 };
