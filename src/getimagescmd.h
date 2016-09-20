@@ -2,6 +2,7 @@
 
 #include <list>
 #include <time.h>
+#include <pthread.h>
 
 #include <gphoto2/gphoto2.h>
 
@@ -21,12 +22,15 @@ class GetImagesCmd : public CommandProcessor
         virtual void Start();
         virtual void Abort();
         virtual void ProcessMessage(mavlink_message_t *msg, int msg_src);
+        virtual void SendImagesThread();
+
     protected:
         class element_t
         {
             public:
                 element_t(char *folder, char *filename, int size)
                 {
+                    strcpy(m_folder, folder);
                     strcpy(m_filename, filename);
                     m_size = size;
                 }
@@ -44,6 +48,8 @@ class GetImagesCmd : public CommandProcessor
         int m_files_fetched;
         int m_files_sent;
         bool m_processing;
+
+        pthread_t m_send_thread;
 
         void GetFileList();
         void ProcessList();
